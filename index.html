@@ -25,13 +25,24 @@
     }
     .lang-toggle button {
       border: none; background: transparent;
-      padding: 7px 14px; border-radius: 999px;
+      padding: 7px 14px 7px 8px; border-radius: 999px;
       font-family: inherit; font-size: 12px; font-weight: 700;
       color: var(--c-muted); cursor: pointer;
       transition: background .15s, color .15s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .lang-toggle .flag {
+      width: 20px; height: 14px;
+      border-radius: 2px;
+      box-shadow: 0 0 0 0.5px rgba(0,0,0,0.10);
+      display: block;
+      flex-shrink: 0;
     }
     .lang-toggle button.active {
       background: var(--c-blue); color: #fff;
+    }
+    .lang-toggle button.active .flag {
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.55);
     }
 
     .brand-wrap {
@@ -133,8 +144,35 @@
 
   <div class="lang-bar">
     <div class="lang-toggle" role="tablist" aria-label="Language">
-      <button id="langFr" type="button">FR</button>
-      <button id="langEn" type="button">EN</button>
+      <button id="langFr" type="button">
+        <svg class="flag" viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="0"  y="0" width="10" height="20" fill="#0055A4"/>
+          <rect x="10" y="0" width="10" height="20" fill="#FFFFFF"/>
+          <rect x="20" y="0" width="10" height="20" fill="#EF4135"/>
+        </svg>
+        <span>FR</span>
+      </button>
+      <button id="langEn" type="button">
+        <svg class="flag" viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="0" y="0" width="30" height="20" fill="#FFFFFF"/>
+          <rect x="0" y="0"     width="30" height="1.54" fill="#B22234"/>
+          <rect x="0" y="3.08"  width="30" height="1.54" fill="#B22234"/>
+          <rect x="0" y="6.15"  width="30" height="1.54" fill="#B22234"/>
+          <rect x="0" y="9.23"  width="30" height="1.54" fill="#B22234"/>
+          <rect x="0" y="12.31" width="30" height="1.54" fill="#B22234"/>
+          <rect x="0" y="15.38" width="30" height="1.54" fill="#B22234"/>
+          <rect x="0" y="18.46" width="30" height="1.54" fill="#B22234"/>
+          <rect x="0" y="0" width="12" height="10.77" fill="#3C3B6E"/>
+          <g fill="#FFFFFF" font-family="serif" font-size="2.6" text-anchor="middle">
+            <text x="2" y="2.4">·</text><text x="4" y="2.4">·</text><text x="6" y="2.4">·</text><text x="8" y="2.4">·</text><text x="10" y="2.4">·</text>
+            <text x="3" y="4.4">·</text><text x="5" y="4.4">·</text><text x="7" y="4.4">·</text><text x="9" y="4.4">·</text>
+            <text x="2" y="6.4">·</text><text x="4" y="6.4">·</text><text x="6" y="6.4">·</text><text x="8" y="6.4">·</text><text x="10" y="6.4">·</text>
+            <text x="3" y="8.4">·</text><text x="5" y="8.4">·</text><text x="7" y="8.4">·</text><text x="9" y="8.4">·</text>
+            <text x="2" y="10.4">·</text><text x="4" y="10.4">·</text><text x="6" y="10.4">·</text><text x="8" y="10.4">·</text><text x="10" y="10.4">·</text>
+          </g>
+        </svg>
+        <span>EN</span>
+      </button>
     </div>
   </div>
 

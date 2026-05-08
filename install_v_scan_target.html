@@ -307,15 +307,26 @@
     document.getElementById('installValue').textContent = z + ' · ' + a + ' · ' + s;
   })();
 
-  /* Toast on arrival narrating the physical reorientation */
+  /* Toast on arrival narrating the physical reorientation.
+     Sequence is intentionally sequential, not overlapping:
+       0.35s — toast appears
+       4.35s — toast auto-hides (4s duration above)
+       4.85s — small beat for the eye to settle on the scanner
+       4.85s — scan sequence starts (blurry → 1.4s → focused + laser → 1.8s → done)
+     Total to scan completion: ~8 s */
+  var TOAST_DELAY = 350;
+  var TOAST_LIFE  = 4000;
+  var POST_TOAST_BEAT = 500;
+  var SCAN_START = TOAST_DELAY + TOAST_LIFE + POST_TOAST_BEAT;
+
   setTimeout(function () {
     showToast({
       icon: 'info',
       title:   t('inv_tscan_toast_title'),
       message: t('inv_tscan_toast_msg'),
-      autoHide: 4000,
+      autoHide: TOAST_LIFE,
     });
-  }, 350);
+  }, TOAST_DELAY);
 
   var blurrySlot  = document.getElementById('blurrySlot');
   var focusedSlot = document.getElementById('focusedSlot');
@@ -406,7 +417,8 @@
     completeScan();
   });
 
-  startSequence();
+  /* Wait until after the toast clears before kicking off the scan */
+  setTimeout(startSequence, SCAN_START);
 </script>
 </body>
 </html>
