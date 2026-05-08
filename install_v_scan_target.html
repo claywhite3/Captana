@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Étiquette cible</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    .status-stack { margin: 14px 20px 0; display: flex; flex-direction: column; gap: 8px; animation: fadeUp .4s .04s ease both; opacity: 0; }
+    .status-row {
+      border-radius: 14px;
+      padding: 11px 14px;
+      display: flex; align-items: center; gap: 10px;
+      transition: background .3s, border-color .3s;
+    }
+    .status-row.is-confirmed { background: var(--c-green-soft); border: 1.5px solid var(--c-green-line); }
+    .status-row.is-pending   { background: #fff; border: 1.5px dashed var(--c-line); }
+    .status-icon-sm {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .status-row.is-confirmed .status-icon-sm { background: rgba(22,163,74,.18); color: var(--c-green); }
+    .status-row.is-pending   .status-icon-sm { background: #F3F4F6; color: var(--c-muted-2); }
+    .status-icon-sm svg { width: 18px; height: 18px; }
+    .status-row-text { flex: 1; min-width: 0; }
+    .status-row-label {
+      font-size: 9.5px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .status-row.is-confirmed .status-row-label { color: var(--c-green); }
+    .status-row.is-pending   .status-row-label { color: var(--c-muted-2); }
+    .status-row-value {
+      font-size: 14px; font-weight: 700;
+      margin-top: 1px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 1px;
+    }
+    .status-row.is-confirmed .status-row-value { color: var(--c-ink); }
+    .status-row.is-pending   .status-row-value { color: var(--c-muted-2); }
+    .status-row-badge {
+      font-size: 10px; font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      transition: all .3s;
+    }
+    .status-row.is-pending .status-row-badge { color: var(--c-muted-2); background: #F3F4F6; }
+    .status-row.is-target-found .status-row-badge { color: var(--c-green); background: #DCFCE7; }
+    .status-row.is-target-found { background: var(--c-green-soft); border: 1.5px solid var(--c-green-line); }
+    .status-row.is-target-found .status-icon-sm { background: rgba(22,163,74,.18); color: var(--c-green); }
+    .status-row.is-target-found .status-row-label { color: var(--c-green); }
+    .status-row.is-target-found .status-row-value { color: var(--c-ink); }
+
+    .scanner-card {
+      margin: 14px 20px 0;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+      position: relative;
+      background: #000;
+      animation: fadeUp .4s .12s ease both; opacity: 0;
+      height: 220px;
+    }
+    .scanner-card .img-fallback-wrap { position: absolute; inset: 0; }
+    .scanner-card img.img-fallback-img { width: 100%; height: 100%; object-fit: cover; }
+    .scanner-card .img-fallback-card { border-radius: 0; }
+    .scanner-img-slot { position: absolute; inset: 0; transition: opacity .25s ease; }
+    .scanner-img-slot.hidden { opacity: 0; pointer-events: none; }
+    .scanner-corners { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
+    .scanner-corners::before, .scanner-corners::after,
+    .scanner-card::before, .scanner-card::after {
+      content: ''; position: absolute; width: 28px; height: 28px; z-index: 5;
+    }
+    .scanner-card::before { top: 12px; left: 12px;     border-top: 3px solid var(--c-blue);    border-left: 3px solid var(--c-blue);    border-radius: 4px 0 0 0; }
+    .scanner-card::after  { bottom: 12px; right: 12px; border-bottom: 3px solid var(--c-blue); border-right: 3px solid var(--c-blue); border-radius: 0 0 4px 0; }
+    .scanner-corners::before { top: 12px; right: 12px; border-top: 3px solid var(--c-blue); border-right: 3px solid var(--c-blue); border-radius: 0 4px 0 0; }
+    .scanner-corners::after  { bottom: 12px; left: 12px; border-bottom: 3px solid var(--c-blue); border-left: 3px solid var(--c-blue); border-radius: 0 0 0 4px; }
+    .laser-line {
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent 0%, var(--c-red) 20%, var(--c-red) 80%, transparent 100%);
+      position: absolute; top: 0;
+      z-index: 10;
+      animation: scan 2s infinite linear;
+      box-shadow: 0 0 8px rgba(239,68,68,0.8);
+      display: none;
+    }
+    @keyframes scan { 0% { top: 10%; } 100% { top: 90%; } }
+    .complete-ui {
+      display: none;
+      flex-direction: column; align-items: center; justify-content: center;
+      width: 100%; height: 100%;
+      background: #fff;
+      border: 3px solid var(--c-green);
+      border-radius: 18px;
+      position: absolute; top: 0; left: 0; z-index: 20;
+      gap: 10px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .complete-ui:active { background: var(--c-green-soft); }
+    .complete-check {
+      width: 64px; height: 64px;
+      background: #fff; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 3px solid var(--c-green);
+    }
+    .complete-check svg { width: 32px; height: 32px; color: var(--c-green); }
+    .complete-label { font-size: 15px; font-weight: 700; color: var(--c-green); letter-spacing: .5px; }
+    .complete-tap-hint { font-size: 12px; color: var(--c-muted-2); font-weight: 500; }
+    @keyframes bounce { 0%,100% { transform: scale(1); } 30% { transform: scale(1.2); } 60% { transform: scale(0.92); } 80% { transform: scale(1.06); } }
+    .bounce-trigger { animation: bounce .55s ease; }
+
+    .scanner-sub { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px 0; }
+    .btn-text-link {
+      background: none; border: none;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline; text-underline-offset: 2px;
+      padding: 4px 0;
+    }
+    .btn-text-link.escape-warn { color: #B45309; }
+    .btn-text-link.escape-quiet { color: var(--c-muted); }
+
+    .hint-card {
+      margin: 14px 20px 0;
+      background: #fff; border-radius: 18px; overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      animation: fadeUp .4s .22s ease both; opacity: 0;
+    }
+    .hint-illu { width: 100%; height: auto; display: block; background: var(--c-blue-soft); }
+    .hint-caption {
+      padding: 12px 16px 14px;
+      font-size: 13px; color: var(--c-muted);
+      font-weight: 500; text-align: center; line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="install_v_nfc.html" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" data-i18n="inv_tscan_eyebrow">Étape 3 sur 4</div>
+    <div class="hero-title" data-i18n="inv_tscan_title">Scannez l'étiquette cible</div>
+    <div class="hero-sub" data-i18n="inv_tscan_sub">Scannez l'étiquette du rayon en face — celui que la caméra observera.</div>
+  </div>
+
+  <div class="status-stack">
+    <div class="status-row is-confirmed">
+      <div class="status-icon-sm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div class="status-row-text">
+        <div class="status-row-label" data-i18n="inv_tscan_install_label">Caméra installée</div>
+        <div class="status-row-value" id="installValue">A · 4 · 5</div>
+      </div>
+    </div>
+
+    <div class="status-row is-pending" id="targetRow">
+      <div class="status-icon-sm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
+      </div>
+      <div class="status-row-text">
+        <div class="status-row-label" data-i18n="inv_tscan_target_label">Cible — en face</div>
+        <div class="status-row-value" id="targetValue" data-i18n="inv_tscan_target_pending">En attente du scan…</div>
+      </div>
+      <div class="status-row-badge" id="targetBadge" data-i18n="inv_tscan_target_badge">En attente</div>
+    </div>
+  </div>
+
+  <div class="scanner-card" id="scannerBox">
+    <div class="scanner-img-slot" id="blurrySlot"  data-src="tag-blurry.png"  data-alt="Tag blurry"></div>
+    <div class="scanner-img-slot hidden" id="focusedSlot" data-src="tag-focused.png" data-alt="Tag focused"></div>
+    <div id="laser" class="laser-line"></div>
+    <div class="scanner-corners"></div>
+    <div id="completeScreen" class="complete-ui">
+      <div class="complete-check" id="completeCheck">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="complete-label" data-i18n="inv_tscan_complete_label">Scan réussi</div>
+      <div class="complete-tap-hint" data-i18n="inv_tscan_tap_continue">Touchez pour continuer</div>
+    </div>
+  </div>
+
+  <div class="scanner-sub">
+    <button class="btn-text-link escape-warn"  id="noTargetBtn" data-i18n="inv_tscan_no_target">Pas de rayon en face</button>
+    <button class="btn-text-link escape-quiet" id="manualBtn"   data-i18n="inv_tscan_manual">Saisie manuelle</button>
+  </div>
+
+  <div class="hint-card">
+    <svg viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" class="hint-illu">
+      <rect x="0" y="0" width="320" height="320" fill="#EFF6FF"/>
+      <rect x="20" y="56" width="56" height="200" rx="4" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.5"/>
+      <line x1="20" y1="104" x2="76" y2="104" stroke="#BFDBFE" stroke-width="1.5"/>
+      <line x1="20" y1="156" x2="76" y2="156" stroke="#BFDBFE" stroke-width="1.5"/>
+      <line x1="20" y1="208" x2="76" y2="208" stroke="#BFDBFE" stroke-width="1.5"/>
+      <g transform="translate(76, 152)">
+        <rect x="0" y="-14" width="32" height="28" rx="4" fill="#111827"/>
+        <circle cx="9" cy="0" r="7" fill="#2563EB"/>
+        <circle cx="9" cy="0" r="3" fill="#fff"/>
+      </g>
+      <text x="48" y="284" font-family="DM Sans" font-size="11" font-weight="800" fill="#2563EB" text-anchor="middle" data-i18n="inv_tscan_illu_camera">Caméra</text>
+      <text x="48" y="298" font-family="DM Sans" font-size="10" font-weight="600" fill="#2563EB" text-anchor="middle" data-i18n="inv_tscan_illu_camera_2">(vous êtes ici)</text>
+      <line x1="116" y1="142" x2="220" y2="80"  stroke="#2563EB" stroke-width="2" stroke-dasharray="5 4" opacity="0.6"/>
+      <line x1="116" y1="162" x2="220" y2="232" stroke="#2563EB" stroke-width="2" stroke-dasharray="5 4" opacity="0.6"/>
+      <rect x="220" y="56" width="80" height="200" rx="4" fill="#FFFFFF" stroke="#2563EB" stroke-width="2.5"/>
+      <rect x="228" y="76"  width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <rect x="244" y="76"  width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <rect x="260" y="76"  width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <rect x="276" y="76"  width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <line x1="220" y1="103" x2="300" y2="103" stroke="#BFDBFE" stroke-width="1.5"/>
+      <rect x="228" y="112" width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <rect x="244" y="112" width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <rect x="260" y="112" width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <rect x="276" y="112" width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <line x1="220" y1="139" x2="300" y2="139" stroke="#BFDBFE" stroke-width="1.5"/>
+      <rect x="228" y="148" width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <rect x="244" y="148" width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <rect x="260" y="148" width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <rect x="276" y="148" width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <line x1="220" y1="175" x2="300" y2="175" stroke="#BFDBFE" stroke-width="1.5"/>
+      <rect x="228" y="184" width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <rect x="244" y="184" width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <rect x="260" y="184" width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <rect x="276" y="184" width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <line x1="220" y1="211" x2="300" y2="211" stroke="#BFDBFE" stroke-width="1.5"/>
+      <rect x="228" y="220" width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <rect x="244" y="220" width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <rect x="260" y="220" width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <rect x="276" y="220" width="14" height="22" rx="1.5" fill="#60A5FA"/>
+      <g>
+        <rect x="232" y="6" width="64" height="44" rx="2.5" fill="#FFFFFF" stroke="#1F2937" stroke-width="1.5"/>
+        <text x="246" y="18" font-family="DM Sans" font-size="6" font-weight="700" fill="#374151" text-anchor="middle">AISLE</text>
+        <text x="282" y="18" font-family="DM Sans" font-size="6" font-weight="700" fill="#374151" text-anchor="middle">SECT.</text>
+        <text x="246" y="32" font-family="DM Sans" font-size="11" font-weight="800" fill="#111827" text-anchor="middle">4</text>
+        <rect x="272" y="22" width="20" height="14" rx="1.5" fill="#111827"/>
+        <text x="282" y="33" font-family="DM Sans" font-size="11" font-weight="800" fill="#FFFFFF" text-anchor="middle">5</text>
+        <g transform="translate(238, 39)">
+          <rect x="0"    y="0" width="1.2" height="9" fill="#111827"/>
+          <rect x="2"    y="0" width="0.6" height="9" fill="#111827"/>
+          <rect x="3.5"  y="0" width="1.4" height="9" fill="#111827"/>
+          <rect x="6"    y="0" width="0.6" height="9" fill="#111827"/>
+          <rect x="7.5"  y="0" width="1.0" height="9" fill="#111827"/>
+          <rect x="9.5"  y="0" width="0.5" height="9" fill="#111827"/>
+          <rect x="11"   y="0" width="1.4" height="9" fill="#111827"/>
+          <rect x="13.5" y="0" width="0.6" height="9" fill="#111827"/>
+          <rect x="15"   y="0" width="1.0" height="9" fill="#111827"/>
+          <rect x="17"   y="0" width="0.6" height="9" fill="#111827"/>
+          <rect x="18.5" y="0" width="1.2" height="9" fill="#111827"/>
+          <rect x="20.5" y="0" width="0.5" height="9" fill="#111827"/>
+          <rect x="22"   y="0" width="1.4" height="9" fill="#111827"/>
+          <rect x="24.5" y="0" width="0.6" height="9" fill="#111827"/>
+          <rect x="26"   y="0" width="1.0" height="9" fill="#111827"/>
+          <rect x="28"   y="0" width="0.6" height="9" fill="#111827"/>
+          <rect x="29.5" y="0" width="1.2" height="9" fill="#111827"/>
+          <rect x="31.5" y="0" width="0.5" height="9" fill="#111827"/>
+          <rect x="33"   y="0" width="1.4" height="9" fill="#111827"/>
+          <rect x="35.5" y="0" width="0.8" height="9" fill="#111827"/>
+          <rect x="37.5" y="0" width="1.0" height="9" fill="#111827"/>
+          <rect x="39.5" y="0" width="0.6" height="9" fill="#111827"/>
+          <rect x="41"   y="0" width="1.2" height="9" fill="#111827"/>
+          <rect x="43"   y="0" width="0.5" height="9" fill="#111827"/>
+          <rect x="44.5" y="0" width="1.4" height="9" fill="#111827"/>
+          <rect x="47"   y="0" width="0.6" height="9" fill="#111827"/>
+          <rect x="48.5" y="0" width="1.0" height="9" fill="#111827"/>
+          <rect x="50.5" y="0" width="0.6" height="9" fill="#111827"/>
+          <rect x="52"   y="0" width="1.4" height="9" fill="#111827"/>
+          <rect x="54.5" y="0" width="0.6" height="9" fill="#111827"/>
+          <rect x="56"   y="0" width="1.0" height="9" fill="#111827"/>
+        </g>
+      </g>
+      <rect x="227" y="1" width="74" height="54" rx="6" fill="none" stroke="#F59E0B" stroke-width="3">
+        <animate attributeName="stroke-opacity" values="1;0.4;1" dur="1.6s" repeatCount="indefinite"/>
+        <animate attributeName="stroke-width" values="3;4.2;3" dur="1.6s" repeatCount="indefinite"/>
+      </rect>
+      <line x1="264" y1="60" x2="264" y2="52" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="3 2"/>
+      <polygon points="264,50 258,56 270,56" fill="#F59E0B"/>
+      <text x="264" y="284" font-family="DM Sans" font-size="11" font-weight="800" fill="#F59E0B" text-anchor="middle" data-i18n="inv_tscan_illu_scan">Scannez</text>
+      <text x="264" y="298" font-family="DM Sans" font-size="11" font-weight="800" fill="#F59E0B" text-anchor="middle" data-i18n="inv_tscan_illu_scan_2">cette étiquette</text>
+    </svg>
+    <div class="hint-caption" data-i18n="inv_tscan_hint_caption">L'étiquette se trouve sur le rayon en face de la caméra</div>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+  mountImageSlots();
+
+  (function () {
+    var z = sessionStorage.getItem('vusionInstallZone')    || 'A';
+    var a = sessionStorage.getItem('vusionInstallAisle')   || '4';
+    var s = sessionStorage.getItem('vusionInstallSection') || '5';
+    document.getElementById('installValue').textContent = z + ' · ' + a + ' · ' + s;
+  })();
+
+  /* Toast on arrival narrating the physical reorientation */
+  setTimeout(function () {
+    showToast({
+      icon: 'info',
+      title:   t('inv_tscan_toast_title'),
+      message: t('inv_tscan_toast_msg'),
+      autoHide: 4000,
+    });
+  }, 350);
+
+  var blurrySlot  = document.getElementById('blurrySlot');
+  var focusedSlot = document.getElementById('focusedSlot');
+  var laser       = document.getElementById('laser');
+  var complete    = document.getElementById('completeScreen');
+  var targetRow   = document.getElementById('targetRow');
+  var targetValue = document.getElementById('targetValue');
+  var targetBadge = document.getElementById('targetBadge');
+  var checkEl     = document.getElementById('completeCheck');
+
+  var phase1Timer = null, phase2Timer = null;
+
+  function startSequence() {
+    blurrySlot.classList.remove('hidden');
+    focusedSlot.classList.add('hidden');
+    laser.style.display = 'none';
+    complete.style.display = 'none';
+    targetRow.classList.remove('is-target-found');
+    targetRow.classList.add('is-pending');
+    targetValue.textContent = t('inv_tscan_target_pending');
+    targetBadge.textContent = t('inv_tscan_target_badge');
+
+    clearTimeout(phase1Timer);
+    clearTimeout(phase2Timer);
+
+    phase1Timer = setTimeout(function () {
+      blurrySlot.classList.add('hidden');
+      focusedSlot.classList.remove('hidden');
+      laser.style.display = 'block';
+      phase2Timer = setTimeout(completeScan, 1800);
+    }, 1400);
+  }
+
+  function completeScan() {
+    playScanBeep();
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+
+    laser.style.display = 'none';
+    complete.style.display = 'flex';
+
+    /* Decoded target — the partner shelf across the way.
+       In production the backend resolves the tag id → location.
+       For the demo, we generate a plausible neighboring location. */
+    var installAisle  = parseInt(sessionStorage.getItem('vusionInstallAisle')   || '4', 10);
+    var installSection = parseInt(sessionStorage.getItem('vusionInstallSection') || '5', 10);
+    var targetAisle  = installAisle + 1;
+    var targetSection = installSection;
+    var zoneLetter = sessionStorage.getItem('vusionInstallZone') || 'A';
+    var tagId = zoneLetter + targetAisle + targetSection + '-' + Math.random().toString(36).slice(2,7).toUpperCase();
+
+    sessionStorage.setItem('vusionTargetTagId',   tagId);
+    sessionStorage.setItem('vusionTargetZone',    zoneLetter);
+    sessionStorage.setItem('vusionTargetAisle',   String(targetAisle));
+    sessionStorage.setItem('vusionTargetSection', String(targetSection));
+
+    targetRow.classList.remove('is-pending');
+    targetRow.classList.add('is-target-found');
+    targetValue.textContent = zoneLetter + ' · ' + targetAisle + ' · ' + targetSection;
+    targetBadge.textContent = t('inv_tscan_target_scanned');
+
+    setTimeout(function () {
+      checkEl.classList.add('bounce-trigger');
+      setTimeout(function () { checkEl.classList.remove('bounce-trigger'); }, 550);
+    }, 200);
+  }
+
+  function goNext() { window.location.href = 'install_v_capture.html'; }
+
+  complete.addEventListener('click', goNext);
+
+  /* No target shelf — narrate, route back to install scan */
+  document.getElementById('noTargetBtn').addEventListener('click', function () {
+    clearTimeout(phase1Timer);
+    clearTimeout(phase2Timer);
+    showToast({
+      icon: 'warn',
+      title:   t('inv_tscan_no_target_toast_title'),
+      message: t('inv_tscan_no_target_toast_msg'),
+      autoHide: 0,
+    });
+    setTimeout(function () { window.location.href = 'install_v_scan.html'; }, 2400);
+  });
+
+  /* Manual entry — for the demo, fast-path forward with the same fake decoding */
+  document.getElementById('manualBtn').addEventListener('click', function () {
+    clearTimeout(phase1Timer);
+    clearTimeout(phase2Timer);
+    completeScan();
+  });
+
+  startSequence();
+</script>
+</body>
+</html>

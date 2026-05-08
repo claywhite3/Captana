@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Étiquettes</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    /* Two stacked, prominent choice cards */
+    .choice-grid {
+      padding: 12px 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .choice {
+      background: #fff;
+      border-radius: 22px;
+      padding: 18px 18px 18px;
+      box-shadow: var(--shadow-md);
+      text-decoration: none;
+      display: flex; align-items: center;
+      gap: 16px;
+      border: 2px solid transparent;
+      transition: transform .15s, border-color .15s, box-shadow .15s;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit; color: inherit;
+    }
+    .choice:active { transform: scale(.98); border-color: var(--c-blue); }
+
+    .choice-illu {
+      width: 110px; height: 92px;
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    /* Paper illustration */
+    .illu-paper {
+      background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    }
+    .illu-paper .tag {
+      width: 78px; height: 60px;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      position: relative;
+      transform: rotate(-4deg);
+      padding: 8px;
+    }
+    .illu-paper .tag::before {
+      content: ''; position: absolute; top: 8px; left: 8px;
+      width: 40%; height: 4px; background: #111827; border-radius: 2px;
+    }
+    .illu-paper .tag::after {
+      content: ''; position: absolute; top: 18px; left: 8px;
+      width: 70%; height: 12px; background: #111827; border-radius: 2px;
+    }
+    .illu-paper .tag .price {
+      position: absolute; bottom: 7px; right: 8px;
+      font-size: 11px; font-weight: 800; color: var(--c-blue);
+    }
+
+    /* Digital illustration */
+    .illu-digital {
+      background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+    }
+    .illu-digital .esl {
+      width: 78px; height: 56px;
+      background: #1F2937;
+      border-radius: 6px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+      padding: 6px 8px;
+      transform: rotate(2deg);
+      position: relative;
+    }
+    .illu-digital .esl .screen {
+      width: 100%; height: 100%;
+      background: #F3F4F6;
+      border-radius: 3px;
+      padding: 4px 6px;
+      position: relative;
+    }
+    .illu-digital .esl .screen::before {
+      content: ''; position: absolute; top: 4px; left: 6px;
+      width: 50%; height: 3px; background: #6B7280; border-radius: 1px;
+    }
+    .illu-digital .esl .screen::after {
+      content: '€2.49'; position: absolute; bottom: 4px; right: 6px;
+      font-size: 9px; font-weight: 800; color: #111827;
+    }
+
+    .choice-body { flex: 1; min-width: 0; }
+    .choice-title {
+      font-size: 17px; font-weight: 800;
+      color: var(--c-ink);
+      line-height: 1.2;
+    }
+    .choice-desc {
+      font-size: 13px; color: var(--c-muted);
+      line-height: 1.4;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+    .choice-arrow {
+      width: 28px; height: 28px;
+      background: #F3F4F6;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .choice-arrow svg { width: 13px; height: 13px; color: var(--c-muted); }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="flow_picker.html" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" data-i18n="flow_mapping">Cartographie</div>
+    <div class="hero-title" data-i18n="tag_title">Quels prix-étiquettes utilisez-vous ?</div>
+    <div class="hero-sub"   data-i18n="tag_sub">Sélectionnez le type d'étiquettes présent dans ce magasin</div>
+  </div>
+
+  <div class="choice-grid stagger">
+    <button type="button" class="choice" id="choicePaper">
+      <div class="choice-illu illu-paper">
+        <div class="tag"><span class="price">€2,49</span></div>
+      </div>
+      <div class="choice-body">
+        <div class="choice-title" data-i18n="tag_paper">Étiquettes papier</div>
+        <div class="choice-desc"  data-i18n="tag_paper_desc">Imprimées, attachées au rayon</div>
+      </div>
+      <div class="choice-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </button>
+
+    <button type="button" class="choice" id="choiceDigital">
+      <div class="choice-illu illu-digital">
+        <div class="esl"><div class="screen"></div></div>
+      </div>
+      <div class="choice-body">
+        <div class="choice-title" data-i18n="tag_digital">Étiquettes ESL numériques</div>
+        <div class="choice-desc"  data-i18n="tag_digital_desc">Affichage électronique des prix</div>
+      </div>
+      <div class="choice-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </button>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+
+  // Paper -> manual mapping
+  document.getElementById('choicePaper').addEventListener('click', () => {
+    sessionStorage.setItem('tagChoice', 'paper');
+    resetMap();
+    window.location.href = 'mm_intro.html?step=1';
+  });
+
+  // Digital -> verify Vusion
+  document.getElementById('choiceDigital').addEventListener('click', () => {
+    sessionStorage.setItem('tagChoice', 'digital');
+    window.location.href = 'tag_verify.html';
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Capture</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    .status-stack { margin: 14px 20px 0; display: flex; flex-direction: column; gap: 8px; animation: fadeUp .4s .04s ease both; opacity: 0; }
+    .status-row {
+      background: var(--c-green-soft);
+      border: 1.5px solid var(--c-green-line);
+      border-radius: 14px;
+      padding: 11px 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .status-icon-sm {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      background: rgba(22,163,74,.18);
+      color: var(--c-green);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .status-icon-sm svg { width: 18px; height: 18px; }
+    .status-row-text { flex: 1; min-width: 0; }
+    .status-row-label {
+      font-size: 9.5px; font-weight: 700;
+      color: var(--c-green);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .status-row-value {
+      font-size: 14px; font-weight: 700;
+      color: var(--c-ink);
+      margin-top: 1px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 1px;
+    }
+
+    .viewport-card {
+      margin: 16px 20px 0;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      background: #1F2937;
+      height: 280px;
+      display: flex; align-items: center; justify-content: center;
+      animation: fadeUp .4s .14s ease both; opacity: 0;
+    }
+    .viewport-empty { text-align: center; color: var(--c-muted-2); }
+    .viewport-empty svg { width: 44px; height: 44px; margin-bottom: 12px; }
+    .viewport-empty-text { font-size: 13px; font-weight: 600; letter-spacing: .3px; }
+
+    .viewport-card::before, .viewport-card::after,
+    .viewport-corners::before, .viewport-corners::after {
+      content: ''; position: absolute; width: 28px; height: 28px;
+    }
+    .viewport-card::before { top: 12px; left: 12px;     border-top: 3px solid #6B7280;    border-left: 3px solid #6B7280;    border-radius: 4px 0 0 0; }
+    .viewport-card::after  { bottom: 12px; right: 12px; border-bottom: 3px solid #6B7280; border-right: 3px solid #6B7280; border-radius: 0 0 4px 0; }
+    .viewport-corners { position: absolute; inset: 0; pointer-events: none; }
+    .viewport-corners::before { top: 12px; right: 12px; border-top: 3px solid #6B7280; border-right: 3px solid #6B7280; border-radius: 0 4px 0 0; }
+    .viewport-corners::after  { bottom: 12px; left: 12px; border-bottom: 3px solid #6B7280; border-left: 3px solid #6B7280; border-radius: 0 0 0 4px; }
+
+    .viewport-card.capturing .viewport-empty { opacity: .4; }
+    .viewport-card.capturing::before, .viewport-card.capturing::after,
+    .viewport-card.capturing .viewport-corners::before, .viewport-card.capturing .viewport-corners::after {
+      border-color: var(--c-blue);
+      animation: cornerPulse 1s ease-in-out infinite;
+    }
+    @keyframes cornerPulse {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: .35; }
+    }
+
+    .footer-stack {
+      padding: 24px 20px 0;
+      display: flex; flex-direction: column; gap: 10px;
+      margin-top: auto;
+      animation: fadeUp .4s .25s ease both; opacity: 0;
+    }
+    .btn-capture {
+      width: 100%;
+      padding: 18px;
+      background: var(--c-blue);
+      color: #fff; border: none;
+      border-radius: 16px;
+      font-family: inherit; font-size: 16px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37,99,235,.30);
+      transition: transform .15s, opacity .25s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .btn-capture:active { transform: scale(.975); }
+    .btn-capture:disabled { opacity: .55; cursor: wait; }
+    .btn-capture svg { width: 20px; height: 20px; }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="install_v_scan_target.html" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" data-i18n="inv_cap_eyebrow">Étape 4 sur 4</div>
+    <div class="hero-title" data-i18n="inv_cap_title">Vérifiez la vue</div>
+    <div class="hero-sub" data-i18n="inv_cap_sub">La caméra va capturer une image. Tenez-vous à l'écart de la zone observée.</div>
+  </div>
+
+  <div class="status-stack">
+    <div class="status-row">
+      <div class="status-icon-sm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div class="status-row-text">
+        <div class="status-row-label" data-i18n="inv_cap_install_label">Caméra installée</div>
+        <div class="status-row-value" id="installValue">A · 4 · 5</div>
+      </div>
+    </div>
+    <div class="status-row">
+      <div class="status-icon-sm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
+      </div>
+      <div class="status-row-text">
+        <div class="status-row-label" data-i18n="inv_cap_target_label">Cible — en face</div>
+        <div class="status-row-value" id="targetValue">A · 5 · 5</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="viewport-card" id="viewport">
+    <div class="viewport-corners"></div>
+    <div class="viewport-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      <div class="viewport-empty-text" id="emptyText" data-i18n="inv_cap_ready">Prêt à capturer</div>
+    </div>
+  </div>
+
+  <div class="footer-stack">
+    <button class="btn-capture" id="captureBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      <span id="captureLbl" data-i18n="inv_cap_btn">Capturer l'image</span>
+    </button>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+
+  (function () {
+    var iz = sessionStorage.getItem('vusionInstallZone')    || 'A';
+    var ia = sessionStorage.getItem('vusionInstallAisle')   || '4';
+    var is_ = sessionStorage.getItem('vusionInstallSection') || '5';
+    document.getElementById('installValue').textContent = iz + ' · ' + ia + ' · ' + is_;
+
+    var tz = sessionStorage.getItem('vusionTargetZone')    || iz;
+    var ta = sessionStorage.getItem('vusionTargetAisle')   || String(parseInt(ia,10)+1);
+    var ts = sessionStorage.getItem('vusionTargetSection') || is_;
+    document.getElementById('targetValue').textContent = tz + ' · ' + ta + ' · ' + ts;
+  })();
+
+  document.getElementById('captureBtn').addEventListener('click', function () {
+    var btn = this;
+    btn.disabled = true;
+    document.getElementById('captureLbl').textContent = t('inv_cap_capturing');
+    document.getElementById('viewport').classList.add('capturing');
+    document.getElementById('emptyText').textContent = t('inv_cap_capturing');
+    if (navigator.vibrate) navigator.vibrate(80);
+    setTimeout(function () { window.location.href = 'install_v_confirm.html'; }, 1400);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Batterie</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    .status-card {
+      margin: 14px 20px 0;
+      background: var(--c-green-soft);
+      border: 1.5px solid var(--c-green-line);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: var(--shadow-sm);
+      animation: fadeUp .4s .04s ease both; opacity: 0;
+    }
+    .status-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: rgba(22,163,74,.18);
+      color: var(--c-green);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .status-icon svg { width: 22px; height: 22px; }
+    .status-text { flex: 1; min-width: 0; }
+    .status-label {
+      font-size: 10px; font-weight: 700;
+      color: var(--c-green);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .status-value {
+      font-size: 15px; font-weight: 700;
+      color: var(--c-ink);
+      margin-top: 2px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 1px;
+    }
+
+    .graphic-card {
+      margin: 16px 20px 0;
+      background: #fff;
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      animation: fadeUp .4s .12s ease both; opacity: 0;
+    }
+    .graphic-slot {
+      width: 100%;
+      min-height: 260px;
+      position: relative;
+      display: block;
+    }
+    .graphic-slot .img-fallback-wrap { position: relative; min-height: 260px; }
+    .graphic-slot .img-fallback-card  { border-radius: 0; min-height: 260px; }
+
+    .guide-link-row {
+      padding: 14px 20px 0;
+      display: flex; justify-content: center;
+      animation: fadeUp .4s .18s ease both; opacity: 0;
+    }
+    .guide-pill {
+      background: #fff;
+      border: 1.5px solid var(--c-blue-line);
+      color: var(--c-blue);
+      font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer;
+      padding: 9px 16px;
+      border-radius: 999px;
+      display: inline-flex; align-items: center; gap: 8px;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.06);
+      text-decoration: none;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .guide-pill:active { transform: scale(.97); }
+    .guide-pill svg { width: 16px; height: 16px; }
+
+    .footer-stack {
+      padding: 20px 20px 0;
+      display: flex; flex-direction: column; gap: 10px;
+      margin-top: auto;
+      animation: fadeUp .4s .25s ease both; opacity: 0;
+    }
+    .btn-confirm {
+      width: 100%;
+      padding: 16px;
+      background: var(--c-green);
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      font-family: inherit; font-size: 16px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(22,163,74,.30);
+      transition: transform .15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-confirm:active { transform: scale(.975); }
+    .btn-confirm svg { width: 18px; height: 18px; }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="install_v_scan.html" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" data-i18n="inv_batt_eyebrow">Étape 2 sur 4</div>
+    <div class="hero-title" data-i18n="inv_batt_title">Insérez la batterie</div>
+    <div class="hero-sub"   data-i18n="inv_batt_sub">Glissez la batterie dans la caméra. Veillez à respecter le sens indiqué.</div>
+  </div>
+
+  <div class="status-card">
+    <div class="status-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    <div class="status-text">
+      <div class="status-label" data-i18n="inv_batt_status_label">Emplacement d'installation</div>
+      <div class="status-value" id="locationValue">A · 4 · 5</div>
+    </div>
+  </div>
+
+  <div class="graphic-card">
+    <div class="graphic-slot" data-src="battery-insert.png" data-alt="Battery insertion guide"></div>
+  </div>
+
+  <div class="guide-link-row">
+    <a href="install_guide_stub.html" class="guide-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      <span data-i18n="inv_batt_guide_link">Voir le guide d'installation</span>
+    </a>
+  </div>
+
+  <div class="footer-stack">
+    <button class="btn-confirm" id="confirmBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <span data-i18n="inv_batt_confirm">Batterie insérée</span>
+    </button>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+  mountImageSlots();
+
+  /* Pull resolved location into the status card from sessionStorage */
+  (function () {
+    var z = sessionStorage.getItem('vusionInstallZone')    || 'A';
+    var a = sessionStorage.getItem('vusionInstallAisle')   || '4';
+    var s = sessionStorage.getItem('vusionInstallSection') || '5';
+    document.getElementById('locationValue').textContent = z + ' · ' + a + ' · ' + s;
+  })();
+
+  document.getElementById('confirmBtn').addEventListener('click', function () {
+    /* Side-toast narrates the transition while we route to NFC */
+    showToast({
+      icon: 'info',
+      title:   t('inv_batt_toast_title'),
+      message: t('inv_batt_toast_msg'),
+      actionLabel: t('inv_batt_toast_action'),
+      onAction: function () { window.location.href = 'install_guide_stub.html'; },
+    });
+    setTimeout(function () { window.location.href = 'install_v_nfc.html'; }, 2400);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Cartographie</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    .stepper {
+      padding: 4px 20px 0;
+      display: flex; align-items: center; gap: 8px;
+      animation: fadeUp .35s ease both;
+    }
+    .step-dot {
+      flex: 1;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--c-line);
+      overflow: hidden;
+      position: relative;
+    }
+    .step-dot.active {
+      background: var(--c-blue);
+    }
+    .step-dot.done {
+      background: var(--c-blue);
+      opacity: .55;
+    }
+    .step-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--c-muted-2);
+      text-transform: uppercase; letter-spacing: .5px;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+
+    .illu-card {
+      margin: 22px 20px 0;
+      background: #fff;
+      border-radius: 22px;
+      padding: 26px 22px;
+      box-shadow: var(--shadow-md);
+      animation: fadeUp .4s .08s ease both; opacity: 0;
+      min-height: 220px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .illu-card svg { width: 100%; height: auto; max-height: 220px; }
+
+    .body-text {
+      padding: 22px 24px 0;
+      animation: fadeUp .4s .18s ease both; opacity: 0;
+    }
+    .body-title {
+      font-size: 22px; font-weight: 800;
+      color: var(--c-ink);
+      line-height: 1.25;
+    }
+    .body-msg {
+      margin-top: 10px;
+      font-size: 15px; color: var(--c-muted);
+      line-height: 1.55;
+      font-weight: 500;
+    }
+
+    .footer-stack {
+      padding: 0 20px;
+      display: flex; flex-direction: column; gap: 12px;
+      margin-top: auto;
+      padding-top: 28px;
+      animation: fadeUp .4s .28s ease both; opacity: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="#" id="backLink" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="stepper">
+    <div class="step-dot" id="dot1"></div>
+    <div class="step-dot" id="dot2"></div>
+    <div class="step-dot" id="dot3"></div>
+    <div class="step-label" id="stepLbl">1/3</div>
+  </div>
+
+  <div class="illu-card" id="illuCard"></div>
+
+  <div class="body-text">
+    <div class="body-title" id="bodyTitle"></div>
+    <div class="body-msg"   id="bodyMsg"></div>
+  </div>
+
+  <div class="footer-stack">
+    <a href="#" id="nextBtn" class="btn-primary" style="text-align:center; text-decoration:none; display:block;"></a>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+
+  /* SVG illustrations (flat, monochrome-with-accent, matching design system) */
+  const ILLUS = {
+    1: `
+      <svg viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <!-- soft backdrop -->
+        <rect x="0" y="0" width="320" height="220" rx="16" fill="#F5F3FF"/>
+        <!-- store outline -->
+        <rect x="42" y="48" width="236" height="138" rx="10" fill="#FFFFFF" stroke="#7C3AED" stroke-width="2.5"/>
+        <!-- door -->
+        <rect x="148" y="170" width="24" height="16" fill="#7C3AED"/>
+        <!-- aisles inside -->
+        <rect x="60" y="68" width="46" height="86" rx="3" fill="#EDE9FE"/>
+        <rect x="116" y="68" width="46" height="86" rx="3" fill="#EDE9FE"/>
+        <rect x="172" y="68" width="46" height="86" rx="3" fill="#EDE9FE"/>
+        <rect x="228" y="68" width="34" height="86" rx="3" fill="#EDE9FE"/>
+        <!-- pin / location markers -->
+        <circle cx="83" cy="111" r="8" fill="#7C3AED"/>
+        <circle cx="83" cy="111" r="3" fill="#fff"/>
+        <circle cx="139" cy="91" r="8" fill="#7C3AED"/>
+        <circle cx="139" cy="91" r="3" fill="#fff"/>
+        <circle cx="195" cy="131" r="8" fill="#7C3AED"/>
+        <circle cx="195" cy="131" r="3" fill="#fff"/>
+        <!-- floating "+" hint -->
+        <g transform="translate(252, 36)">
+          <circle r="14" fill="#7C3AED"/>
+          <path d="M0 -6 L0 6 M-6 0 L6 0" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+        </g>
+      </svg>`,
+    2: `
+      <svg viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <rect x="0" y="0" width="320" height="220" rx="16" fill="#EFF6FF"/>
+        <!-- left shelf (where camera mounts) -->
+        <rect x="22" y="48" width="40" height="124" rx="3" fill="#FFFFFF" stroke="#2563EB" stroke-width="2"/>
+        <line x1="22" y1="78" x2="62" y2="78"  stroke="#BFDBFE" stroke-width="1.5"/>
+        <line x1="22" y1="108" x2="62" y2="108" stroke="#BFDBFE" stroke-width="1.5"/>
+        <line x1="22" y1="138" x2="62" y2="138" stroke="#BFDBFE" stroke-width="1.5"/>
+        <!-- camera on shelf edge -->
+        <g transform="translate(62, 110)">
+          <rect x="0" y="-8" width="22" height="16" rx="3" fill="#111827"/>
+          <circle cx="6" cy="0" r="4" fill="#2563EB"/>
+          <circle cx="6" cy="0" r="1.5" fill="#fff"/>
+        </g>
+        <!-- sight lines -->
+        <line x1="86" y1="106" x2="244" y2="78"  stroke="#2563EB" stroke-width="1.8" stroke-dasharray="4 4" opacity="0.7"/>
+        <line x1="86" y1="114" x2="244" y2="146" stroke="#2563EB" stroke-width="1.8" stroke-dasharray="4 4" opacity="0.7"/>
+        <!-- right shelf (the target) with products and gaps -->
+        <rect x="244" y="48" width="60" height="124" rx="3" fill="#FFFFFF" stroke="#2563EB" stroke-width="2"/>
+        <!-- Row 1: products with one gap -->
+        <rect x="250" y="56"  width="10" height="18" rx="1" fill="#60A5FA"/>
+        <rect x="262" y="56"  width="10" height="18" rx="1" fill="#60A5FA"/>
+        <rect x="274" y="56"  width="10" height="18" rx="1" fill="#FCA5A5"/>  <!-- GAP color -->
+        <rect x="286" y="56"  width="10" height="18" rx="1" fill="#60A5FA"/>
+        <line x1="244" y1="80" x2="304" y2="80" stroke="#BFDBFE" stroke-width="1.5"/>
+        <!-- Row 2: full -->
+        <rect x="250" y="86"  width="10" height="18" rx="1" fill="#60A5FA"/>
+        <rect x="262" y="86"  width="10" height="18" rx="1" fill="#60A5FA"/>
+        <rect x="274" y="86"  width="10" height="18" rx="1" fill="#60A5FA"/>
+        <rect x="286" y="86"  width="10" height="18" rx="1" fill="#60A5FA"/>
+        <line x1="244" y1="110" x2="304" y2="110" stroke="#BFDBFE" stroke-width="1.5"/>
+        <!-- Row 3: two gaps -->
+        <rect x="250" y="116" width="10" height="18" rx="1" fill="#FCA5A5"/>  <!-- GAP -->
+        <rect x="262" y="116" width="10" height="18" rx="1" fill="#60A5FA"/>
+        <rect x="274" y="116" width="10" height="18" rx="1" fill="#FCA5A5"/>  <!-- GAP -->
+        <rect x="286" y="116" width="10" height="18" rx="1" fill="#60A5FA"/>
+        <line x1="244" y1="140" x2="304" y2="140" stroke="#BFDBFE" stroke-width="1.5"/>
+        <!-- Row 4: full -->
+        <rect x="250" y="146" width="10" height="18" rx="1" fill="#60A5FA"/>
+        <rect x="262" y="146" width="10" height="18" rx="1" fill="#60A5FA"/>
+        <rect x="274" y="146" width="10" height="18" rx="1" fill="#60A5FA"/>
+        <rect x="286" y="146" width="10" height="18" rx="1" fill="#60A5FA"/>
+        <!-- gap label -->
+        <g transform="translate(160, 188)">
+          <rect x="-44" y="-10" width="88" height="20" rx="10" fill="#FCA5A5"/>
+          <text x="0" y="4" font-family="DM Sans" font-size="11" font-weight="700" fill="#7F1D1D" text-anchor="middle">RUPTURE</text>
+        </g>
+      </svg>`,
+    3: `
+      <svg viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <rect x="0" y="0" width="320" height="220" rx="16" fill="#FEF2F2"/>
+        <!-- left shelf (eligible) -->
+        <rect x="40" y="48" width="40" height="124" rx="3" fill="#FFFFFF" stroke="#16A34A" stroke-width="2.5"/>
+        <line x1="40" y1="78"  x2="80" y2="78"  stroke="#BBF7D0" stroke-width="1.5"/>
+        <line x1="40" y1="108" x2="80" y2="108" stroke="#BBF7D0" stroke-width="1.5"/>
+        <line x1="40" y1="138" x2="80" y2="138" stroke="#BBF7D0" stroke-width="1.5"/>
+        <!-- check badge on left -->
+        <g transform="translate(60, 32)">
+          <circle r="10" fill="#16A34A"/>
+          <polyline points="-4 0 -1 3 4 -3" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </g>
+        <!-- partner shelf for left -->
+        <rect x="120" y="48" width="40" height="124" rx="3" fill="#FFFFFF" stroke="#16A34A" stroke-width="2"/>
+        <line x1="120" y1="78"  x2="160" y2="78"  stroke="#BBF7D0" stroke-width="1.5"/>
+        <line x1="120" y1="108" x2="160" y2="108" stroke="#BBF7D0" stroke-width="1.5"/>
+        <line x1="120" y1="138" x2="160" y2="138" stroke="#BBF7D0" stroke-width="1.5"/>
+        <!-- pair connector -->
+        <line x1="80" y1="110" x2="120" y2="110" stroke="#16A34A" stroke-width="1.8" stroke-dasharray="3 3"/>
+        <!-- ineligible shelf (no partner) on right, with X -->
+        <rect x="220" y="48" width="40" height="124" rx="3" fill="#FFFFFF" stroke="#EF4444" stroke-width="2.5" stroke-dasharray="5 4"/>
+        <line x1="220" y1="78"  x2="260" y2="78"  stroke="#FECACA" stroke-width="1.5"/>
+        <line x1="220" y1="108" x2="260" y2="108" stroke="#FECACA" stroke-width="1.5"/>
+        <line x1="220" y1="138" x2="260" y2="138" stroke="#FECACA" stroke-width="1.5"/>
+        <!-- X badge -->
+        <g transform="translate(240, 32)">
+          <circle r="10" fill="#EF4444"/>
+          <line x1="-4" y1="-4" x2="4" y2="4" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          <line x1="4" y1="-4" x2="-4" y2="4" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        </g>
+        <!-- empty space label to right of ineligible -->
+        <text x="290" y="115" font-family="DM Sans" font-size="11" font-weight="700" fill="#9CA3AF" text-anchor="middle">
+          <tspan x="290" dy="0">aucun</tspan>
+          <tspan x="290" dy="14">partenaire</tspan>
+        </text>
+      </svg>`,
+  };
+
+  function getStep() {
+    const sp = new URLSearchParams(location.search);
+    const s = parseInt(sp.get('step') || '1', 10);
+    return Math.max(1, Math.min(3, s));
+  }
+
+  const step = getStep();
+  const TITLES = ['mm_intro1_title','mm_intro2_title','mm_intro3_title'];
+  const BODIES = ['mm_intro1_body','mm_intro2_body','mm_intro3_body'];
+
+  document.getElementById('illuCard').innerHTML = ILLUS[step];
+  document.getElementById('bodyTitle').textContent = t(TITLES[step-1]);
+  document.getElementById('bodyMsg').textContent   = t(BODIES[step-1]);
+
+  // Update stepper
+  for (let i=1; i<=3; i++) {
+    const dot = document.getElementById('dot'+i);
+    if (i < step) dot.classList.add('done');
+    else if (i === step) dot.classList.add('active');
+  }
+  document.getElementById('stepLbl').textContent = `${step}/3`;
+
+  // Wire next + back
+  const next = document.getElementById('nextBtn');
+  next.textContent = step === 3 ? t('mm_intro_begin') : t('common_continue');
+  next.href = step === 3 ? 'mm_zone.html' : `mm_intro.html?step=${step+1}`;
+
+  const back = document.getElementById('backLink');
+  back.href = step === 1 ? 'tag_chooser.html' : `mm_intro.html?step=${step-1}`;
+</script>
+</body>
+</html>

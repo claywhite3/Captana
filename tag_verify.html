@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Vérifier</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    .verify-illu {
+      margin: 12px 20px 0;
+      background: #fff;
+      border-radius: 22px;
+      padding: 22px 18px 18px;
+      box-shadow: var(--shadow-md);
+      animation: fadeUp .4s .05s ease both; opacity: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* The "back of the tag" mock — gray plastic with two label panels */
+    .tag-back {
+      width: 100%; max-width: 240px; margin: 0 auto;
+      aspect-ratio: 16/10;
+      background: linear-gradient(135deg, #1F2937 0%, #374151 100%);
+      border-radius: 14px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+      padding: 14px;
+      display: flex; flex-direction: column;
+      gap: 8px;
+      position: relative;
+    }
+    .tag-back::after {
+      /* battery hatch detail */
+      content: ''; position: absolute; top: 12px; right: 12px;
+      width: 26px; height: 14px;
+      background: rgba(0,0,0,0.25); border-radius: 3px;
+      box-shadow: inset 0 1px 0 rgba(0,0,0,0.4);
+    }
+
+    .marker {
+      background: #F9FAFB;
+      border-radius: 6px;
+      padding: 6px 10px;
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+    }
+    .marker-ses { font-size: 12px; font-weight: 700; color: var(--c-ink); letter-spacing: -0.2px; }
+    .marker-vusion { display: flex; align-items: center; gap: 6px; }
+    .marker-vusion img { width: 16px; height: 16px; border-radius: 3px; }
+    .marker-vusion span { font-size: 12px; font-weight: 800; color: var(--c-ink); letter-spacing: -0.3px; }
+
+    /* Magnifier hint pulsing over the markings */
+    .magnify {
+      position: absolute;
+      top: 60%; left: 50%;
+      width: 70px; height: 70px;
+      border: 3px solid #F59E0B;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 4px rgba(245,158,11,0.18);
+      pointer-events: none;
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    .magnify::after {
+      content: ''; position: absolute;
+      bottom: -10px; right: -10px;
+      width: 16px; height: 4px;
+      background: #F59E0B;
+      border-radius: 2px;
+      transform: rotate(45deg);
+    }
+    @keyframes pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1);   opacity: 1; }
+      50%      { transform: translate(-50%, -50%) scale(1.08); opacity: .75; }
+    }
+
+    .markers-strip {
+      margin-top: 18px;
+      background: #F9FAFB;
+      border: 1.5px dashed var(--c-line);
+      border-radius: 14px;
+      padding: 12px 14px;
+    }
+    .markers-strip-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--c-muted-2);
+      text-transform: uppercase; letter-spacing: .5px;
+      margin-bottom: 8px;
+    }
+    .markers-strip-row {
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    .markers-strip-row .marker { background: #fff; }
+
+    .question-block {
+      padding: 18px 20px 0;
+      animation: fadeUp .4s .12s ease both; opacity: 0;
+    }
+    .question-text {
+      font-size: 16px; font-weight: 700;
+      color: var(--c-ink);
+      text-align: center;
+      line-height: 1.35;
+    }
+
+    .answer-stack {
+      padding: 16px 20px 20px;
+      display: flex; flex-direction: column; gap: 12px;
+      animation: fadeUp .4s .18s ease both; opacity: 0;
+    }
+    .btn-yes {
+      background: var(--c-green);
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      padding: 16px;
+      font-family: inherit; font-size: 16px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(22,163,74,.30);
+      transition: transform .15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-yes:active { transform: scale(.975); }
+    .btn-yes svg { width: 18px; height: 18px; }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="tag_chooser.html" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" data-i18n="flow_mapping">Cartographie</div>
+    <div class="hero-title" data-i18n="verify_title">Vérifions le fabricant</div>
+    <div class="hero-sub"   data-i18n="verify_sub">Retournez une étiquette numérique. Cherchez l'un de ces marquages au dos.</div>
+  </div>
+
+  <div class="verify-illu">
+    <div class="tag-back">
+      <div class="marker">
+        <span class="marker-ses">SES-imagotag</span>
+      </div>
+      <div class="marker marker-vusion">
+        <img src="vusion-logo.png" alt="">
+        <span>VUSION</span>
+      </div>
+      <div class="magnify"></div>
+    </div>
+
+    <div class="markers-strip">
+      <div class="markers-strip-label" data-i18n="verify_marker_label">Recherchez :</div>
+      <div class="markers-strip-row">
+        <div class="marker"><span class="marker-ses" data-i18n="verify_marker_a">SES-Imagotag</span></div>
+        <div class="marker marker-vusion">
+          <img src="vusion-logo.png" alt="">
+          <span data-i18n="verify_marker_b">Logo Vusion</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-block">
+    <div class="question-text" data-i18n="verify_q">Voyez-vous l'un de ces marquages ?</div>
+  </div>
+
+  <div class="answer-stack">
+    <button class="btn-yes" id="btnYes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <span data-i18n="verify_yes">Oui, c'est Vusion</span>
+    </button>
+    <button class="btn-secondary" id="btnNo" data-i18n="verify_no">Non, ce n'est pas Vusion</button>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+
+  document.getElementById('btnYes').addEventListener('click', () => {
+    setMappingStatus('vusion');
+    window.location.href = 'vusion_confirmed.html';
+  });
+
+  document.getElementById('btnNo').addEventListener('click', () => {
+    sessionStorage.setItem('tagChoice', 'other');
+    resetMap();
+    window.location.href = 'mm_intro.html?step=1';
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Zones</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    /* The big add-zone form, prominent */
+    .add-block {
+      margin: 16px 20px 0;
+      background: #fff;
+      border-radius: 22px;
+      padding: 22px 20px 20px;
+      box-shadow: var(--shadow-md);
+      animation: fadeUp .4s .08s ease both; opacity: 0;
+    }
+    .add-block.empty-hero {
+      background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 60%);
+      border: 1.5px solid var(--c-blue-line);
+    }
+    .add-block-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--c-blue);
+      text-transform: uppercase; letter-spacing: .5px;
+      margin-bottom: 10px;
+    }
+    .big-input {
+      width: 100%;
+      padding: 18px 18px;
+      background: #F9FAFB;
+      border: 2px solid var(--c-line);
+      border-radius: 14px;
+      font-family: inherit; font-size: 22px; font-weight: 700;
+      color: var(--c-ink); outline: none;
+      transition: border-color .15s, box-shadow .15s, background .15s;
+    }
+    .big-input:focus {
+      border-color: var(--c-blue);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+    }
+    .big-input::placeholder { color: var(--c-muted-2); font-weight: 500; }
+
+    .add-btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 16px;
+      background: var(--c-blue);
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      font-family: inherit; font-size: 16px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow-glow);
+      transition: transform .15s, opacity .15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .add-btn:active { transform: scale(.975); }
+    .add-btn svg { width: 18px; height: 18px; }
+    .add-btn:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+
+    /* Zone cards */
+    .zone-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-md);
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      border: 1.5px solid transparent;
+      transition: transform .15s, border-color .15s;
+      position: relative; overflow: hidden;
+    }
+    .zone-card::before {
+      content:''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 4px; background: var(--c-purple);
+    }
+    .zone-card:active { transform: scale(.98); border-color: var(--c-blue); }
+
+    /* Completed zone: green tint, green stripe, green check trailing */
+    .zone-card.is-complete {
+      background: var(--c-green-soft);
+    }
+    .zone-card.is-complete::before { background: var(--c-green); }
+    .zone-card.is-complete .zone-letter {
+      background: rgba(22,163,74,.15);
+      color: var(--c-green);
+    }
+
+    .zone-letter {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--c-purple-soft);
+      color: var(--c-purple);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800;
+      flex-shrink: 0;
+    }
+    .zone-info { flex: 1; min-width: 0; }
+    .zone-name {
+      font-size: 15px; font-weight: 700;
+      color: var(--c-ink);
+      line-height: 1.2;
+    }
+    .zone-meta {
+      font-size: 12px; color: var(--c-muted);
+      margin-top: 3px; font-weight: 500;
+    }
+    .zone-arrow {
+      width: 28px; height: 28px;
+      background: #F3F4F6; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .zone-arrow svg { width: 13px; height: 13px; color: var(--c-muted); }
+
+    .done-btn {
+      margin: 18px 20px 0;
+      padding: 14px;
+      background: var(--c-green);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      font-family: inherit; font-size: 15px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(22,163,74,.25);
+      transition: transform .15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      animation: fadeUp .4s .25s ease both; opacity: 0;
+    }
+    .done-btn:active { transform: scale(.975); }
+    .done-btn svg { width: 18px; height: 18px; }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="mm_intro.html?step=3" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" data-i18n="mm_zone_eyebrow">Cartographie</div>
+    <div class="hero-title" id="zoneTitle"></div>
+    <div class="hero-sub" id="zoneSub"></div>
+  </div>
+
+  <!-- The dominant element on the page: add input + button -->
+  <div class="add-block" id="addBlock">
+    <div class="add-block-label" data-i18n="mm_zone_input_label">Nom de la zone</div>
+    <input class="big-input" id="zoneInput" type="text" autocomplete="off" autocapitalize="characters" data-i18n-ph="mm_zone_input_ph" placeholder="ex. A">
+    <button class="add-btn" id="addBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span data-i18n="mm_zone_add_btn">Ajouter la zone</span>
+    </button>
+  </div>
+
+  <div class="section-header" id="completedHeader" style="display:none;" data-i18n="mm_zone_completed">Zones ajoutées</div>
+  <div class="card-list stagger" id="zoneList" style="margin-top: 4px;"></div>
+
+  <button class="done-btn" id="doneBtn" type="button" style="display:none;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    <span data-i18n="mm_zone_done_btn">Plus de zones</span>
+  </button>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+
+  function render() {
+    const map = getMap();
+    const zones = map.zones;
+
+    const titleEl = document.getElementById('zoneTitle');
+    const subEl   = document.getElementById('zoneSub');
+    const headerEl = document.getElementById('completedHeader');
+    const listEl   = document.getElementById('zoneList');
+    const doneBtn  = document.getElementById('doneBtn');
+
+    if (zones.length === 0) {
+      titleEl.textContent = t('mm_zone_title_empty');
+      subEl.textContent   = t('mm_zone_sub_empty');
+      headerEl.style.display = 'none';
+      doneBtn.style.display  = 'none';
+    } else {
+      titleEl.textContent = t('mm_zone_title_more');
+      subEl.textContent   = t('mm_zone_sub_more');
+      headerEl.style.display = 'block';
+      doneBtn.style.display  = 'flex';
+    }
+
+    // List
+    listEl.innerHTML = '';
+    zones.forEach(z => {
+      const realAisles = z.aisles.filter(a => !a.skipped).length;
+      const aisleWord  = realAisles === 1 ? t('mm_zone_aisle') : t('mm_zone_aisles');
+      const isComplete = !!z.completed;
+
+      const a = document.createElement('a');
+      a.className = 'zone-card' + (isComplete ? ' is-complete' : '');
+      a.href = `mm_aisle.html?zone=${z.id}`;
+
+      const trailing = isComplete
+        ? `<div class="card-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`
+        : `<div class="zone-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>`;
+
+      a.innerHTML = `
+        <div class="zone-letter">${escapeHtml(z.name.slice(0,2))}</div>
+        <div class="zone-info">
+          <div class="zone-name">${escapeHtml(z.name)}</div>
+          <div class="zone-meta">${realAisles} ${aisleWord}</div>
+        </div>
+        ${trailing}`;
+      listEl.appendChild(a);
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // Add zone -> jump straight into it
+  const input = document.getElementById('zoneInput');
+  const addBtn = document.getElementById('addBtn');
+  function tryAdd() {
+    const name = input.value.trim();
+    if (!name) {
+      input.focus();
+      return;
+    }
+    const z = addZone(name);
+    input.value = '';
+    window.location.href = `mm_aisle.html?zone=${z.id}`;
+  }
+  addBtn.addEventListener('click', tryAdd);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') tryAdd(); });
+
+  // Done -> review
+  document.getElementById('doneBtn').addEventListener('click', () => {
+    const map = getMap();
+    if (!map.zones.length) {
+      showToast({ icon: 'warn', message: t('mm_toast_no_zones'), autoHide: 3000 });
+      return;
+    }
+    setMappingStatus('manual');
+    window.location.href = 'mm_review.html';
+  });
+
+  render();
+</script>
+</body>
+</html>

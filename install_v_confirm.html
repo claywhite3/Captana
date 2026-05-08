@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Cadrage</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    .notice {
+      margin: 14px 20px 0;
+      padding: 12px 14px;
+      background: var(--c-amber-soft);
+      border: 1.5px solid var(--c-amber-line);
+      border-radius: 12px;
+      display: flex; align-items: flex-start; gap: 10px;
+      animation: fadeUp .4s .04s ease both; opacity: 0;
+    }
+    .notice svg { width: 18px; height: 18px; color: var(--c-amber); flex-shrink: 0; margin-top: 1px; }
+    .notice-text { font-size: 13px; font-weight: 700; color: #78350F; line-height: 1.4; }
+
+    .photo-card {
+      margin: 12px 20px 0;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      background: #000;
+      animation: fadeUp .4s .12s ease both; opacity: 0;
+    }
+    .photo-slot { width: 100%; height: 240px; position: relative; }
+    .photo-slot .img-fallback-wrap { position: absolute; inset: 0; }
+    .photo-slot .img-fallback-card  { border-radius: 0; min-height: 240px; }
+    .photo-slot img.img-fallback-img { width: 100%; height: 100%; object-fit: cover; }
+
+    .caption {
+      margin: 10px 20px 0;
+      font-size: 12px; color: var(--c-muted);
+      font-weight: 500; text-align: center; line-height: 1.45;
+    }
+
+    .footer-stack {
+      padding: 24px 20px 0;
+      display: flex; flex-direction: column; gap: 10px;
+      margin-top: auto;
+      animation: fadeUp .4s .25s ease both; opacity: 0;
+    }
+    .action-row { display: flex; gap: 10px; }
+    .btn-retake {
+      flex: 0 0 auto;
+      padding: 16px;
+      background: #fff;
+      color: #B45309;
+      border: 1.5px solid var(--c-amber-line);
+      border-radius: 16px;
+      font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform .15s;
+    }
+    .btn-retake:active { transform: scale(.97); }
+    .btn-retake svg { width: 18px; height: 18px; }
+    .btn-confirm-coverage {
+      flex: 1;
+      padding: 16px;
+      background: var(--c-green);
+      color: #fff; border: none;
+      border-radius: 16px;
+      font-family: inherit; font-size: 15px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(22,163,74,.30);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform .15s;
+    }
+    .btn-confirm-coverage:active { transform: scale(.975); }
+    .btn-confirm-coverage svg { width: 18px; height: 18px; }
+    .btn-help-frame {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      color: var(--c-muted);
+      border: none;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline; text-underline-offset: 2px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-help-frame svg { width: 14px; height: 14px; }
+
+    /* ── Section-complete modal ── */
+    .sc-overlay {
+      position: fixed; inset: 0;
+      background: rgba(17,24,39,0.55);
+      backdrop-filter: blur(2px);
+      display: none;
+      z-index: 900;
+      animation: fadeIn .25s ease both;
+    }
+    .sc-overlay.open { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .sc-sheet {
+      position: fixed;
+      top: 25%; right: 0;
+      height: 50%;
+      width: min(75vw, 293px);
+      background: #fff;
+      border-radius: 20px 0 0 20px;
+      box-shadow: -12px 0 32px rgba(0,0,0,0.25);
+      z-index: 901;
+      display: none;
+      flex-direction: column;
+      padding: 18px 18px;
+      transform: translateX(100%);
+      transition: transform .35s cubic-bezier(.2,.8,.2,1);
+    }
+    @media (min-width: 391px) {
+      .sc-sheet {
+        right: max(calc(50% - 195px), 0px);
+      }
+    }
+    .sc-sheet.open { display: flex; transform: translateX(0); }
+
+    .sc-head { display: flex; align-items: center; gap: 10px; }
+    .sc-check {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--c-green);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(22,163,74,.35);
+    }
+    .sc-check svg { width: 18px; height: 18px; color: #fff; }
+    .sc-eyebrow {
+      font-size: 10px; font-weight: 700;
+      color: var(--c-green);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .sc-title {
+      font-size: 16px; font-weight: 800;
+      color: var(--c-ink);
+      line-height: 1.2; margin-top: 1px;
+    }
+
+    .sc-card-install {
+      margin-top: 14px;
+      background: var(--c-green-soft);
+      border: 1.5px solid var(--c-green-line);
+      border-radius: 12px;
+      padding: 11px 12px;
+      display: flex; align-items: center; gap: 11px;
+    }
+    .sc-card-icon-lg {
+      width: 38px; height: 38px;
+      border-radius: 9px;
+      background: rgba(22,163,74,.18);
+      color: var(--c-green);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .sc-card-icon-lg svg { width: 20px; height: 20px; }
+    .sc-card-text { flex: 1; min-width: 0; }
+    .sc-card-label-install {
+      font-size: 9.5px; font-weight: 700;
+      color: var(--c-green);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .sc-card-value-install {
+      font-size: 14px; font-weight: 800;
+      color: var(--c-ink);
+      margin-top: 1px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 1px;
+    }
+
+    .sc-card-target {
+      margin-top: 8px;
+      background: #fff;
+      border: 1.5px solid var(--c-line);
+      border-radius: 10px;
+      padding: 9px 11px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sc-card-icon-sm {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      background: #F3F4F6;
+      color: var(--c-muted);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .sc-card-icon-sm svg { width: 16px; height: 16px; }
+    .sc-card-label-target {
+      font-size: 9px; font-weight: 700;
+      color: var(--c-muted);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .sc-card-value-target {
+      font-size: 12px; font-weight: 700;
+      color: #374151;
+      margin-top: 1px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 1px;
+    }
+
+    .sc-question {
+      font-size: 12px; color: var(--c-muted);
+      font-weight: 600; line-height: 1.4;
+      margin-top: 14px;
+    }
+
+    .sc-actions {
+      margin-top: auto;
+      padding-top: 12px;
+      display: flex; gap: 8px;
+    }
+    .sc-btn-done {
+      flex: 0 1 auto;
+      padding: 12px;
+      background: #fff;
+      color: var(--c-muted);
+      border: 1.5px solid var(--c-line);
+      border-radius: 12px;
+      font-family: inherit; font-size: 12px; font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      line-height: 1.2;
+    }
+    .sc-btn-done svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .sc-btn-next {
+      flex: 1;
+      padding: 12px;
+      background: var(--c-green);
+      color: #fff; border: none;
+      border-radius: 12px;
+      font-family: inherit; font-size: 12.5px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(22,163,74,.30);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      line-height: 1.2;
+    }
+    .sc-btn-next svg { width: 16px; height: 16px; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="install_v_capture.html" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" data-i18n="inv_conf_eyebrow">Étape 4 sur 4</div>
+    <div class="hero-title" data-i18n="inv_conf_title">Vérifiez le cadrage</div>
+  </div>
+
+  <div class="notice">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div class="notice-text" data-i18n="inv_conf_notice">Vérifiez que vous voyez l'intégralité du rayon en face.</div>
+  </div>
+
+  <div class="photo-card">
+    <div class="photo-slot" data-src="captured-shelf.png" data-alt="Captured shelf"></div>
+  </div>
+
+  <div class="caption" data-i18n="inv_conf_caption">Si le rayon n'est pas entièrement visible, déplacez la caméra et reprenez une photo.</div>
+
+  <div class="footer-stack">
+    <div class="action-row">
+      <button class="btn-retake" id="retakeBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        <span data-i18n="inv_conf_retake">Reprendre</span>
+      </button>
+      <button class="btn-confirm-coverage" id="confirmBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span data-i18n="inv_conf_confirm">Rayon entièrement visible</span>
+      </button>
+    </div>
+    <button class="btn-help-frame" id="helpBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span data-i18n="inv_conf_help">Aidez-moi à cadrer</span>
+    </button>
+  </div>
+
+</div>
+
+<!-- Section-complete modal -->
+<div class="sc-overlay" id="scOverlay"></div>
+<div class="sc-sheet"   id="scSheet" role="dialog" aria-modal="true">
+
+  <div class="sc-head">
+    <div class="sc-check">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div style="flex: 1; min-width: 0;">
+      <div class="sc-eyebrow" data-i18n="inv_sc_eyebrow">Section terminée</div>
+      <div class="sc-title" data-i18n="inv_sc_title">Caméra installée</div>
+    </div>
+  </div>
+
+  <div class="sc-card-install">
+    <div class="sc-card-icon-lg">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    </div>
+    <div class="sc-card-text">
+      <div class="sc-card-label-install" data-i18n="inv_sc_install_label">Caméra installée</div>
+      <div class="sc-card-value-install" id="scInstallValue">A · 4 · 5</div>
+    </div>
+  </div>
+
+  <div class="sc-card-target">
+    <div class="sc-card-icon-sm">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
+    </div>
+    <div class="sc-card-text">
+      <div class="sc-card-label-target" data-i18n="inv_sc_target_label">Cible observée</div>
+      <div class="sc-card-value-target" id="scTargetValue">A · 5 · 5</div>
+    </div>
+  </div>
+
+  <div class="sc-question" data-i18n="inv_sc_question">Que souhaitez-vous faire ?</div>
+
+  <div class="sc-actions">
+    <button class="sc-btn-done" id="scDoneBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span data-i18n="inv_sc_done">J'ai terminé</span>
+    </button>
+    <button class="sc-btn-next" id="scNextBtn">
+      <span data-i18n="inv_sc_next">Caméra suivante</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+  mountImageSlots();
+
+  /* Pull both location chains for the modal */
+  function setSummary() {
+    var iz = sessionStorage.getItem('vusionInstallZone')    || 'A';
+    var ia = sessionStorage.getItem('vusionInstallAisle')   || '4';
+    var is_ = sessionStorage.getItem('vusionInstallSection') || '5';
+    document.getElementById('scInstallValue').textContent = iz + ' · ' + ia + ' · ' + is_;
+
+    var tz = sessionStorage.getItem('vusionTargetZone')    || iz;
+    var ta = sessionStorage.getItem('vusionTargetAisle')   || String(parseInt(ia,10)+1);
+    var ts = sessionStorage.getItem('vusionTargetSection') || is_;
+    document.getElementById('scTargetValue').textContent  = tz + ' · ' + ta + ' · ' + ts;
+  }
+
+  document.getElementById('retakeBtn').addEventListener('click', function () {
+    window.location.href = 'install_v_capture.html';
+  });
+
+  document.getElementById('helpBtn').addEventListener('click', function () {
+    window.location.href = 'install_v_frame_guide.html';
+  });
+
+  document.getElementById('confirmBtn').addEventListener('click', function () {
+    setSummary();
+    document.getElementById('scOverlay').classList.add('open');
+    document.getElementById('scSheet').classList.add('open');
+  });
+
+  document.getElementById('scNextBtn').addEventListener('click', function () {
+    /* Clear out the per-install state so the next loop starts fresh */
+    sessionStorage.removeItem('vusionInstallTagId');
+    sessionStorage.removeItem('vusionInstallZone');
+    sessionStorage.removeItem('vusionInstallAisle');
+    sessionStorage.removeItem('vusionInstallSection');
+    sessionStorage.removeItem('vusionTargetTagId');
+    sessionStorage.removeItem('vusionTargetZone');
+    sessionStorage.removeItem('vusionTargetAisle');
+    sessionStorage.removeItem('vusionTargetSection');
+    sessionStorage.removeItem('vusionCameraId');
+    window.location.href = 'install_v_scan.html';
+  });
+
+  document.getElementById('scDoneBtn').addEventListener('click', function () {
+    window.location.href = 'flow_picker.html';
+  });
+</script>
+</body>
+</html>

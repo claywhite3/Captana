@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Rayons</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    .breadcrumb-row {
+      margin: 0 20px;
+      display: flex; gap: 8px;
+      animation: fadeUp .35s ease both;
+    }
+    .breadcrumb {
+      flex: 1;
+      padding: 7px 12px;
+      background: var(--c-blue-soft);
+      border: 1.5px solid var(--c-blue-line);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform .15s, border-color .15s;
+    }
+    .breadcrumb:active { transform: scale(.97); border-color: var(--c-blue); }
+    .breadcrumb-left {
+      display: flex; align-items: center; gap: 5px;
+    }
+    .breadcrumb-up {
+      width: 12px; height: 12px;
+      color: var(--c-blue);
+      flex-shrink: 0;
+    }
+    .breadcrumb-label {
+      font-size: 10px; font-weight: 700;
+      color: var(--c-blue);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .breadcrumb-value {
+      font-size: 14px; font-weight: 800;
+      color: var(--c-ink);
+    }
+
+    .add-block {
+      margin: 16px 20px 0;
+      background: #fff;
+      border-radius: 22px;
+      padding: 22px 20px 20px;
+      box-shadow: var(--shadow-md);
+      animation: fadeUp .4s .08s ease both; opacity: 0;
+    }
+    .add-block-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--c-blue);
+      text-transform: uppercase; letter-spacing: .5px;
+      margin-bottom: 10px;
+    }
+
+    .num-row {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .num-step {
+      width: 48px; height: 56px;
+      border-radius: 14px;
+      border: 1.5px solid var(--c-line);
+      background: #fff;
+      cursor: pointer;
+      font-family: inherit; font-size: 22px; font-weight: 700;
+      color: var(--c-blue);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .15s, border-color .15s;
+      flex-shrink: 0;
+      padding: 0;
+    }
+    .num-step:active { transform: scale(.93); border-color: var(--c-blue); }
+    .num-input {
+      flex: 1; min-width: 0;
+      padding: 14px 12px;
+      background: #F9FAFB;
+      border: 2px solid var(--c-line);
+      border-radius: 14px;
+      font-family: inherit; font-size: 28px; font-weight: 800;
+      color: var(--c-ink); outline: none;
+      text-align: center;
+      -moz-appearance: textfield;
+    }
+    .num-input::-webkit-outer-spin-button,
+    .num-input::-webkit-inner-spin-button {
+      -webkit-appearance: none; margin: 0;
+    }
+    .num-input:focus {
+      border-color: var(--c-blue);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+    }
+
+    /* Big section number card for "next section" state */
+    .next-card {
+      margin: 16px 20px 0;
+      background: linear-gradient(135deg, #EFF6FF 0%, #FFFFFF 65%);
+      border: 1.5px solid var(--c-blue-line);
+      border-radius: 22px;
+      padding: 26px 20px 24px;
+      text-align: center;
+      animation: fadeUp .4s .08s ease both; opacity: 0;
+    }
+    .next-card-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--c-blue);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .next-card-num {
+      font-size: 64px; font-weight: 800;
+      color: var(--c-blue);
+      line-height: 1;
+      margin: 8px 0 4px;
+      font-variant-numeric: tabular-nums;
+    }
+    .next-card-msg {
+      font-size: 13px; color: var(--c-muted);
+      font-weight: 500;
+    }
+
+    .actions-stack {
+      padding: 16px 20px 0;
+      display: flex; flex-direction: column; gap: 10px;
+      animation: fadeUp .4s .15s ease both; opacity: 0;
+    }
+    .btn-skip {
+      width: 100%;
+      padding: 14px;
+      background: #fff;
+      color: var(--c-muted);
+      border: 1.5px solid var(--c-line);
+      border-radius: 14px;
+      font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s, border-color .15s;
+    }
+    .btn-skip:active { transform: scale(.975); border-color: var(--c-blue); }
+    .btn-done {
+      width: 100%;
+      padding: 14px;
+      background: var(--c-green-soft);
+      color: var(--c-green);
+      border: 1.5px solid var(--c-green-line);
+      border-radius: 14px;
+      font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-done:active { transform: scale(.975); }
+    .btn-done svg { width: 16px; height: 16px; }
+
+    .add-btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 16px;
+      background: var(--c-blue);
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      font-family: inherit; font-size: 16px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow-glow);
+      transition: transform .15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .add-btn:active { transform: scale(.975); }
+    .add-btn svg { width: 18px; height: 18px; }
+
+    /* Existing sections list */
+    .sec-list {
+      padding: 12px 20px 0;
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .sec-chip {
+      background: var(--c-green-soft);
+      border: 1.5px solid var(--c-green-line);
+      color: var(--c-green);
+      border-radius: 10px;
+      padding: 6px 11px;
+      font-size: 13px; font-weight: 800;
+      cursor: pointer;
+      transition: transform .15s, border-color .15s;
+      font-family: inherit;
+    }
+    .sec-chip:active { transform: scale(.95); }
+    .sec-chip.skipped {
+      background: #F3F4F6;
+      border-color: var(--c-line);
+      color: var(--c-muted-2);
+      text-decoration: line-through;
+    }
+
+    /* Detail sheet (modal-style centered card) */
+    .sheet-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(17,24,39,0.45);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 900;
+      animation: fadeIn .2s ease both;
+    }
+    .sheet-backdrop.open { display: flex; }
+    .sheet {
+      width: 100%;
+      max-width: 390px;
+      background: #fff;
+      border-radius: 22px 22px 0 0;
+      padding: 22px 22px 28px;
+      box-shadow: 0 -8px 28px rgba(0,0,0,0.16);
+      animation: slideUp .28s cubic-bezier(.2,.8,.2,1) both;
+    }
+    .sheet-handle {
+      width: 38px; height: 4px;
+      background: var(--c-line);
+      border-radius: 2px;
+      margin: 0 auto 18px;
+    }
+    .sheet-eyebrow {
+      font-size: 11px; font-weight: 700;
+      color: var(--c-muted-2);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .sheet-title {
+      font-size: 22px; font-weight: 800;
+      color: var(--c-ink);
+      margin-top: 4px;
+    }
+    .sheet-target {
+      margin-top: 16px;
+      background: var(--c-blue-soft);
+      border: 1.5px solid var(--c-blue-line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .sheet-target svg { width: 20px; height: 20px; color: var(--c-blue); flex-shrink: 0; }
+    .sheet-target-label {
+      font-size: 11px; font-weight: 700; color: var(--c-blue);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .sheet-target-value {
+      font-size: 15px; font-weight: 800; color: var(--c-ink);
+      margin-top: 1px;
+    }
+    .sheet-skipped {
+      margin-top: 16px;
+      background: #F9FAFB;
+      border: 1.5px dashed var(--c-line);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+      font-size: 13px; font-weight: 700;
+      color: var(--c-muted);
+    }
+    .sheet-actions {
+      margin-top: 20px;
+      display: flex; gap: 10px;
+    }
+    .sheet-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      font-family: inherit; font-size: 15px; font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s;
+    }
+    .sheet-btn:active { transform: scale(.97); }
+    .sheet-btn-edit {
+      background: var(--c-blue);
+      color: #fff;
+      box-shadow: var(--shadow-glow);
+    }
+    .sheet-btn-delete {
+      background: var(--c-red-soft);
+      color: var(--c-red);
+      border: 1.5px solid var(--c-red-line);
+    }
+    .sheet-cancel {
+      width: 100%; margin-top: 10px;
+      padding: 12px;
+      background: transparent;
+      border: none;
+      color: var(--c-muted);
+      font-family: inherit; font-size: 14px; font-weight: 600;
+      cursor: pointer;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="#" id="backLink" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" id="eyebrow"></div>
+    <div class="hero-title" id="title"></div>
+    <div class="hero-sub" id="sub"></div>
+  </div>
+
+  <div class="breadcrumb-row" style="margin-top: 12px;">
+    <a href="mm_zone.html" class="breadcrumb" id="zoneBc">
+      <div class="breadcrumb-left">
+        <svg class="breadcrumb-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        <span class="breadcrumb-label" data-i18n="mm_aisle_eyebrow">Zone</span>
+      </div>
+      <span class="breadcrumb-value" id="zoneLbl"></span>
+    </a>
+    <a href="#" class="breadcrumb" id="aisleBc">
+      <div class="breadcrumb-left">
+        <svg class="breadcrumb-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        <span class="breadcrumb-label" data-i18n="mm_sec_eyebrow">Allée</span>
+      </div>
+      <span class="breadcrumb-value" id="aisleLbl"></span>
+    </a>
+  </div>
+
+  <!-- STATE A: first section (number input) -->
+  <div class="add-block" id="firstBlock" style="display:none;">
+    <div class="add-block-label" data-i18n="mm_sec_first_input">Numéro de rayon</div>
+    <div class="num-row">
+      <button class="num-step" id="firstDown" type="button">−</button>
+      <input class="num-input" id="firstInput" type="number" min="1" inputmode="numeric" value="1">
+      <button class="num-step" id="firstUp" type="button">+</button>
+    </div>
+    <button class="add-btn" id="firstAddBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span data-i18n="mm_sec_first_btn">Configurer ce rayon</span>
+    </button>
+  </div>
+
+  <!-- STATE B: subsequent section (big number card with three actions) -->
+  <div class="next-card" id="nextBlock" style="display:none;">
+    <div class="next-card-label" data-i18n="mm_sec_next_title">Rayon suivant</div>
+    <div class="next-card-num" id="nextNum">1</div>
+    <div class="next-card-msg" data-i18n="mm_sec_next_sub">Le prochain numéro dans la séquence</div>
+  </div>
+
+  <div class="actions-stack" id="actionsBlock" style="display:none;">
+    <button class="add-btn" id="setupBtn" type="button" style="margin-top: 0;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span data-i18n="mm_sec_setup_btn">Configurer ce rayon</span>
+    </button>
+    <button class="btn-skip" id="skipBtn" data-i18n="mm_sec_skip_btn">Sauter ce rayon</button>
+    <button class="btn-done" id="doneBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <span data-i18n="mm_sec_done_btn">Plus de rayons — passer à l'allée suivante</span>
+    </button>
+  </div>
+
+  <!-- Section list at bottom -->
+  <div class="section-header" id="secHeader" style="display:none;" data-i18n="mm_sections_completed">Rayons configurés</div>
+  <div class="sec-list" id="secList"></div>
+
+</div>
+
+<!-- Section detail sheet -->
+<div class="sheet-backdrop" id="sheetBackdrop">
+  <div class="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-handle"></div>
+    <div class="sheet-eyebrow" data-i18n="mm_sec_eyebrow">Allée</div>
+    <div class="sheet-title" id="sheetTitle">Rayon</div>
+
+    <div class="sheet-target" id="sheetTarget">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
+      <div>
+        <div class="sheet-target-label" data-i18n="sec_sheet_looking">Cible</div>
+        <div class="sheet-target-value" id="sheetTargetValue"></div>
+      </div>
+    </div>
+
+    <div class="sheet-skipped" id="sheetSkipped" style="display:none;" data-i18n="sec_sheet_skipped">Sauté — non installé</div>
+
+    <div class="sheet-actions">
+      <button class="sheet-btn sheet-btn-edit"   id="sheetEdit"   data-i18n="sec_sheet_edit">Modifier</button>
+      <button class="sheet-btn sheet-btn-delete" id="sheetDelete" data-i18n="sec_sheet_delete">Supprimer</button>
+    </div>
+    <button class="sheet-cancel" id="sheetCancel" data-i18n="common_cancel">Annuler</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+
+  const params  = new URLSearchParams(location.search);
+  const zoneId  = params.get('zone');
+  const aisleId = params.get('aisle');
+
+  if (!zoneId || !aisleId) { window.location.href = 'mm_zone.html'; }
+
+  const zone  = findZone(getMap(), zoneId);
+  const aisle = zone ? findAisle(zone, aisleId) : null;
+  if (!zone || !aisle) { window.location.href = 'mm_zone.html'; }
+
+  document.getElementById('zoneLbl').textContent  = zone.name;
+  document.getElementById('aisleLbl').textContent = aisle.number;
+  document.getElementById('aisleBc').href = `mm_aisle.html?zone=${zoneId}`;
+  document.getElementById('backLink').href = `mm_aisle.html?zone=${zoneId}`;
+
+  function refresh() {
+    const z = findZone(getMap(), zoneId);
+    const a = findAisle(z, aisleId);
+
+    const isFirst = a.sections.length === 0;
+    const eyebrow = document.getElementById('eyebrow');
+    const title   = document.getElementById('title');
+    const sub     = document.getElementById('sub');
+
+    if (isFirst) {
+      eyebrow.textContent = `${t('mm_sec_eyebrow')} ${a.number}`;
+      title.textContent   = t('mm_sec_first_title');
+      sub.textContent     = t('mm_sec_first_sub');
+
+      document.getElementById('firstBlock').style.display = 'block';
+      document.getElementById('nextBlock').style.display  = 'none';
+      document.getElementById('actionsBlock').style.display = 'none';
+    } else {
+      eyebrow.textContent = `${t('mm_sec_eyebrow')} ${a.number}`;
+      title.textContent   = t('mm_sec_next_title');
+      sub.textContent     = t('mm_sec_next_sub');
+
+      document.getElementById('firstBlock').style.display = 'none';
+      document.getElementById('nextBlock').style.display  = 'block';
+      document.getElementById('actionsBlock').style.display = 'flex';
+      document.getElementById('nextNum').textContent = nextSectionNumber(zoneId, aisleId);
+    }
+
+    // Render existing sections as chips (now tappable)
+    const list = document.getElementById('secList');
+    const header = document.getElementById('secHeader');
+    list.innerHTML = '';
+    if (a.sections.length) {
+      header.style.display = 'block';
+      a.sections.forEach(s => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'sec-chip' + (s.skipped ? ' skipped' : '');
+        chip.textContent = s.number;
+        chip.addEventListener('click', () => openSheet(s));
+        list.appendChild(chip);
+      });
+    } else {
+      header.style.display = 'none';
+    }
+  }
+
+  /* ----- Detail sheet ----- */
+  let sheetCurrent = null;
+  function openSheet(section) {
+    sheetCurrent = section;
+    const a = findAisle(findZone(getMap(), zoneId), aisleId);
+    document.getElementById('sheetTitle').textContent =
+      `${t('mm_sec_first_input')} ${section.number}`;
+
+    if (section.skipped) {
+      document.getElementById('sheetTarget').style.display = 'none';
+      document.getElementById('sheetSkipped').style.display = 'block';
+      document.getElementById('sheetEdit').style.display = 'none';
+    } else {
+      document.getElementById('sheetTarget').style.display = 'flex';
+      document.getElementById('sheetSkipped').style.display = 'none';
+      document.getElementById('sheetEdit').style.display = 'block';
+      document.getElementById('sheetTargetValue').textContent =
+        `${t('mm_look_aisle')} ${section.lookAtAisle} · ${t('mm_look_section')} ${section.lookAtSection}`;
+    }
+    document.getElementById('sheetBackdrop').classList.add('open');
+  }
+  function closeSheet() {
+    document.getElementById('sheetBackdrop').classList.remove('open');
+    sheetCurrent = null;
+  }
+  document.getElementById('sheetCancel').addEventListener('click', closeSheet);
+  document.getElementById('sheetBackdrop').addEventListener('click', (e) => {
+    if (e.target.id === 'sheetBackdrop') closeSheet();
+  });
+  document.getElementById('sheetEdit').addEventListener('click', () => {
+    if (!sheetCurrent) return;
+    window.location.href = `mm_lookat.html?zone=${zoneId}&aisle=${aisleId}&n=${sheetCurrent.number}&edit=${sheetCurrent.id}`;
+  });
+  document.getElementById('sheetDelete').addEventListener('click', () => {
+    if (!sheetCurrent) return;
+    const ok = confirm(t('sec_sheet_confirm_del'));
+    if (!ok) return;
+    deleteSection(zoneId, aisleId, sheetCurrent.id);
+    closeSheet();
+    refresh();
+  });
+
+  // Number steppers for first
+  const firstInput = document.getElementById('firstInput');
+  document.getElementById('firstDown').addEventListener('click', () => {
+    firstInput.value = Math.max(1, (parseInt(firstInput.value, 10) || 1) - 1);
+  });
+  document.getElementById('firstUp').addEventListener('click', () => {
+    firstInput.value = Math.max(1, (parseInt(firstInput.value, 10) || 0) + 1);
+  });
+
+  // First section -> looking-at question
+  document.getElementById('firstAddBtn').addEventListener('click', () => {
+    const n = parseInt(firstInput.value, 10);
+    if (!n || n < 1) { firstInput.focus(); return; }
+    // Stash pending section info, route to lookat
+    sessionStorage.setItem('pendingSection', JSON.stringify({ zoneId, aisleId, number: n }));
+    window.location.href = `mm_lookat.html?zone=${zoneId}&aisle=${aisleId}&n=${n}`;
+  });
+
+  // Subsequent: setup -> lookat (pre-filled with next number)
+  document.getElementById('setupBtn').addEventListener('click', () => {
+    const n = nextSectionNumber(zoneId, aisleId);
+    sessionStorage.setItem('pendingSection', JSON.stringify({ zoneId, aisleId, number: n }));
+    window.location.href = `mm_lookat.html?zone=${zoneId}&aisle=${aisleId}&n=${n}`;
+  });
+
+  // Skip
+  document.getElementById('skipBtn').addEventListener('click', () => {
+    const n = nextSectionNumber(zoneId, aisleId);
+    addSection(zoneId, aisleId, { number: n, skipped: true });
+    refresh();
+  });
+
+  // Done with this aisle -> review grid for sections
+  document.getElementById('doneBtn').addEventListener('click', () => {
+    const a = findAisle(findZone(getMap(), zoneId), aisleId);
+    if (!a.sections.filter(s => !s.skipped).length) {
+      showToast({
+        icon: 'warn',
+        message: getLang() === 'fr' ? 'Configurez au moins un rayon' : 'Set up at least one section',
+        autoHide: 3000,
+      });
+      return;
+    }
+    window.location.href = `mm_section_review.html?zone=${zoneId}&aisle=${aisleId}`;
+  });
+
+  refresh();
+</script>
+</body>
+</html>

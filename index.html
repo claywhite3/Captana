@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    .login-shell {
+      width: 100%; max-width: 390px; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0 20px 40px;
+    }
+
+    .lang-bar {
+      width: 100%; display: flex; justify-content: flex-end;
+      padding-top: 18px;
+      animation: fadeUp .35s ease both;
+    }
+    .lang-toggle {
+      display: inline-flex; background: #fff;
+      border-radius: 999px; padding: 4px;
+      box-shadow: var(--shadow-sm);
+    }
+    .lang-toggle button {
+      border: none; background: transparent;
+      padding: 7px 14px; border-radius: 999px;
+      font-family: inherit; font-size: 12px; font-weight: 700;
+      color: var(--c-muted); cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .lang-toggle button.active {
+      background: var(--c-blue); color: #fff;
+    }
+
+    .brand-wrap {
+      margin-top: 56px; margin-bottom: 28px;
+      display: flex; flex-direction: column; align-items: center;
+      animation: fadeUp .4s .05s ease both;
+    }
+    .brand-mark {
+      width: 64px; height: 64px;
+      border-radius: 18px;
+      background: var(--c-ink);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 28px rgba(17,24,39,.18);
+      position: relative;
+    }
+    /* The "C" rendered as a thick stroke — Captana mark */
+    .brand-mark::before {
+      content: '';
+      width: 30px; height: 30px;
+      border: 4px solid #fff;
+      border-radius: 50%;
+      border-right-color: transparent;
+      transform: rotate(-45deg);
+    }
+    .brand-name {
+      margin-top: 12px;
+      font-size: 28px; font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--c-ink);
+    }
+    .brand-by {
+      margin-top: 4px;
+      font-size: 11px; color: var(--c-muted);
+      font-weight: 500;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .brand-by img { width: 14px; height: 14px; }
+
+    .login-card {
+      width: 100%;
+      background: #fff;
+      border-radius: 24px;
+      padding: 28px 24px 28px;
+      box-shadow: var(--shadow-lg);
+      animation: fadeUp .4s .15s ease both; opacity: 0;
+    }
+    .card-h {
+      font-size: 22px; font-weight: 800;
+      color: var(--c-ink); margin-bottom: 4px;
+    }
+    .card-s {
+      font-size: 14px; color: var(--c-muted);
+      margin-bottom: 22px; font-weight: 500;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .field-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--c-ink-2);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .field-input {
+      width: 100%;
+      padding: 14px 16px;
+      background: #F9FAFB;
+      border: 1.5px solid var(--c-line);
+      border-radius: 14px;
+      font-family: inherit; font-size: 16px; font-weight: 500;
+      color: var(--c-ink); outline: none;
+      transition: border-color .15s, box-shadow .15s, background .15s;
+    }
+    .field-input:focus {
+      border-color: var(--c-blue);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+    }
+    .field-input.error {
+      border-color: var(--c-red);
+      box-shadow: 0 0 0 3px rgba(239,68,68,0.10);
+    }
+    .field-input::placeholder { color: var(--c-muted-2); }
+
+    .err-msg {
+      font-size: 13px; color: var(--c-red);
+      font-weight: 600; min-height: 18px;
+      margin: 4px 0 6px;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      font-size: 11px; color: var(--c-muted-2);
+      text-align: center;
+      animation: fadeUp .4s .25s ease both; opacity: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="login-shell">
+
+  <div class="lang-bar">
+    <div class="lang-toggle" role="tablist" aria-label="Language">
+      <button id="langFr" type="button">FR</button>
+      <button id="langEn" type="button">EN</button>
+    </div>
+  </div>
+
+  <div class="brand-wrap">
+    <div class="brand-mark" aria-hidden="true"></div>
+    <div class="brand-name">Captana</div>
+    <div class="brand-by">
+      <img src="vusion-logo.png" alt="">
+      <span>by Vusion</span>
+    </div>
+  </div>
+
+  <div class="login-card">
+    <div class="card-h"   data-i18n="login_welcome">Bienvenue</div>
+    <div class="card-s"   data-i18n="login_sub">Connectez-vous pour continuer vers Captana</div>
+
+    <div class="field">
+      <div class="field-label" data-i18n="login_email">E-mail</div>
+      <input class="field-input" id="emailInput" type="email"
+             data-i18n-ph="login_email_ph" placeholder="vous@exemple.com"
+             autocomplete="email" autocapitalize="off" autocorrect="off">
+    </div>
+
+    <div class="field">
+      <div class="field-label" data-i18n="login_password">Mot de passe</div>
+      <input class="field-input" id="passInput" type="password"
+             placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <div class="err-msg" id="errMsg"></div>
+
+    <button class="btn-primary" id="btnLogin" data-i18n="login_btn">Se connecter</button>
+  </div>
+
+  <div class="footer-note">v0.1 • Demo</div>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  // Default to French if no choice has been made yet
+  if (!sessionStorage.getItem('lang')) setLang('fr');
+
+  const btnFr = document.getElementById('langFr');
+  const btnEn = document.getElementById('langEn');
+  function syncLangButtons() {
+    const l = getLang();
+    btnFr.classList.toggle('active', l === 'fr');
+    btnEn.classList.toggle('active', l === 'en');
+  }
+  btnFr.addEventListener('click', () => { setLang('fr'); translatePage(); syncLangButtons(); });
+  btnEn.addEventListener('click', () => { setLang('en'); translatePage(); syncLangButtons(); });
+
+  // initial paint
+  translatePage();
+  syncLangButtons();
+
+  const emailEl = document.getElementById('emailInput');
+  const passEl  = document.getElementById('passInput');
+  const errEl   = document.getElementById('errMsg');
+  const btn     = document.getElementById('btnLogin');
+
+  [emailEl, passEl].forEach(el => {
+    el.addEventListener('keydown', e => { if (e.key === 'Enter') attemptLogin(); });
+    el.addEventListener('input',   () => { errEl.textContent = ''; el.classList.remove('error'); });
+  });
+  btn.addEventListener('click', attemptLogin);
+
+  function isEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }
+
+  function attemptLogin() {
+    errEl.textContent = '';
+    emailEl.classList.remove('error');
+    passEl.classList.remove('error');
+
+    const email = emailEl.value.trim();
+    const pass  = passEl.value;
+
+    if (!isEmail(email)) {
+      emailEl.classList.add('error');
+      errEl.textContent = t('login_err_email');
+      return;
+    }
+    if (pass.length < 6) {
+      passEl.classList.add('error');
+      errEl.textContent = t('login_err_pass');
+      return;
+    }
+
+    sessionStorage.setItem('userEmail', email);
+    // Initials are derived from language (AB / CW), set by setLang
+    if (!sessionStorage.getItem('userInitials')) {
+      sessionStorage.setItem('userInitials', getLang() === 'fr' ? 'AB' : 'CW');
+    }
+    window.location.href = 'location.html';
+  }
+</script>
+</body>
+</html>

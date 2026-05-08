@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Activation</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    .status-card {
+      margin: 14px 20px 0;
+      background: var(--c-green-soft);
+      border: 1.5px solid var(--c-green-line);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: var(--shadow-sm);
+      animation: fadeUp .4s .04s ease both; opacity: 0;
+    }
+    .status-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: rgba(22,163,74,.18);
+      color: var(--c-green);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .status-icon svg { width: 22px; height: 22px; }
+    .status-text { flex: 1; min-width: 0; }
+    .status-label {
+      font-size: 10px; font-weight: 700;
+      color: var(--c-green);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .status-value {
+      font-size: 15px; font-weight: 700;
+      color: var(--c-ink);
+      margin-top: 2px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 1px;
+    }
+
+    .stage {
+      margin: 16px 20px 0;
+      background: #fff;
+      border-radius: 22px;
+      box-shadow: var(--shadow-md);
+      height: 380px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp .4s .12s ease both; opacity: 0;
+    }
+
+    .pill-area {
+      padding: 12px 20px 0;
+      display: flex; flex-direction: column;
+      gap: 8px;
+      min-height: 76px;
+    }
+    .nfc-pill {
+      opacity: 0;
+      transition: opacity .3s;
+      border-radius: 999px;
+      padding: 9px 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .nfc-pill svg.lead { width: 14px; height: 14px; }
+    .pill-steady {
+      background: #FFF7ED;
+      border: 1.5px solid #FED7AA;
+      align-self: center;
+    }
+    .pill-steady span { font-size: 12px; font-weight: 700; color: #B45309; }
+    .pill-steady svg.lead { color: #F59E0B; }
+    .pill-wifi {
+      background: var(--c-blue-soft);
+      border: 1.5px solid var(--c-blue-line);
+    }
+    .pill-wifi svg.lead { color: var(--c-blue); }
+    .pill-wifi-text {
+      font-size: 12px; font-weight: 700;
+      color: #1E40AF;
+      flex: 1;
+    }
+    .pill-spinner {
+      width: 12px; height: 12px;
+      border: 2px solid var(--c-blue-line);
+      border-top-color: var(--c-blue);
+      border-radius: 50%;
+      animation: spinPill .8s linear infinite;
+    }
+    @keyframes spinPill { to { transform: rotate(360deg); } }
+    .pill-camid {
+      background: var(--c-green-soft);
+      border: 1.5px solid var(--c-green-line);
+    }
+    .pill-camid svg.lead { color: var(--c-green); }
+    .pill-camid-label {
+      font-size: 11px; font-weight: 700;
+      color: #15803D;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .pill-camid-value {
+      font-size: 13px; font-weight: 700;
+      color: var(--c-ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 1px;
+      flex: 1; text-align: right;
+    }
+
+    .guide-link-row {
+      padding: 16px 20px 0;
+      display: flex; justify-content: center;
+      animation: fadeUp .4s .2s ease both; opacity: 0;
+    }
+    .guide-pill {
+      background: #fff;
+      border: 1.5px solid var(--c-blue-line);
+      color: var(--c-blue);
+      font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer;
+      padding: 9px 16px;
+      border-radius: 999px;
+      display: inline-flex; align-items: center; gap: 8px;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.06);
+      text-decoration: none;
+      transition: transform .15s;
+    }
+    .guide-pill:active { transform: scale(.97); }
+    .guide-pill svg { width: 16px; height: 16px; }
+
+    .footer-stack {
+      padding: 20px 20px 0;
+      display: flex; flex-direction: column; gap: 10px;
+      margin-top: auto;
+      animation: fadeUp .4s .25s ease both; opacity: 0;
+    }
+    .btn-continue {
+      width: 100%;
+      padding: 16px;
+      background: var(--c-green);
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      font-family: inherit; font-size: 16px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(22,163,74,.30);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      opacity: .35;
+      transition: opacity .25s, transform .15s;
+    }
+    .btn-continue:not(:disabled) { opacity: 1; }
+    .btn-continue:not(:disabled):active { transform: scale(.975); }
+    .btn-continue svg { width: 18px; height: 18px; }
+
+    /* ── Phone animation ── */
+    @keyframes phoneRock {
+      0%   { transform: translate(200px, 320px); }
+      16%  { transform: translate(200px, 240px); }
+      33%  { transform: translate(200px, 290px); }
+      50%  { transform: translate(200px, 240px); }
+      66%  { transform: translate(200px, 290px); }
+      83%  { transform: translate(200px, 240px); }
+      100% { transform: translate(200px, 240px); }
+    }
+    @keyframes phoneRetreat { to { transform: translate(200px, 380px); } }
+    .phone-rock    { animation: phoneRock 4s ease-in-out 1 forwards; }
+    .phone-retreat { animation: phoneRetreat .7s ease-in forwards; }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="install_v_battery.html" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" data-i18n="inv_nfc_eyebrow">Étape 2 sur 4</div>
+    <div class="hero-title" id="heroTitle" data-i18n="inv_nfc_title">Approchez votre téléphone</div>
+    <div class="hero-sub"   id="heroSub"   data-i18n="inv_nfc_sub">Levez le haut de votre téléphone vers la caméra installée.</div>
+  </div>
+
+  <div class="status-card">
+    <div class="status-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    <div class="status-text">
+      <div class="status-label" data-i18n="inv_batt_status_label">Emplacement d'installation</div>
+      <div class="status-value" id="locationValue">A · 4 · 5</div>
+    </div>
+  </div>
+
+  <div class="stage">
+
+    <svg id="ringPulse" viewBox="0 0 400 380" preserveAspectRatio="xMidYMid meet" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity .3s;">
+      <circle cx="200" cy="100" r="58" fill="none" stroke="#16A34A" stroke-width="3" opacity="0.85">
+        <animate attributeName="r" values="58;130" dur="1.4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.85;0" dur="1.4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="200" cy="100" r="58" fill="none" stroke="#16A34A" stroke-width="3" opacity="0.85">
+        <animate attributeName="r" values="58;130" dur="1.4s" begin="0.7s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.85;0" dur="1.4s" begin="0.7s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+
+    <svg viewBox="0 0 400 380" preserveAspectRatio="xMidYMid meet" style="position: absolute; inset: 0; width: 100%; height: 100%;">
+
+      <g id="cameraGroup" transform="translate(200, 100)">
+        <rect x="-72" y="-44" width="144" height="88" rx="9" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="2.5"/>
+        <rect x="60" y="-40" width="12" height="80" rx="3" fill="#F9FAFB" stroke="#9CA3AF" stroke-width="2"/>
+        <line x1="63" y1="-22" x2="69" y2="-22" stroke="#9CA3AF" stroke-width="1.5"/>
+        <line x1="63" y1="-6"  x2="69" y2="-6"  stroke="#9CA3AF" stroke-width="1.5"/>
+        <line x1="63" y1="10"  x2="69" y2="10"  stroke="#9CA3AF" stroke-width="1.5"/>
+        <line x1="63" y1="26"  x2="69" y2="26"  stroke="#9CA3AF" stroke-width="1.5"/>
+        <circle cx="-32" cy="-6" r="20" fill="#1F2937"/>
+        <circle cx="-32" cy="-6" r="13" fill="#374151"/>
+        <circle cx="-32" cy="-6" r="5" fill="#60A5FA"/>
+        <rect x="-50" y="22" width="14" height="5" rx="1.5" fill="#9CA3AF"/>
+        <text x="20" y="32" font-family="DM Sans" font-size="10" font-weight="700" fill="#9CA3AF" text-anchor="middle">captana</text>
+        <g id="successOverlay" opacity="0" style="transition: opacity .35s;">
+          <circle cx="0" cy="0" r="32" fill="#16A34A"/>
+          <polyline points="-13 0 -3 9 13 -11" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+      </g>
+
+      <g id="phoneGroup" transform="translate(200, 320)">
+        <rect x="-50" y="-120" width="100" height="220" rx="14" fill="#1F2937" stroke="#111827" stroke-width="1.5"/>
+        <rect x="-44" y="-112" width="88" height="204" rx="6" fill="#F2F3F7"/>
+        <g>
+          <circle cx="-30" cy="-100" r="5" fill="#FFFFFF"/>
+          <path d="M -32 -100 L -28 -100" stroke="#374151" stroke-width="1.2" stroke-linecap="round"/>
+          <circle cx="0" cy="-100" r="5" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="0.8"/>
+          <path d="M -2 -101 L -2 -98 M 2 -101 L 2 -98 M -3 -98 L 3 -98" stroke="#2563EB" stroke-width="0.8" stroke-linecap="round" fill="none"/>
+          <circle cx="30" cy="-100" r="5" fill="#2563EB"/>
+          <text x="30" y="-98" font-family="DM Sans" font-size="4.5" font-weight="800" fill="#fff" text-anchor="middle">AB</text>
+        </g>
+        <text x="-38" y="-82" font-family="DM Sans" font-size="4" font-weight="700" fill="#2563EB" letter-spacing="0.3">ÉTAPE 2 SUR 4</text>
+        <text x="-38" y="-73" font-family="DM Sans" font-size="6.5" font-weight="800" fill="#111827">Approchez le téléphone</text>
+        <rect x="-38" y="-66" width="76" height="14" rx="3" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="0.6"/>
+        <rect x="-35" y="-63" width="8" height="8" rx="1.5" fill="#16A34A" opacity="0.25"/>
+        <text x="-25" y="-59" font-family="DM Sans" font-size="3" font-weight="700" fill="#16A34A">EMPLACEMENT</text>
+        <text x="-25" y="-55" font-family="DM Sans" font-size="4.5" font-weight="800" fill="#111827">A · 4 · 5</text>
+        <rect x="-38" y="-48" width="76" height="92" rx="4" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="0.5"/>
+        <rect x="-32" y="-22" width="64" height="34" rx="3" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="0.5"/>
+        <text x="-26" y="-12" font-family="DM Sans" font-size="5.5" font-weight="700" fill="#111827">Status</text>
+        <rect x="-26" y="-8" width="48" height="2" rx="1" fill="#D1D5DB"/>
+        <rect x="-26" y="-4" width="38" height="2" rx="1" fill="#D1D5DB"/>
+        <rect x="-26" y="4" width="14" height="6" rx="1.5" fill="#FBBF24"/>
+        <rect x="-32" y="50" width="64" height="22" rx="3" fill="#16A34A"/>
+        <text x="0" y="65" font-family="DM Sans" font-size="7" font-weight="800" fill="#fff" text-anchor="middle">CONTINUE</text>
+        <circle cx="0" cy="92" r="3.5" fill="#4B5563"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="pill-area">
+    <div id="pillSteady" class="nfc-pill pill-steady">
+      <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span data-i18n="inv_nfc_steady">Tenez bien immobile</span>
+    </div>
+    <div id="pillWifi" class="nfc-pill pill-wifi">
+      <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+      <span class="pill-wifi-text" id="pillWifiText" data-i18n="inv_nfc_wifi_sending">Envoi des identifiants Wi-Fi…</span>
+      <div class="pill-spinner" id="pillWifiSpinner"></div>
+      <svg id="pillWifiCheck" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;display:none;"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div id="pillCamId" class="nfc-pill pill-camid">
+      <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      <span class="pill-camid-label" data-i18n="inv_nfc_camid_label">Caméra</span>
+      <span class="pill-camid-value" id="pillCamIdValue">tc2ld-0000345</span>
+    </div>
+  </div>
+
+  <div class="guide-link-row">
+    <a href="install_guide_stub.html" class="guide-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      <span data-i18n="inv_batt_guide_link">Voir le guide d'installation</span>
+    </a>
+  </div>
+
+  <div class="footer-stack">
+    <button class="btn-continue" id="continueBtn" disabled>
+      <span data-i18n="common_continue">Continuer</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+
+  /* Pull resolved location into the status card */
+  (function () {
+    var z = sessionStorage.getItem('vusionInstallZone')    || 'A';
+    var a = sessionStorage.getItem('vusionInstallAisle')   || '4';
+    var s = sessionStorage.getItem('vusionInstallSection') || '5';
+    document.getElementById('locationValue').textContent = z + ' · ' + a + ' · ' + s;
+  })();
+
+  var phone       = document.getElementById('phoneGroup');
+  var ring        = document.getElementById('ringPulse');
+  var success     = document.getElementById('successOverlay');
+  var pSteady     = document.getElementById('pillSteady');
+  var pWifi       = document.getElementById('pillWifi');
+  var pCam        = document.getElementById('pillCamId');
+  var wifiSpinner = document.getElementById('pillWifiSpinner');
+  var wifiCheck   = document.getElementById('pillWifiCheck');
+  var wifiText    = document.getElementById('pillWifiText');
+  var hTitle      = document.getElementById('heroTitle');
+  var hSub        = document.getElementById('heroSub');
+  var contBtn     = document.getElementById('continueBtn');
+
+  /* The fake camera ID we registered. In production this comes from the NFC
+     handshake response. */
+  var CAMERA_ID = 'tc2ld-0000345';
+
+  phone.classList.add('phone-rock');
+
+  setTimeout(function () {
+    ring.style.opacity = '1';
+    pSteady.style.opacity = '1';
+    hTitle.textContent = t('inv_nfc_active_title');
+    hSub.textContent  = t('inv_nfc_active_sub');
+  }, 4000);
+
+  setTimeout(function () { pWifi.style.opacity = '1'; }, 4900);
+
+  setTimeout(function () {
+    wifiSpinner.style.display = 'none';
+    wifiCheck.style.display = 'inline-block';
+    wifiText.textContent = t('inv_nfc_wifi_sent');
+    wifiText.style.color = '#15803D';
+  }, 6400);
+
+  setTimeout(function () { pCam.style.opacity = '1'; }, 6700);
+
+  setTimeout(function () {
+    ring.style.opacity = '0';
+    pSteady.style.opacity = '0';
+    success.setAttribute('opacity', '1');
+    phone.classList.remove('phone-rock');
+    phone.classList.add('phone-retreat');
+    hTitle.textContent = t('inv_nfc_done_title');
+    hSub.textContent  = t('inv_nfc_done_sub');
+    contBtn.disabled = false;
+
+    sessionStorage.setItem('vusionCameraId', CAMERA_ID);
+    if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
+  }, 7800);
+
+  contBtn.addEventListener('click', function () {
+    /* Step 3 of 4 (target tag scan) is built next */
+    window.location.href = 'install_v_scan_target.html';
+  });
+</script>
+</body>
+</html>

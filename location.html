@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Magasins</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    .store-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow-md);
+      text-decoration: none;
+      display: flex; align-items: flex-start; gap: 14px;
+      transition: transform .15s, box-shadow .15s;
+      border: 1.5px solid transparent;
+      position: relative; overflow: hidden;
+    }
+    .store-card:active { transform: scale(.975); box-shadow: 0 1px 5px rgba(0,0,0,0.08); }
+    .store-card::before {
+      content:''; position:absolute; left:0; top:0; bottom:0; width:4px;
+      background: var(--accent);
+    }
+    .store-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .store-icon svg { width: 22px; height: 22px; }
+
+    .store-body { flex: 1; min-width: 0; }
+    .store-type {
+      font-size: 10px; font-weight: 800;
+      color: var(--accent);
+      text-transform: uppercase; letter-spacing: .6px;
+    }
+    .store-name {
+      font-size: 15px; font-weight: 700;
+      color: var(--c-ink);
+      line-height: 1.25; margin-top: 3px;
+    }
+    .store-addr {
+      font-size: 12px; color: var(--c-muted);
+      margin-top: 4px; line-height: 1.35;
+    }
+
+    .store-arrow {
+      width: 28px; height: 28px;
+      background: #F3F4F6; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .store-arrow svg { width: 13px; height: 13px; color: var(--c-muted); }
+
+    .lang-mini {
+      font-size: 11px; font-weight: 700;
+      color: var(--c-muted);
+      background: #fff;
+      border: 1.5px solid var(--c-line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="index.html" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <button id="langMini" class="lang-mini" type="button">FR</button>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow">Carrefour</div>
+    <div class="hero-title" data-i18n="loc_title">Sélectionner un magasin</div>
+    <div class="hero-sub"   data-i18n="loc_sub">Choisissez le site où vous travaillez aujourd'hui</div>
+  </div>
+
+  <div class="card-list stagger" id="storeList" style="margin-top: 8px;"></div>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+
+  const langBtn = document.getElementById('langMini');
+  const syncLang = () => langBtn.textContent = getLang().toUpperCase();
+  syncLang();
+  langBtn.addEventListener('click', () => {
+    setLang(getLang() === 'fr' ? 'en' : 'fr');
+    translatePage();
+    syncLang();
+    document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials');
+    renderStores();
+  });
+
+  // Carrefour shopping-cart icon
+  const ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="9" cy="21" r="1.5"/>
+    <circle cx="18" cy="21" r="1.5"/>
+    <path d="M2.5 3.5h2.7L7.6 16.4a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.5l1.6-6.5H6.2"/>
+  </svg>`;
+
+  function hexToRgba(hex, a) {
+    const n = parseInt(hex.replace('#',''), 16);
+    return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;
+  }
+
+  function renderStores() {
+    const list = document.getElementById('storeList');
+    list.innerHTML = '';
+    STORES.forEach(s => {
+      const a = document.createElement('a');
+      a.className = 'store-card';
+      a.href = 'flow_picker.html';
+      a.style.setProperty('--accent', s.color);
+      a.style.setProperty('--accent-soft', hexToRgba(s.color, 0.10));
+      a.addEventListener('click', () => {
+        sessionStorage.setItem('storeId',   s.id);
+        sessionStorage.setItem('storeName', s.name);
+        sessionStorage.setItem('storeAddr', s.address);
+        // New store = reset mapping state
+        setMappingStatus('none');
+      });
+      a.innerHTML = `
+        <div class="store-icon">${ICON}</div>
+        <div class="store-body">
+          <div class="store-type">${t(s.typeKey)}</div>
+          <div class="store-name">${s.name}</div>
+          <div class="store-addr">${s.address}</div>
+        </div>
+        <div class="store-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>`;
+      list.appendChild(a);
+    });
+  }
+
+  renderStores();
+</script>
+</body>
+</html>

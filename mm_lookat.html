@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Cible</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    .breadcrumb-row {
+      margin: 0 20px;
+      display: flex; gap: 8px;
+      animation: fadeUp .35s ease both;
+      padding-top: 12px;
+    }
+    .breadcrumb {
+      flex: 1;
+      padding: 7px 12px;
+      background: var(--c-blue-soft);
+      border: 1.5px solid var(--c-blue-line);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform .15s, border-color .15s;
+    }
+    .breadcrumb:active { transform: scale(.97); border-color: var(--c-blue); }
+    .breadcrumb-left { display: flex; align-items: center; gap: 5px; }
+    .breadcrumb-up { width: 12px; height: 12px; color: var(--c-blue); flex-shrink: 0; }
+    .breadcrumb-label {
+      font-size: 10px; font-weight: 700;
+      color: var(--c-blue);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .breadcrumb-value {
+      font-size: 14px; font-weight: 800;
+      color: var(--c-ink);
+    }
+
+    .eye-illu {
+      margin: 16px 20px 0;
+      background: #fff;
+      border-radius: 22px;
+      padding: 22px 18px;
+      box-shadow: var(--shadow-md);
+      animation: fadeUp .4s .08s ease both; opacity: 0;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 160px;
+    }
+    .eye-illu svg { width: 100%; height: auto; max-height: 160px; }
+
+    .pair-row {
+      margin: 16px 20px 0;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      animation: fadeUp .4s .15s ease both; opacity: 0;
+    }
+    .pair-field {
+      background: #fff;
+      border-radius: 18px;
+      padding: 16px 16px 14px;
+      box-shadow: var(--shadow-md);
+    }
+    .pair-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--c-blue);
+      text-transform: uppercase; letter-spacing: .5px;
+      margin-bottom: 8px;
+    }
+    .pair-input {
+      width: 100%;
+      padding: 14px 12px;
+      background: #F9FAFB;
+      border: 2px solid var(--c-line);
+      border-radius: 12px;
+      font-family: inherit; font-size: 26px; font-weight: 800;
+      color: var(--c-ink); outline: none;
+      text-align: center;
+      transition: border-color .15s, color .15s, background .15s;
+    }
+    .pair-input.inferred {
+      color: var(--c-muted-2);
+      border-style: dashed;
+    }
+    .pair-input:focus {
+      border-color: var(--c-blue);
+      border-style: solid;
+      color: var(--c-ink);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+    }
+    .pair-hint {
+      margin-top: 6px;
+      font-size: 11px; color: var(--c-muted-2);
+      font-weight: 600;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .pair-hint.hidden { visibility: hidden; }
+    .pair-hint svg { width: 12px; height: 12px; }
+
+    .footer-stack {
+      padding: 24px 20px 0;
+      display: flex; flex-direction: column; gap: 10px;
+      margin-top: auto;
+      animation: fadeUp .4s .25s ease both; opacity: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="#" id="backLink" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" data-i18n="mm_look_eyebrow">Configurer le rayon</div>
+    <div class="hero-title" data-i18n="mm_look_title">Que regarde cette caméra ?</div>
+    <div class="hero-sub"   data-i18n="mm_look_sub">Lorsqu'elle sera installée ici, quelle allée et quel rayon observera-t-elle en face ?</div>
+  </div>
+
+  <div class="breadcrumb-row">
+    <a href="mm_zone.html" class="breadcrumb" id="zoneBc">
+      <div class="breadcrumb-left">
+        <svg class="breadcrumb-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        <span class="breadcrumb-label" data-i18n="mm_aisle_eyebrow">Zone</span>
+      </div>
+      <span class="breadcrumb-value" id="zoneLbl"></span>
+    </a>
+    <a href="#" class="breadcrumb" id="aisleBc">
+      <div class="breadcrumb-left">
+        <svg class="breadcrumb-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        <span class="breadcrumb-label" data-i18n="mm_sec_eyebrow">Allée</span>
+      </div>
+      <span class="breadcrumb-value" id="aisleLbl"></span>
+    </a>
+  </div>
+
+  <div class="eye-illu">
+    <svg viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg" fill="none">
+      <!-- mounting shelf with camera -->
+      <rect x="22" y="40" width="34" height="80" rx="3" fill="#F3F4F6" stroke="#9CA3AF" stroke-width="1.8"/>
+      <g transform="translate(56, 80)">
+        <rect x="0" y="-9" width="22" height="18" rx="3" fill="#111827"/>
+        <circle cx="6" cy="0" r="4.5" fill="#2563EB"/>
+        <circle cx="6" cy="0" r="1.8" fill="#fff"/>
+      </g>
+
+      <!-- big eye in middle showing the "looking" -->
+      <g transform="translate(160, 80)">
+        <ellipse cx="0" cy="0" rx="40" ry="22" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
+        <circle cx="0" cy="0" r="13" fill="#2563EB"/>
+        <circle cx="3"  cy="-3" r="3" fill="#fff"/>
+      </g>
+      <!-- sight beams to right shelf -->
+      <line x1="80" y1="74" x2="262" y2="48"  stroke="#2563EB" stroke-width="1.6" stroke-dasharray="4 4" opacity="0.55"/>
+      <line x1="80" y1="86" x2="262" y2="112" stroke="#2563EB" stroke-width="1.6" stroke-dasharray="4 4" opacity="0.55"/>
+
+      <!-- target shelf with "?" overlay -->
+      <rect x="262" y="36" width="40" height="88" rx="3" fill="#FFFFFF" stroke="#2563EB" stroke-width="2"/>
+      <line x1="262" y1="60" x2="302" y2="60" stroke="#BFDBFE" stroke-width="1.5"/>
+      <line x1="262" y1="84" x2="302" y2="84" stroke="#BFDBFE" stroke-width="1.5"/>
+      <line x1="262" y1="108" x2="302" y2="108" stroke="#BFDBFE" stroke-width="1.5"/>
+      <text x="282" y="86" font-family="DM Sans" font-size="22" font-weight="800" fill="#2563EB" text-anchor="middle">?</text>
+    </svg>
+  </div>
+
+  <div class="pair-row">
+    <div class="pair-field">
+      <div class="pair-label" data-i18n="mm_look_aisle">Allée</div>
+      <input class="pair-input inferred" id="aisleInput" type="number" min="1" inputmode="numeric">
+      <div class="pair-hint" id="aisleHint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+        <span data-i18n="mm_look_inferred">Suggéré</span>
+      </div>
+    </div>
+    <div class="pair-field">
+      <div class="pair-label" data-i18n="mm_look_section">Rayon</div>
+      <input class="pair-input inferred" id="secInput" type="number" min="1" inputmode="numeric">
+      <div class="pair-hint" id="secHint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+        <span data-i18n="mm_look_inferred">Suggéré</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-stack">
+    <button class="btn-primary" id="saveBtn" data-i18n="mm_look_save_btn">Enregistrer le rayon</button>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+
+  const params  = new URLSearchParams(location.search);
+  const zoneId  = params.get('zone');
+  const aisleId = params.get('aisle');
+  const number  = parseInt(params.get('n'), 10);
+  const editId  = params.get('edit'); // optional: section ID to edit
+
+  if (!zoneId || !aisleId || !number) { window.location.href = 'mm_zone.html'; }
+
+  // Populate breadcrumb labels
+  const zone  = findZone(getMap(), zoneId);
+  const aisle = zone ? findAisle(zone, aisleId) : null;
+  if (zone)  document.getElementById('zoneLbl').textContent  = zone.name;
+  if (aisle) document.getElementById('aisleLbl').textContent = aisle.number;
+  document.getElementById('aisleBc').href = `mm_aisle.html?zone=${zoneId}`;
+
+  document.getElementById('backLink').href = `mm_section.html?zone=${zoneId}&aisle=${aisleId}`;
+
+  // Compute defaults — either from existing section being edited, or inferred
+  const aisleInput = document.getElementById('aisleInput');
+  const secInput   = document.getElementById('secInput');
+
+  let initialAisle, initialSection, isEditingExistingOverride = false;
+
+  if (editId) {
+    const existing = aisle ? findSection(aisle, editId) : null;
+    if (existing) {
+      initialAisle   = existing.lookAtAisle;
+      initialSection = existing.lookAtSection;
+      isEditingExistingOverride = true;
+    } else {
+      const inf = inferLookAt(zoneId, aisleId, number);
+      initialAisle = inf.aisle; initialSection = inf.section;
+    }
+  } else {
+    const inf = inferLookAt(zoneId, aisleId, number);
+    initialAisle = inf.aisle; initialSection = inf.section;
+  }
+  aisleInput.value = initialAisle;
+  secInput.value   = initialSection;
+
+  // Mark fields as "inferred"; remove that flag on user edit.
+  // When editing an existing section, the values aren't "inferred" — they are the user's saved choices.
+  function setInferred(input, hint, isInferred) {
+    input.classList.toggle('inferred', isInferred);
+    hint.classList.toggle('hidden', !isInferred);
+  }
+  setInferred(aisleInput, document.getElementById('aisleHint'), !isEditingExistingOverride);
+  setInferred(secInput,   document.getElementById('secHint'),   !isEditingExistingOverride);
+
+  aisleInput.addEventListener('input', () => setInferred(aisleInput, document.getElementById('aisleHint'), false));
+  secInput  .addEventListener('input', () => setInferred(secInput,   document.getElementById('secHint'),   false));
+
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    const a = aisleInput.value.trim();
+    const s = secInput.value.trim();
+    if (!a || !s) { return; }
+
+    // Remember the user's chosen target aisle for this aisle, so subsequent
+    // sections in the same aisle pre-fill it. We always remember after a save —
+    // either it's the user's confirmed override or the user's confirmed acceptance
+    // of our inference (which doesn't hurt to persist).
+    setDefaultLookAtAisle(zoneId, aisleId, a);
+
+    if (editId) {
+      updateSection(zoneId, aisleId, editId, {
+        number,
+        lookAtAisle: a,
+        lookAtSection: s,
+        skipped: false,
+      });
+    } else {
+      addSection(zoneId, aisleId, {
+        number,
+        lookAtAisle: a,
+        lookAtSection: s,
+      });
+    }
+    // Mark mapping as manual so flow picker shows correctly
+    setMappingStatus('manual');
+    window.location.href = `mm_section.html?zone=${zoneId}&aisle=${aisleId}`;
+  });
+</script>
+</body>
+</html>

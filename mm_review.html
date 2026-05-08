@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Vérification finale</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    /* Summary stat panel */
+    .stats-card {
+      margin: 14px 20px 0;
+      background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 60%);
+      border: 1.5px solid var(--c-green-line);
+      border-radius: 22px;
+      padding: 18px 18px;
+      display: flex; justify-content: space-around;
+      animation: fadeUp .4s .08s ease both; opacity: 0;
+    }
+    .stat-cell { text-align: center; flex: 1; }
+    .stat-num {
+      font-size: 32px; font-weight: 800;
+      color: var(--c-green);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--c-muted);
+      text-transform: uppercase; letter-spacing: .5px;
+      margin-top: 4px;
+    }
+    .stat-divider {
+      width: 1px;
+      background: var(--c-green-line);
+      margin: 4px 0;
+    }
+
+    /* Zone cards (review-style with edit affordance) */
+    .zone-grid {
+      padding: 4px 20px 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .zone-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: var(--shadow-md);
+      text-decoration: none;
+      color: inherit;
+      display: flex; flex-direction: column;
+      transition: transform .15s, box-shadow .15s;
+      position: relative;
+      border: 1.5px solid transparent;
+    }
+    .zone-card::before {
+      content:''; position: absolute; top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--c-purple);
+      border-radius: 18px 18px 0 0;
+    }
+    .zone-card:active { transform: scale(.97); border-color: var(--c-blue); }
+
+    /* Completed zone tile on review */
+    .zone-card.is-complete { background: var(--c-green-soft); }
+    .zone-card.is-complete::before { background: var(--c-green); }
+    .zone-card.is-complete .zone-letter { color: var(--c-green); }
+    .zone-card.is-complete .zone-edit {
+      background: var(--c-green);
+    }
+    .zone-card.is-complete .zone-edit svg { color: #fff; }
+    .zone-letter {
+      font-size: 22px; font-weight: 800;
+      color: var(--c-purple);
+      margin-top: 4px;
+    }
+    .zone-name {
+      font-size: 14px; font-weight: 700;
+      color: var(--c-ink);
+      margin-top: 1px;
+      line-height: 1.2;
+    }
+    .zone-meta {
+      font-size: 12px; color: var(--c-muted);
+      margin-top: 8px;
+      font-weight: 500;
+    }
+    .zone-edit {
+      position: absolute; top: 12px; right: 12px;
+      width: 22px; height: 22px;
+      background: var(--c-blue-soft);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .zone-edit svg { width: 11px; height: 11px; color: var(--c-blue); }
+
+    .footer-stack {
+      padding: 24px 20px 0;
+      display: flex; flex-direction: column; gap: 10px;
+      margin-top: auto;
+      animation: fadeUp .4s .25s ease both; opacity: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="mm_zone.html" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" data-i18n="mm_review_eyebrow">Cartographie</div>
+    <div class="hero-title" data-i18n="mm_review_title">Vérifions votre cartographie</div>
+    <div class="hero-sub"   data-i18n="mm_review_sub">Touchez n'importe quelle zone pour modifier</div>
+  </div>
+
+  <div class="stats-card" id="statsCard">
+    <div class="stat-cell">
+      <div class="stat-num" id="zCount">0</div>
+      <div class="stat-label" id="zLabel"></div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-cell">
+      <div class="stat-num" id="aCount">0</div>
+      <div class="stat-label" id="aLabel"></div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-cell">
+      <div class="stat-num" id="sCount">0</div>
+      <div class="stat-label" id="sLabel"></div>
+    </div>
+  </div>
+
+  <div class="section-header" id="zonesHeader" data-i18n="mm_zone_completed">Zones ajoutées</div>
+  <div class="zone-grid stagger" id="zoneGrid"></div>
+
+  <div class="footer-stack">
+    <button class="btn-primary" id="confirmBtn" data-i18n="mm_review_confirm">Confirmer et terminer</button>
+    <button class="btn-secondary" id="editBtn" data-i18n="mm_review_edit">Revenir modifier</button>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+
+  const c = mapCounts();
+
+  document.getElementById('zCount').textContent = c.zones;
+  document.getElementById('aCount').textContent = c.aisles;
+  document.getElementById('sCount').textContent = c.sections;
+
+  document.getElementById('zLabel').textContent = c.zones === 1 ? t('mm_review_zone')        : t('mm_review_zones');
+  document.getElementById('aLabel').textContent = c.aisles === 1 ? t('mm_zone_aisle')        : t('mm_review_aisles_total');
+  document.getElementById('sLabel').textContent = c.sections === 1 ? t('mm_aisle_section')   : t('mm_review_sections_total');
+
+  // Zone tiles
+  const grid = document.getElementById('zoneGrid');
+  const map = getMap();
+  map.zones.forEach(z => {
+    const realA = z.aisles.filter(a => !a.skipped).length;
+    const aWord = realA === 1 ? t('mm_zone_aisle') : t('mm_zone_aisles');
+    const isComplete = !!z.completed;
+
+    const a = document.createElement('a');
+    a.className = 'zone-card' + (isComplete ? ' is-complete' : '');
+    a.href = `mm_aisle.html?zone=${z.id}`;
+
+    // Check icon when complete, pencil when in progress
+    const trailingIcon = isComplete
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+
+    a.innerHTML = `
+      <div class="zone-edit">${trailingIcon}</div>
+      <div class="zone-letter">${escapeHtml(z.name)}</div>
+      <div class="zone-meta">${realA} ${aWord}</div>`;
+    grid.appendChild(a);
+  });
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  document.getElementById('confirmBtn').addEventListener('click', () => {
+    setMappingStatus('manual');
+    showToast({
+      icon: 'success',
+      title: t('confirmed_title'),
+      message: getLang() === 'fr'
+        ? 'Vous pouvez commencer l\'installation.'
+        : 'You can begin installation now.',
+      autoHide: 1600,
+    });
+    setTimeout(() => { window.location.href = 'flow_picker.html'; }, 900);
+  });
+
+  document.getElementById('editBtn').addEventListener('click', () => {
+    window.location.href = 'mm_zone.html';
+  });
+</script>
+</body>
+</html>
