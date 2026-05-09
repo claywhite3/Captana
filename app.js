@@ -317,6 +317,57 @@ const I18N = {
     inv_sc_done:              "J'ai terminé",
     inv_sc_next:              "Caméra suivante",
 
+    /* Manual install — picker pages */
+    im_eyebrow:               "Installer une caméra",
+    im_zone_title:            "Choisissez une zone",
+    im_zone_sub:              "Sélectionnez la zone du magasin où vous installez la caméra.",
+    im_aisle_title:           "Choisissez une allée",
+    im_aisle_sub:             "Sélectionnez l'allée de cette zone où va la caméra.",
+    im_section_title:         "Choisissez un rayon",
+    im_section_sub:           "Sélectionnez le rayon où vous installez la caméra.",
+    im_zone:                  "Zone",
+    im_aisle:                 "Allée",
+    im_section:               "Rayon",
+    im_of:                    "sur",
+    im_installed:             "installées",
+    im_complete:              "Terminé",
+    im_observes:              "Observe",
+    im_observing:             "Observe",
+    im_camera_installed:      "Caméra installée",
+    im_installed_badge:       "Installée",
+
+    /* Reinstall side-modal */
+    im_re_eyebrow:            "Déjà installée",
+    im_re_title:              "Remplacer cette caméra ?",
+    im_re_card_label:         "Caméra actuelle",
+    im_re_body:               "Le remplacement supprime la caméra existante et lance une nouvelle installation à",
+    im_re_cancel:             "Annuler",
+    im_re_confirm:            "Remplacer la caméra",
+
+    /* Milestone — section installed */
+    ms_sec_eyebrow:           "Rayon terminé",
+    ms_sec_title:             "Caméra installée",
+    ms_sec_progress:          "rayons faits dans Allée",
+    ms_sec_next:              "Rayon suivant",
+
+    /* Milestone — aisle complete */
+    ms_aisle_eyebrow:         "Allée terminée !",
+    ms_aisle_title:           "Allée",
+    ms_aisle_done_suffix:     "terminée",
+    ms_aisle_card_top:        "Zone",
+    ms_aisle_card_bot:        "rayons installés",
+    ms_aisle_progress:        "allées faites dans Zone",
+    ms_aisle_next:            "Allée suivante",
+
+    /* Milestone — zone complete */
+    ms_zone_eyebrow:          "Zone terminée !",
+    ms_zone_title_suffix:     "— terminée",
+    ms_zone_total_label:      "Total installé",
+    ms_zone_total_unit:       "caméras sur",
+    ms_zone_total_unit_2:     "allées",
+    ms_zone_progress:         "zones faites",
+    ms_zone_next:              "Zone suivante",
+
     /* Common */
     common_back:          "Retour",
     common_next:          "Suivant",
@@ -632,6 +683,57 @@ const I18N = {
     inv_sc_done:              "I'm done",
     inv_sc_next:              "Next camera",
 
+    /* Manual install — picker pages */
+    im_eyebrow:               "Install camera",
+    im_zone_title:            "Choose a zone",
+    im_zone_sub:              "Pick the zone where you're installing the camera.",
+    im_aisle_title:           "Choose an aisle",
+    im_aisle_sub:             "Pick the aisle in this zone where the camera goes.",
+    im_section_title:         "Choose a section",
+    im_section_sub:           "Pick the section where you're mounting the camera.",
+    im_zone:                  "Zone",
+    im_aisle:                 "Aisle",
+    im_section:               "Section",
+    im_of:                    "of",
+    im_installed:             "installed",
+    im_complete:              "Complete",
+    im_observes:              "Observes",
+    im_observing:             "Observing",
+    im_camera_installed:      "Camera installed",
+    im_installed_badge:       "Installed",
+
+    /* Reinstall side-modal */
+    im_re_eyebrow:            "Already installed",
+    im_re_title:              "Replace this camera?",
+    im_re_card_label:         "Currently installed",
+    im_re_body:               "Replacing will remove the existing camera from the system and start a fresh install at",
+    im_re_cancel:             "Cancel",
+    im_re_confirm:            "Replace camera",
+
+    /* Milestone — section installed */
+    ms_sec_eyebrow:           "Section complete",
+    ms_sec_title:             "Camera installed",
+    ms_sec_progress:          "sections done in Aisle",
+    ms_sec_next:              "Next section",
+
+    /* Milestone — aisle complete */
+    ms_aisle_eyebrow:         "Aisle complete!",
+    ms_aisle_title:           "Aisle",
+    ms_aisle_done_suffix:     "done",
+    ms_aisle_card_top:        "Zone",
+    ms_aisle_card_bot:        "sections installed",
+    ms_aisle_progress:        "aisles done in Zone",
+    ms_aisle_next:            "Next aisle",
+
+    /* Milestone — zone complete */
+    ms_zone_eyebrow:          "Zone complete!",
+    ms_zone_title_suffix:     "— finished",
+    ms_zone_total_label:      "Total installed",
+    ms_zone_total_unit:       "cameras across",
+    ms_zone_total_unit_2:     "aisles",
+    ms_zone_progress:         "zones done",
+    ms_zone_next:             "Next zone",
+
     common_back:          "Back",
     common_next:          "Next",
     common_continue:      "Continue",
@@ -909,6 +1011,85 @@ function mapCounts() {
     });
   });
   return { zones, aisles, sections };
+}
+
+/* ──────────────────── Install state helpers ────────────────────
+   Sections gain two install fields:
+     - installed: bool — true if a camera is mounted
+     - cameraId:  string — the registered camera id (e.g. "tc2ld-0000345")
+   Skipped sections are excluded from all install math — you don't install on them.
+   Skipped aisles likewise: their sections never count.                          */
+
+function markSectionInstalled(zoneId, aisleId, sectionId, cameraId) {
+  const m = getMap();
+  const z = findZone(m, zoneId); if (!z) return null;
+  const a = findAisle(z, aisleId); if (!a) return null;
+  const s = findSection(a, sectionId); if (!s) return null;
+  s.installed = true;
+  s.cameraId = cameraId || s.cameraId || '';
+  saveMap(m);
+  return s;
+}
+
+/* Count installed/total for a given aisle (excludes skipped sections). */
+function aisleInstallStats(zoneId, aisleId) {
+  const m = getMap();
+  const z = findZone(m, zoneId); if (!z) return { installed: 0, total: 0 };
+  const a = findAisle(z, aisleId); if (!a) return { installed: 0, total: 0 };
+  if (a.skipped) return { installed: 0, total: 0 };
+  let installed = 0, total = 0;
+  a.sections.forEach(s => {
+    if (s.skipped) return;
+    total++;
+    if (s.installed) installed++;
+  });
+  return { installed, total };
+}
+
+/* Count installed/total for a given zone (across all non-skipped aisles). */
+function zoneInstallStats(zoneId) {
+  const m = getMap();
+  const z = findZone(m, zoneId); if (!z) return { installed: 0, total: 0, aislesDone: 0, aislesTotal: 0 };
+  let installed = 0, total = 0, aislesDone = 0, aislesTotal = 0;
+  z.aisles.forEach(a => {
+    if (a.skipped) return;
+    aislesTotal++;
+    let aInstalled = 0, aTotal = 0;
+    a.sections.forEach(s => {
+      if (s.skipped) return;
+      aTotal++;
+      if (s.installed) aInstalled++;
+    });
+    installed += aInstalled;
+    total += aTotal;
+    if (aTotal > 0 && aInstalled === aTotal) aislesDone++;
+  });
+  return { installed, total, aislesDone, aislesTotal };
+}
+
+/* Count installed/total across the whole map. */
+function mapInstallStats() {
+  const m = getMap();
+  let installed = 0, total = 0, zonesDone = 0, zonesTotal = 0;
+  m.zones.forEach(z => {
+    zonesTotal++;
+    const zs = zoneInstallStats(z.id);
+    installed += zs.installed;
+    total += zs.total;
+    if (zs.total > 0 && zs.installed === zs.total) zonesDone++;
+  });
+  return { installed, total, zonesDone, zonesTotal };
+}
+
+/* Decide which celebration flavor to show after a section just got installed.
+   Returns 'section' | 'aisle' | 'zone' — the highest-level milestone hit. */
+function milestoneAfterInstall(zoneId, aisleId) {
+  const aStats = aisleInstallStats(zoneId, aisleId);
+  if (aStats.total === 0 || aStats.installed < aStats.total) return 'section';
+  // Aisle is done. Is the whole zone done too?
+  const zStats = zoneInstallStats(zoneId);
+  if (zStats.installed === zStats.total) return 'zone';
+  return 'aisle';
 }
 
 /* ----------- Image with filename fallback -----------

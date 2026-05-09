@@ -296,6 +296,10 @@
 
 <script src="app.js"></script>
 <script>
+  if (sessionStorage.getItem('installMode') === 'manual') {
+    var eyeb = document.querySelector('[data-i18n="inv_nfc_eyebrow"]');
+    if (eyeb) eyeb.setAttribute('data-i18n', 'im_eyebrow');
+  }
   translatePage();
   document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
 
@@ -360,7 +364,10 @@
 
   contBtn.addEventListener('click', function () {
     /* Step 3 of 4 (target tag scan) is built next */
-    window.location.href = 'install_v_scan_target.html';
+    var nextPage = sessionStorage.getItem('installMode') === 'manual'
+      ? 'install_v_capture.html'
+      : 'install_v_scan_target.html';
+    window.location.href = nextPage;
   });
 </script>
 </body>

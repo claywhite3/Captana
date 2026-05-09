@@ -156,6 +156,12 @@
 
 <script src="app.js"></script>
 <script>
+  if (sessionStorage.getItem('installMode') === 'manual') {
+    var eyeb = document.querySelector('[data-i18n="inv_cap_eyebrow"]');
+    if (eyeb) eyeb.setAttribute('data-i18n', 'im_eyebrow');
+    var backBtn = document.querySelector('a.btn-circle[href="install_v_scan_target.html"]');
+    if (backBtn) backBtn.setAttribute('href', 'install_v_nfc.html');
+  }
   translatePage();
   document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
 

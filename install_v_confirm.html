@@ -240,6 +240,97 @@
       line-height: 1.2;
     }
     .sc-btn-next svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    /* ── Aisle-complete flavor ── */
+    .sc-check.is-aisle {
+      background: linear-gradient(135deg, #16A34A 0%, #15803D 100%);
+      box-shadow: 0 4px 14px rgba(22,163,74,.42);
+      position: relative;
+    }
+    .sc-check.is-aisle::after {
+      content: '';
+      position: absolute;
+      top: -3px; right: -3px;
+      width: 14px; height: 14px;
+      background: #FBBF24;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpolygon points='12,2 14.5,9 22,9 16,13.5 18.5,21 12,16.5 5.5,21 8,13.5 2,9 9.5,9' fill='%23ffffff'/%3E%3C/svg%3E");
+      background-size: 8px 8px;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .sc-card-aisle {
+      margin-top: 14px;
+      background: var(--c-green-soft);
+      border: 1.5px solid var(--c-green-line);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .sc-card-aisle-tile {
+      width: 42px; height: 42px;
+      border-radius: 11px;
+      background: rgba(22,163,74,.18);
+      color: var(--c-green);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 17px; font-weight: 800;
+    }
+
+    /* ── Zone-complete flavor ── */
+    .sc-check.is-zone {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+      box-shadow: 0 4px 18px rgba(251,191,36,.55);
+    }
+    .sc-check.is-zone svg { display: none; }
+    .sc-check.is-zone::after {
+      content: '';
+      width: 22px; height: 22px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpolygon points='12,2 14.5,9 22,9 16,13.5 18.5,21 12,16.5 5.5,21 8,13.5 2,9 9.5,9' fill='%23ffffff'/%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    .sc-eyebrow.is-zone { color: #B45309; }
+
+    .sc-card-zone {
+      margin-top: 14px;
+      background: linear-gradient(135deg, #FEF3C7 0%, #F0FDF4 100%);
+      border: 1.5px solid #FDE68A;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+    .sc-card-zone-label {
+      font-size: 11px; font-weight: 700;
+      color: #B45309;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .sc-card-zone-num {
+      font-size: 28px; font-weight: 800;
+      color: var(--c-ink);
+      margin-top: 2px;
+      line-height: 1;
+    }
+    .sc-card-zone-sub {
+      font-size: 12px; color: #78350F;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .sc-progress {
+      font-size: 11px; color: var(--c-muted);
+      font-weight: 600; line-height: 1.4;
+      margin-top: 14px;
+    }
+
+    .sc-btn-next.is-zone {
+      background: linear-gradient(135deg, #16A34A 0%, #15803D 100%);
+      box-shadow: 0 4px 14px rgba(22,163,74,.32);
+    }
   </style>
 </head>
 <body>
@@ -290,41 +381,23 @@
 
 </div>
 
-<!-- Section-complete modal -->
+<!-- Section/Aisle/Zone-complete modal (one shell, three flavors) -->
 <div class="sc-overlay" id="scOverlay"></div>
 <div class="sc-sheet"   id="scSheet" role="dialog" aria-modal="true">
 
   <div class="sc-head">
-    <div class="sc-check">
+    <div class="sc-check" id="scCheck">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
     <div style="flex: 1; min-width: 0;">
-      <div class="sc-eyebrow" data-i18n="inv_sc_eyebrow">Section terminée</div>
-      <div class="sc-title" data-i18n="inv_sc_title">Caméra installée</div>
+      <div class="sc-eyebrow" id="scEyebrow" data-i18n="inv_sc_eyebrow">Section terminée</div>
+      <div class="sc-title" id="scTitle" data-i18n="inv_sc_title">Caméra installée</div>
     </div>
   </div>
 
-  <div class="sc-card-install">
-    <div class="sc-card-icon-lg">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-    </div>
-    <div class="sc-card-text">
-      <div class="sc-card-label-install" data-i18n="inv_sc_install_label">Caméra installée</div>
-      <div class="sc-card-value-install" id="scInstallValue">A · 4 · 5</div>
-    </div>
-  </div>
+  <div id="scBody"></div>
 
-  <div class="sc-card-target">
-    <div class="sc-card-icon-sm">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
-    </div>
-    <div class="sc-card-text">
-      <div class="sc-card-label-target" data-i18n="inv_sc_target_label">Cible observée</div>
-      <div class="sc-card-value-target" id="scTargetValue">A · 5 · 5</div>
-    </div>
-  </div>
-
-  <div class="sc-question" data-i18n="inv_sc_question">Que souhaitez-vous faire ?</div>
+  <div class="sc-progress" id="scProgress"></div>
 
   <div class="sc-actions">
     <button class="sc-btn-done" id="scDoneBtn">
@@ -332,7 +405,7 @@
       <span data-i18n="inv_sc_done">J'ai terminé</span>
     </button>
     <button class="sc-btn-next" id="scNextBtn">
-      <span data-i18n="inv_sc_next">Caméra suivante</span>
+      <span id="scNextLabel" data-i18n="inv_sc_next">Caméra suivante</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
   </div>
@@ -341,52 +414,195 @@
 
 <script src="app.js"></script>
 <script>
+  /* Manual install doesn't have a fixed step shape — overwrite the eyebrow before translatePage runs */
+  if (sessionStorage.getItem('installMode') === 'manual') {
+    var eyeb = document.querySelector('[data-i18n="inv_conf_eyebrow"]');
+    if (eyeb) eyeb.setAttribute('data-i18n', 'im_eyebrow');
+  }
+
   translatePage();
   document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
   mountImageSlots();
 
-  /* Pull both location chains for the modal */
-  function setSummary() {
-    var iz = sessionStorage.getItem('vusionInstallZone')    || 'A';
-    var ia = sessionStorage.getItem('vusionInstallAisle')   || '4';
-    var is_ = sessionStorage.getItem('vusionInstallSection') || '5';
-    document.getElementById('scInstallValue').textContent = iz + ' · ' + ia + ' · ' + is_;
-
-    var tz = sessionStorage.getItem('vusionTargetZone')    || iz;
-    var ta = sessionStorage.getItem('vusionTargetAisle')   || String(parseInt(ia,10)+1);
-    var ts = sessionStorage.getItem('vusionTargetSection') || is_;
-    document.getElementById('scTargetValue').textContent  = tz + ' · ' + ta + ' · ' + ts;
-  }
+  var installMode = sessionStorage.getItem('installMode') || 'vusion';
 
   document.getElementById('retakeBtn').addEventListener('click', function () {
     window.location.href = 'install_v_capture.html';
   });
-
   document.getElementById('helpBtn').addEventListener('click', function () {
     window.location.href = 'install_v_frame_guide.html';
   });
 
+  /* ────────────────── Modal flavor builders ──────────────────
+     Each builder fills #scBody and sets the head/eyebrow/title. */
+
+  function buildSectionFlavor(ctx) {
+    document.getElementById('scCheck').className = 'sc-check';
+    document.getElementById('scEyebrow').className = 'sc-eyebrow';
+    document.getElementById('scEyebrow').textContent = t('ms_sec_eyebrow');
+    document.getElementById('scTitle').textContent   = t('ms_sec_title');
+
+    document.getElementById('scBody').innerHTML =
+      '<div class="sc-card-install">' +
+        '<div class="sc-card-icon-lg">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>' +
+        '</div>' +
+        '<div class="sc-card-text">' +
+          '<div class="sc-card-label-install">' + t('inv_sc_install_label') + '</div>' +
+          '<div class="sc-card-value-install">' + ctx.installLoc + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="sc-card-target">' +
+        '<div class="sc-card-icon-sm">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>' +
+        '</div>' +
+        '<div class="sc-card-text">' +
+          '<div class="sc-card-label-target">' + t('inv_sc_target_label') + '</div>' +
+          '<div class="sc-card-value-target">' + ctx.targetLoc + '</div>' +
+        '</div>' +
+      '</div>';
+
+    if (installMode === 'manual' && ctx.aisleStats) {
+      document.getElementById('scProgress').textContent =
+        ctx.aisleStats.installed + ' ' + t('im_of') + ' ' + ctx.aisleStats.total + ' ' +
+        t('ms_sec_progress') + ' ' + ctx.aisleNumber;
+    } else {
+      document.getElementById('scProgress').textContent = '';
+    }
+
+    var nextBtn = document.getElementById('scNextBtn');
+    nextBtn.className = 'sc-btn-next';
+    document.getElementById('scNextLabel').textContent =
+      installMode === 'manual' ? t('ms_sec_next') : t('inv_sc_next');
+  }
+
+  function buildAisleFlavor(ctx) {
+    document.getElementById('scCheck').className = 'sc-check is-aisle';
+    document.getElementById('scEyebrow').className = 'sc-eyebrow';
+    document.getElementById('scEyebrow').textContent = t('ms_aisle_eyebrow');
+    document.getElementById('scTitle').textContent =
+      t('ms_aisle_title') + ' ' + ctx.aisleNumber + ' ' + t('ms_aisle_done_suffix');
+
+    document.getElementById('scBody').innerHTML =
+      '<div class="sc-card-aisle">' +
+        '<div class="sc-card-aisle-tile">' + ctx.aisleNumber + '</div>' +
+        '<div class="sc-card-text">' +
+          '<div class="sc-card-label-install">' + t('ms_aisle_card_top') + ' ' + ctx.zoneLetter + '</div>' +
+          '<div class="sc-card-value-install" style="font-family: inherit; letter-spacing: 0;">' +
+            ctx.aisleStats.installed + ' ' + t('im_of') + ' ' + ctx.aisleStats.total + ' ' + t('ms_aisle_card_bot') +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    document.getElementById('scProgress').textContent =
+      ctx.zoneStats.aislesDone + ' ' + t('im_of') + ' ' + ctx.zoneStats.aislesTotal + ' ' +
+      t('ms_aisle_progress') + ' ' + ctx.zoneLetter;
+
+    document.getElementById('scNextBtn').className = 'sc-btn-next';
+    document.getElementById('scNextLabel').textContent = t('ms_aisle_next');
+  }
+
+  function buildZoneFlavor(ctx) {
+    document.getElementById('scCheck').className = 'sc-check is-zone';
+    document.getElementById('scEyebrow').className = 'sc-eyebrow is-zone';
+    document.getElementById('scEyebrow').textContent = t('ms_zone_eyebrow');
+    document.getElementById('scTitle').textContent =
+      t('im_zone') + ' ' + ctx.zoneLetter + ' ' + t('ms_zone_title_suffix');
+
+    document.getElementById('scBody').innerHTML =
+      '<div class="sc-card-zone">' +
+        '<div class="sc-card-zone-label">' + t('ms_zone_total_label') + '</div>' +
+        '<div class="sc-card-zone-num">' + ctx.zoneStats.installed + '</div>' +
+        '<div class="sc-card-zone-sub">' +
+          t('ms_zone_total_unit') + ' ' + ctx.zoneStats.aislesTotal + ' ' + t('ms_zone_total_unit_2') +
+        '</div>' +
+      '</div>';
+
+    document.getElementById('scProgress').textContent =
+      ctx.mapStats.zonesDone + ' ' + t('im_of') + ' ' + ctx.mapStats.zonesTotal + ' ' + t('ms_zone_progress');
+
+    document.getElementById('scNextBtn').className = 'sc-btn-next is-zone';
+    document.getElementById('scNextLabel').textContent = t('ms_zone_next');
+  }
+
+  /* ────────────────── Confirm-coverage handler ────────────────── */
+
   document.getElementById('confirmBtn').addEventListener('click', function () {
-    setSummary();
+    var iz  = sessionStorage.getItem('vusionInstallZone')    || 'A';
+    var ia  = sessionStorage.getItem('vusionInstallAisle')   || '4';
+    var is_ = sessionStorage.getItem('vusionInstallSection') || '5';
+    var tz  = sessionStorage.getItem('vusionTargetZone')    || iz;
+    var ta  = sessionStorage.getItem('vusionTargetAisle')   || String(parseInt(ia,10)+1);
+    var ts  = sessionStorage.getItem('vusionTargetSection') || is_;
+    var camId = sessionStorage.getItem('vusionCameraId') || '';
+
+    var ctx = {
+      installLoc: iz + ' · ' + ia + ' · ' + is_,
+      targetLoc:  tz + ' · ' + ta + ' · ' + ts,
+      zoneLetter: iz,
+      aisleNumber: ia,
+      sectionNumber: is_,
+    };
+
+    /* In manual mode, mark the section installed in the data model and pick the
+       milestone flavor. In Vusion mode, no map state changes — section flavor only. */
+    var flavor = 'section';
+    if (installMode === 'manual') {
+      var zoneId    = sessionStorage.getItem('manualZoneId');
+      var aisleId   = sessionStorage.getItem('manualAisleId');
+      var sectionId = sessionStorage.getItem('manualSectionId');
+      if (zoneId && aisleId && sectionId) {
+        markSectionInstalled(zoneId, aisleId, sectionId, camId);
+        flavor = milestoneAfterInstall(zoneId, aisleId);
+        ctx.aisleStats = aisleInstallStats(zoneId, aisleId);
+        ctx.zoneStats  = zoneInstallStats(zoneId);
+        ctx.mapStats   = mapInstallStats();
+      }
+    }
+
+    if      (flavor === 'zone')  buildZoneFlavor(ctx);
+    else if (flavor === 'aisle') buildAisleFlavor(ctx);
+    else                          buildSectionFlavor(ctx);
+
+    /* Stash the chosen flavor for the Next-button handler */
+    document.getElementById('scNextBtn').dataset.flavor = flavor;
+
     document.getElementById('scOverlay').classList.add('open');
     document.getElementById('scSheet').classList.add('open');
   });
 
+  /* ────────────────── Next-button routing ────────────────── */
+
+  function clearInProgressInstallState() {
+    ['vusionInstallTagId','vusionInstallZone','vusionInstallAisle','vusionInstallSection',
+     'vusionTargetTagId','vusionTargetZone','vusionTargetAisle','vusionTargetSection',
+     'vusionCameraId','manualSectionId','manualReplacement']
+      .forEach(function (k) { sessionStorage.removeItem(k); });
+  }
+
   document.getElementById('scNextBtn').addEventListener('click', function () {
-    /* Clear out the per-install state so the next loop starts fresh */
-    sessionStorage.removeItem('vusionInstallTagId');
-    sessionStorage.removeItem('vusionInstallZone');
-    sessionStorage.removeItem('vusionInstallAisle');
-    sessionStorage.removeItem('vusionInstallSection');
-    sessionStorage.removeItem('vusionTargetTagId');
-    sessionStorage.removeItem('vusionTargetZone');
-    sessionStorage.removeItem('vusionTargetAisle');
-    sessionStorage.removeItem('vusionTargetSection');
-    sessionStorage.removeItem('vusionCameraId');
-    window.location.href = 'install_v_scan.html';
+    var flavor = this.dataset.flavor || 'section';
+    clearInProgressInstallState();
+
+    if (installMode === 'vusion') {
+      window.location.href = 'install_v_scan.html';
+      return;
+    }
+    /* Manual mode — route based on milestone level */
+    if (flavor === 'zone') {
+      sessionStorage.removeItem('manualZoneId');
+      sessionStorage.removeItem('manualAisleId');
+      window.location.href = 'install_manual_zone.html';
+    } else if (flavor === 'aisle') {
+      sessionStorage.removeItem('manualAisleId');
+      window.location.href = 'install_manual_aisle.html';
+    } else {
+      window.location.href = 'install_manual_section.html';
+    }
   });
 
   document.getElementById('scDoneBtn').addEventListener('click', function () {
+    clearInProgressInstallState();
     window.location.href = 'flow_picker.html';
   });
 </script>

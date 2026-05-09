@@ -152,6 +152,13 @@
 
 <script src="app.js"></script>
 <script>
+  /* Manual mode: no step counter, back button goes to section picker */
+  if (sessionStorage.getItem('installMode') === 'manual') {
+    var eyeb = document.querySelector('[data-i18n="inv_batt_eyebrow"]');
+    if (eyeb) eyeb.setAttribute('data-i18n', 'im_eyebrow');
+    var backBtn = document.querySelector('a.btn-circle[href="install_v_scan.html"]');
+    if (backBtn) backBtn.setAttribute('href', 'install_manual_section.html');
+  }
   translatePage();
   document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
   mountImageSlots();

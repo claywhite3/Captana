@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Installer</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    .crumb-chips {
+      margin: 14px 20px 0;
+      display: flex; gap: 8px;
+    }
+    .crumb-chip {
+      flex: 1;
+      background: var(--c-blue-soft);
+      border: 1.5px solid #BFDBFE;
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform .12s, box-shadow .15s;
+    }
+    .crumb-chip:active { transform: scale(.98); }
+    .crumb-chip-label {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .crumb-chip-label svg { width: 14px; height: 14px; color: var(--c-blue); }
+    .crumb-chip-label span {
+      font-size: 11px; font-weight: 700;
+      color: var(--c-blue);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .crumb-chip-value {
+      font-size: 16px; font-weight: 800;
+      color: var(--c-ink);
+      letter-spacing: .5px;
+    }
+
+    .picker-list {
+      margin: 16px 20px 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .picker-card {
+      background: #fff; border: none; border-radius: 14px;
+      padding: 16px; box-shadow: var(--shadow-sm);
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer; text-align: left;
+      font-family: inherit;
+      animation: fadeUp .35s ease both; opacity: 0;
+      transition: transform .12s;
+    }
+    .picker-card:active { transform: scale(.98); }
+    .picker-card.is-installed {
+      background: var(--c-green-soft);
+      border: 1.5px solid var(--c-green-line);
+    }
+
+    .picker-tile {
+      width: 44px; height: 44px;
+      border-radius: 11px;
+      background: var(--c-blue-soft);
+      color: var(--c-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 18px; font-weight: 800;
+    }
+    .picker-card.is-installed .picker-tile {
+      background: rgba(22,163,74,.18);
+      color: var(--c-green);
+    }
+    .picker-tile svg { width: 22px; height: 22px; }
+    .picker-body { flex: 1; min-width: 0; }
+    .picker-title {
+      font-size: 15px; font-weight: 800;
+      color: var(--c-ink); line-height: 1.3;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .picker-pill-inline {
+      background: #DCFCE7; border: 1px solid #86EFAC;
+      color: #15803D;
+      font-size: 10px; font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .picker-pill-inline svg { width: 10px; height: 10px; }
+    .picker-sub {
+      font-size: 12px; color: var(--c-muted);
+      font-weight: 500; line-height: 1.4;
+      margin-top: 3px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .picker-card.is-installed .picker-sub { color: #15803D; }
+    .picker-sub svg { width: 12px; height: 12px; flex-shrink: 0; }
+    .picker-chev { color: var(--c-muted-2); flex-shrink: 0; }
+    .picker-chev svg { width: 16px; height: 16px; }
+
+    /* ── Reinstall side-modal ── */
+    .reinstall-overlay {
+      position: fixed; inset: 0;
+      background: rgba(17,24,39,0.55);
+      backdrop-filter: blur(2px);
+      display: none;
+      z-index: 900;
+      animation: fadeIn .25s ease both;
+    }
+    .reinstall-overlay.open { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .reinstall-sheet {
+      position: fixed;
+      top: 25%; right: 0;
+      height: 50%;
+      width: min(75vw, 293px);
+      background: #fff;
+      border-radius: 20px 0 0 20px;
+      box-shadow: -12px 0 32px rgba(0,0,0,0.25);
+      z-index: 901;
+      display: none;
+      flex-direction: column;
+      padding: 18px 18px;
+      transform: translateX(100%);
+      transition: transform .35s cubic-bezier(.2,.8,.2,1);
+    }
+    @media (min-width: 391px) {
+      .reinstall-sheet { right: max(calc(50% - 195px), 0px); }
+    }
+    .reinstall-sheet.open { display: flex; transform: translateX(0); }
+
+    .ri-head { display: flex; align-items: center; gap: 10px; }
+    .ri-icon {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: #F59E0B;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(245,158,11,.30);
+    }
+    .ri-icon svg { width: 18px; height: 18px; color: #fff; }
+    .ri-eyebrow {
+      font-size: 10px; font-weight: 700;
+      color: #B45309;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .ri-title {
+      font-size: 16px; font-weight: 800;
+      color: var(--c-ink);
+      line-height: 1.2; margin-top: 1px;
+    }
+
+    .ri-card {
+      margin-top: 14px;
+      background: var(--c-green-soft);
+      border: 1.5px solid var(--c-green-line);
+      border-radius: 12px;
+      padding: 11px 12px;
+      display: flex; align-items: center; gap: 11px;
+    }
+    .ri-card-icon {
+      width: 38px; height: 38px;
+      border-radius: 9px;
+      background: rgba(22,163,74,.18);
+      color: var(--c-green);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .ri-card-icon svg { width: 20px; height: 20px; }
+    .ri-card-text { flex: 1; min-width: 0; }
+    .ri-card-label {
+      font-size: 9.5px; font-weight: 700;
+      color: var(--c-green);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .ri-card-value {
+      font-size: 13px; font-weight: 800;
+      color: var(--c-ink);
+      margin-top: 1px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 1px;
+    }
+
+    .ri-body {
+      font-size: 12px; color: var(--c-muted);
+      font-weight: 500; line-height: 1.45;
+      margin-top: 14px;
+    }
+    .ri-body strong { color: var(--c-ink); }
+
+    .ri-actions {
+      margin-top: auto;
+      padding-top: 12px;
+      display: flex; gap: 8px;
+    }
+    .ri-btn-cancel {
+      flex: 0 1 auto;
+      padding: 12px;
+      background: #fff;
+      color: var(--c-muted);
+      border: 1.5px solid var(--c-line);
+      border-radius: 12px;
+      font-family: inherit; font-size: 12px; font-weight: 700;
+      cursor: pointer; line-height: 1.2;
+    }
+    .ri-btn-confirm {
+      flex: 1;
+      padding: 12px;
+      background: #F59E0B;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit; font-size: 12.5px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(245,158,11,.30);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      line-height: 1.2;
+    }
+    .ri-btn-confirm svg { width: 16px; height: 16px; }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="install_manual_aisle.html" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" data-i18n="im_eyebrow">Installer une caméra</div>
+    <div class="hero-title" data-i18n="im_section_title">Choisissez un rayon</div>
+    <div class="hero-sub"   data-i18n="im_section_sub">Sélectionnez le rayon où vous installez la caméra.</div>
+  </div>
+
+  <div class="crumb-chips">
+    <button class="crumb-chip" type="button" onclick="window.location.href='install_manual_zone.html'">
+      <span class="crumb-chip-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        <span data-i18n="im_zone">Zone</span>
+      </span>
+      <span class="crumb-chip-value" id="zoneCrumbName"></span>
+    </button>
+    <button class="crumb-chip" type="button" onclick="window.location.href='install_manual_aisle.html'">
+      <span class="crumb-chip-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        <span data-i18n="im_aisle">Allée</span>
+      </span>
+      <span class="crumb-chip-value" id="aisleCrumbName"></span>
+    </button>
+  </div>
+
+  <div class="picker-list" id="sectionList"></div>
+
+</div>
+
+<!-- Reinstall side-modal -->
+<div class="reinstall-overlay" id="riOverlay"></div>
+<div class="reinstall-sheet"   id="riSheet" role="dialog" aria-modal="true">
+  <div class="ri-head">
+    <div class="ri-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <div style="flex: 1; min-width: 0;">
+      <div class="ri-eyebrow" data-i18n="im_re_eyebrow">Déjà installée</div>
+      <div class="ri-title"   data-i18n="im_re_title">Remplacer cette caméra ?</div>
+    </div>
+  </div>
+
+  <div class="ri-card">
+    <div class="ri-card-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    </div>
+    <div class="ri-card-text">
+      <div class="ri-card-label" data-i18n="im_re_card_label">Caméra actuelle</div>
+      <div class="ri-card-value" id="riCardValue">—</div>
+    </div>
+  </div>
+
+  <div class="ri-body">
+    <span data-i18n="im_re_body">Le remplacement supprime la caméra existante et lance une nouvelle installation à</span>
+    <strong id="riLocation"></strong>.
+  </div>
+
+  <div class="ri-actions">
+    <button class="ri-btn-cancel"  id="riCancelBtn" data-i18n="im_re_cancel">Annuler</button>
+    <button class="ri-btn-confirm" id="riConfirmBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      <span data-i18n="im_re_confirm">Remplacer la caméra</span>
+    </button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+
+  const zoneId  = sessionStorage.getItem('manualZoneId');
+  const aisleId = sessionStorage.getItem('manualAisleId');
+  if (!zoneId)  window.location.replace('install_manual_zone.html');
+  if (!aisleId) window.location.replace('install_manual_aisle.html');
+
+  const m = getMap();
+  const zone  = (m.zones || []).find(z => z.id === zoneId);
+  const aisle = zone ? (zone.aisles || []).find(a => a.id === aisleId) : null;
+  if (!zone || !aisle) {
+    window.location.replace('install_manual_zone.html');
+  }
+
+  document.getElementById('zoneCrumbName').textContent  = zone  ? zone.name   : '';
+  document.getElementById('aisleCrumbName').textContent = aisle ? aisle.number : '';
+
+  function chevronSVG() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
+  }
+  function checkSVG() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  }
+  function eyeSVG() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>';
+  }
+  function camSVG() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+  }
+
+  /* Find an aisle by number within the same zone, used for "Observes Aisle X" rendering */
+  function aisleNumberById(aId) {
+    const a = (zone.aisles || []).find(x => x.id === aId);
+    return a ? a.number : '';
+  }
+
+  /* Set the install state for downstream pages, then route into the install flow.
+     We reuse the same vusionInstall* keys so battery/NFC/capture/confirm don't need to
+     know whether the user got there via Vusion or manual entry. */
+  function startInstall(section, isReplacement) {
+    const lookAtAisle = section.lookAtAisle
+      ? aisleNumberById(section.lookAtAisle) || section.lookAtAisle
+      : (parseInt(aisle.number, 10) + 1);
+    sessionStorage.setItem('vusionInstallZone',    zone.name);
+    sessionStorage.setItem('vusionInstallAisle',   String(aisle.number));
+    sessionStorage.setItem('vusionInstallSection', String(section.number));
+    sessionStorage.setItem('vusionTargetZone',    zone.name);
+    sessionStorage.setItem('vusionTargetAisle',   String(lookAtAisle));
+    sessionStorage.setItem('vusionTargetSection', String(section.number));
+    /* Stash the section ID so install completion can mark the right section installed */
+    sessionStorage.setItem('manualSectionId', section.id);
+    if (isReplacement) sessionStorage.setItem('manualReplacement', '1');
+    else sessionStorage.removeItem('manualReplacement');
+    window.location.href = 'install_v_battery.html';
+  }
+
+  /* Reinstall modal state */
+  let pendingSection = null;
+
+  function openReinstall(section) {
+    pendingSection = section;
+    document.getElementById('riCardValue').textContent = section.cameraId || '—';
+    document.getElementById('riLocation').textContent =
+      zone.name + ' · ' + aisle.number + ' · ' + section.number;
+    document.getElementById('riOverlay').classList.add('open');
+    document.getElementById('riSheet').classList.add('open');
+  }
+  function closeReinstall() {
+    pendingSection = null;
+    document.getElementById('riOverlay').classList.remove('open');
+    document.getElementById('riSheet').classList.remove('open');
+  }
+  document.getElementById('riCancelBtn').addEventListener('click', closeReinstall);
+  document.getElementById('riOverlay').addEventListener('click', closeReinstall);
+  document.getElementById('riConfirmBtn').addEventListener('click', () => {
+    if (pendingSection) startInstall(pendingSection, true);
+  });
+
+  function renderSections() {
+    const list = document.getElementById('sectionList');
+    list.innerHTML = '';
+    if (!aisle) return;
+
+    const sections = (aisle.sections || []).filter(s => !s.skipped);
+    sections.forEach((s, i) => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'picker-card' + (s.installed ? ' is-installed' : '');
+      card.style.setProperty('animation-delay', (0.04 * i) + 's');
+
+      let titleHtml = '<span>' + t('im_section') + ' ' + s.number + '</span>';
+      if (s.installed) {
+        titleHtml += '<span class="picker-pill-inline">' + checkSVG() +
+          '<span>' + t('im_installed_badge') + '</span></span>';
+      }
+
+      const lookAtNumber = s.lookAtAisle ? aisleNumberById(s.lookAtAisle) || s.lookAtAisle : '—';
+      const observesText = t('im_observes') + ' ' + t('im_aisle') + ' ' + lookAtNumber;
+      let subHtml = eyeSVG() + '<span>' + observesText;
+      if (s.installed && s.cameraId) {
+        subHtml += ' · ' + s.cameraId;
+      }
+      subHtml += '</span>';
+
+      const tileHtml = s.installed
+        ? camSVG()
+        : String(s.number);
+
+      card.innerHTML =
+        '<div class="picker-tile">' + tileHtml + '</div>' +
+        '<div class="picker-body">' +
+          '<div class="picker-title">' + titleHtml + '</div>' +
+          '<div class="picker-sub">' + subHtml + '</div>' +
+        '</div>' +
+        '<span class="picker-chev">' + chevronSVG() + '</span>';
+
+      card.addEventListener('click', () => {
+        if (s.installed) openReinstall(s);
+        else startInstall(s, false);
+      });
+
+      list.appendChild(card);
+    });
+  }
+
+  renderSections();
+</script>
+</body>
+</html>
