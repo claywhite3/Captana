@@ -331,7 +331,7 @@
   </div>
 
   <div class="hero">
-    <div class="eyebrow" data-i18n="inv_scan_install_eyebrow">Étape 1 sur 4</div>
+    <div class="eyebrow" data-i18n="im_eyebrow">Installer une caméra</div>
     <div class="hero-title" data-i18n="inv_scan_install_title">Scannez l'étiquette d'installation</div>
     <div class="hero-sub"   data-i18n="inv_scan_install_sub">Pointez votre caméra vers le code-barres de l'étiquette du rayon où vous allez monter la caméra.</div>
   </div>
@@ -356,10 +356,6 @@
   <div class="scanner-sub">
     <button id="rescanBtn" class="btn-text-link hidden" data-i18n="inv_scan_rescan">Rescanner</button>
     <button id="manualBtn" class="btn-text-link"        data-i18n="inv_scan_manual">Saisie manuelle</button>
-  </div>
-
-  <div style="display: flex; justify-content: center; padding: 4px 20px 0;">
-    <a href="flow_picker.html" class="btn-text-link" style="color: var(--c-muted-2); font-size: 12px; text-decoration: underline; text-underline-offset: 2px; padding: 6px 0;" data-i18n="inv_scan_done">J'ai terminé l'installation</a>
   </div>
 
   <!-- Status card -->
@@ -393,6 +389,12 @@
       <span data-i18n="common_continue">Continuer</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;vertical-align:middle;margin-left:6px;"><path d="M9 18l6-6-6-6"/></svg>
     </button>
+  </div>
+
+  <!-- Escape hatch: end install session entirely. Lives below the primary CTA so it doesn't
+       compete for attention with the next-step action. -->
+  <div style="display: flex; justify-content: center; padding: 10px 20px 14px;">
+    <a href="flow_picker.html" class="btn-text-link" style="color: var(--c-muted-2); font-size: 12px; text-decoration: underline; text-underline-offset: 2px; padding: 6px 0;" data-i18n="inv_scan_done">J'ai terminé l'installation</a>
   </div>
 
 </div>

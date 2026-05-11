@@ -204,7 +204,7 @@
   </div>
 
   <div class="hero">
-    <div class="eyebrow" data-i18n="mm_aisle_eyebrow">Zone</div>
+    <div class="eyebrow" data-i18n="mm_aisle_page_eyebrow">Adding aisles</div>
     <div class="hero-title" id="title"></div>
     <div class="hero-sub" id="sub"></div>
   </div>
@@ -304,7 +304,7 @@
         card.innerHTML = `
           <div class="aisle-num">${a.number}</div>
           <div class="aisle-info">
-            <div class="aisle-name">${t('mm_zone_aisle')} ${a.number} ${a.skipped ? '<span class="skipped-tag">'+t('mm_aisle_skipped')+'</span>' : ''}</div>
+            <div class="aisle-name">${t('mm_aisle_card_label')} ${a.number} ${a.skipped ? '<span class="skipped-tag">'+t('mm_aisle_skipped')+'</span>' : ''}</div>
             ${a.skipped ? '' : `<div class="aisle-meta">${realSecs} ${word}</div>`}
           </div>
           ${trailing}

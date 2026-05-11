@@ -151,7 +151,7 @@
   </div>
 
   <div class="hero">
-    <div class="eyebrow" data-i18n="inv_tscan_eyebrow">Étape 3 sur 4</div>
+    <div class="eyebrow" data-i18n="im_eyebrow">Installer une caméra</div>
     <div class="hero-title" data-i18n="inv_tscan_title">Scannez l'étiquette cible</div>
     <div class="hero-sub" data-i18n="inv_tscan_sub">Scannez l'étiquette du rayon en face — celui que la caméra observera.</div>
   </div>
@@ -172,8 +172,7 @@
     </div>
   </div>
 
-  <div class="scanner-sub">
-    <button class="btn-text-link escape-warn"  id="noTargetBtn" data-i18n="inv_tscan_no_target">Pas de rayon en face</button>
+  <div class="scanner-sub" style="justify-content: flex-end;">
     <button class="btn-text-link escape-quiet" id="manualBtn"   data-i18n="inv_tscan_manual">Saisie manuelle</button>
   </div>
 
@@ -301,6 +300,12 @@
       <span data-i18n="common_continue">Continuer</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;vertical-align:middle;margin-left:6px;"><path d="M9 18l6-6-6-6"/></svg>
     </button>
+  </div>
+
+  <!-- Escape hatch: no target shelf exists. Lives below the primary CTA so it doesn't
+       compete for attention with the next-step action. -->
+  <div style="display: flex; justify-content: center; padding: 10px 20px 14px;">
+    <button class="btn-text-link escape-warn" id="noTargetBtn" data-i18n="inv_tscan_no_target" style="font-size: 12px;">Pas de rayon en face</button>
   </div>
 
 </div>

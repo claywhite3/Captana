@@ -426,7 +426,7 @@
     const sub     = document.getElementById('sub');
 
     if (isFirst) {
-      eyebrow.textContent = `${t('mm_sec_eyebrow')} ${a.number}`;
+      eyebrow.textContent = t('mm_sec_page_eyebrow');
       title.textContent   = t('mm_sec_first_title');
       sub.textContent     = t('mm_sec_first_sub');
 
@@ -434,7 +434,7 @@
       document.getElementById('nextBlock').style.display  = 'none';
       document.getElementById('actionsBlock').style.display = 'none';
     } else {
-      eyebrow.textContent = `${t('mm_sec_eyebrow')} ${a.number}`;
+      eyebrow.textContent = t('mm_sec_page_eyebrow');
       title.textContent   = t('mm_sec_next_title');
       sub.textContent     = t('mm_sec_next_sub');
 

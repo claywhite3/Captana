@@ -104,6 +104,8 @@ const I18N = {
 
     /* Manual mapping — aisle */
     mm_aisle_eyebrow:     "Zone",
+    mm_aisle_page_eyebrow:"Ajout des allées",
+    mm_aisle_card_label:  "Allée",
     mm_aisle_title_first: "Numéro de la première allée",
     mm_aisle_title_next:  "Ajouter l'allée suivante ?",
     mm_aisle_sub_first:   "Quelle est l'allée avec le plus petit numéro dans cette zone ?",
@@ -125,6 +127,7 @@ const I18N = {
 
     /* Manual mapping — section setup */
     mm_sec_eyebrow:       "Allée",
+    mm_sec_page_eyebrow:  "Ajout des rayons",
     mm_sec_first_title:   "Numéro du premier rayon",
     mm_sec_first_sub:     "Quel est le rayon avec le plus petit numéro dans cette allée ?",
     mm_sec_first_input:   "Numéro de rayon",
@@ -198,7 +201,7 @@ const I18N = {
     inv_intro_begin:      "Commencer",
 
     /* Scan install location */
-    inv_scan_install_eyebrow: "Étape 1 sur 4",
+    inv_scan_install_eyebrow: "Installer une caméra",
     inv_scan_install_title:   "Scannez l'étiquette d'installation",
     inv_scan_install_sub:     "Pointez votre caméra vers le code-barres de l'étiquette du rayon où vous allez monter la caméra.",
     inv_scan_status_label:    "Étiquette d'installation",
@@ -258,7 +261,7 @@ const I18N = {
     role_stub_msg_associate:  "Liste des tâches de réassort assignées. Disponible dans une prochaine version.",
 
     /* Target tag scan — Step 3 of 4 */
-    inv_tscan_eyebrow:        "Étape 3 sur 4",
+    inv_tscan_eyebrow:        "Installer une caméra",
     inv_tscan_title:          "Scannez l'étiquette cible",
     inv_tscan_sub:            "Scannez l'étiquette du rayon en face — celui que la caméra observera.",
     inv_tscan_install_label:  "Caméra installée",
@@ -281,7 +284,7 @@ const I18N = {
     inv_tscan_no_target_toast_msg:   "Choisissez un autre emplacement où il y a un rayon en face.",
 
     /* Capture — Step 4 of 4 part 1 */
-    inv_cap_eyebrow:          "Étape 4 sur 4",
+    inv_cap_eyebrow:          "Installer une caméra",
     inv_cap_title:            "Vérifiez la vue",
     inv_cap_sub:              "La caméra va capturer une image. Tenez-vous à l'écart de la zone observée.",
     inv_cap_install_label:    "Caméra installée",
@@ -558,6 +561,8 @@ const I18N = {
 
     /* Manual mapping — aisle */
     mm_aisle_eyebrow:     "Zone",
+    mm_aisle_page_eyebrow:"Adding aisles",
+    mm_aisle_card_label:  "Aisle",
     mm_aisle_title_first: "First aisle number",
     mm_aisle_title_next:  "Add the next aisle?",
     mm_aisle_sub_first:   "What's the lowest aisle number in this zone?",
@@ -579,6 +584,7 @@ const I18N = {
 
     /* Manual mapping — section setup */
     mm_sec_eyebrow:       "Aisle",
+    mm_sec_page_eyebrow:  "Adding sections",
     mm_sec_first_title:   "First section number",
     mm_sec_first_sub:     "What's the lowest section number in this aisle?",
     mm_sec_first_input:   "Section number",
@@ -652,7 +658,7 @@ const I18N = {
     inv_intro_begin:      "Begin",
 
     /* Scan install location */
-    inv_scan_install_eyebrow: "Step 1 of 4",
+    inv_scan_install_eyebrow: "Install camera",
     inv_scan_install_title:   "Scan the install-location tag",
     inv_scan_install_sub:     "Point your camera at the barcode on the tag for the shelf where you'll mount the camera.",
     inv_scan_status_label:    "Install-location tag",
@@ -712,7 +718,7 @@ const I18N = {
     role_stub_msg_associate:  "List of fill tasks assigned to you. Coming in a future release.",
 
     /* Target tag scan — Step 3 of 4 */
-    inv_tscan_eyebrow:        "Step 3 of 4",
+    inv_tscan_eyebrow:        "Install camera",
     inv_tscan_title:          "Scan the target tag",
     inv_tscan_sub:            "Scan the tag on the shelf across the way — the one the camera will observe.",
     inv_tscan_install_label:  "Camera installed",
@@ -735,7 +741,7 @@ const I18N = {
     inv_tscan_no_target_toast_msg:   "Pick a different location where there's a shelf across the way.",
 
     /* Capture — Step 4 of 4 part 1 */
-    inv_cap_eyebrow:          "Step 4 of 4",
+    inv_cap_eyebrow:          "Install camera",
     inv_cap_title:            "Verify the view",
     inv_cap_sub:              "The camera will capture an image. Stand clear of the area being observed.",
     inv_cap_install_label:    "Camera installed",
