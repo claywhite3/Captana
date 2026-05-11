@@ -194,7 +194,6 @@
     <button class="filter-pill active" data-type="battery" type="button"><div class="pill-dot"></div><span data-i18n="mt_filter_battery">Batterie</span></button>
     <button class="filter-pill active" data-type="network" type="button"><div class="pill-dot"></div><span data-i18n="mt_filter_network">Réseau</span></button>
     <button class="filter-pill active" data-type="coverage" type="button"><div class="pill-dot"></div><span data-i18n="mt_filter_coverage">Image</span></button>
-    <button class="filter-pill active" data-type="hardware" type="button"><div class="pill-dot"></div><span data-i18n="mt_filter_hardware">Matériel</span></button>
   </div>
 
   <div class="zones" id="zonesContainer"></div>
@@ -347,7 +346,7 @@
     }
   })();
 
-  var activeFilters = new Set(['battery', 'network', 'coverage', 'hardware']);
+  var activeFilters = new Set(['battery', 'network', 'coverage']);
   var checking = new Set(); // section ids currently being rechecked
   var prevOpenZones = null;
 
@@ -600,17 +599,6 @@
       }
     }
 
-    /* Hardware = direct reinstall path through the picker — set manual flow context */
-    if (top.type === 'hardware') {
-      sessionStorage.setItem('installMode', 'manual');
-      sessionStorage.setItem('manualZoneId', zoneId);
-      sessionStorage.setItem('manualAisleId', aisleId);
-      sessionStorage.setItem('manualSectionId', sectionId);
-      sessionStorage.setItem('manualReplacement', '1');
-      window.location.href = 'install_v_battery.html';
-      return;
-    }
-
     window.location.href = maintenanceRouteFor(top.type);
   }
 
@@ -694,7 +682,7 @@
     /* Mark this as a maintenance-originated full replacement */
     sessionStorage.setItem('maintenanceContext', JSON.stringify({
       issueId: 'rail-replace',
-      issueType: 'hardware',
+      issueType: 'replace',
       zoneId: btn.dataset.zone,
       aisleId: btn.dataset.aisle,
       sectionId: btn.dataset.section,
@@ -742,7 +730,7 @@
   });
   document.getElementById('uwKeepBtn').addEventListener('click', closeUncompleted);
   document.getElementById('uwClearBtn').addEventListener('click', function () {
-    ['battery','network','coverage','hardware'].forEach(function (type) {
+    ['battery','network','coverage'].forEach(function (type) {
       activeFilters.add(type);
       var btn = document.querySelector('.filter-pill[data-type="' + type + '"]');
       if (btn) btn.classList.add('active');

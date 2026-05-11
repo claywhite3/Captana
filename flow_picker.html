@@ -197,9 +197,41 @@
     /* Validation and Maintenance are part of the asset-management lifecycle —
        they're about keeping the installed hardware healthy, not about driving
        operational value from it, so they live in the hardware list. */
-    hwList.appendChild(buildCard({
-      icon:'valid',    iconColor:'green',  titleKey:'flow_validation',  descKey:'flow_validation_desc',  href:'role_stub.html?role=validation', state:'active'
-    }));
+    const validationStatus = getValidationStatus();
+    const validationState = status === 'none'
+      ? 'locked'
+      : (validationStatus === 'signed_off' ? 'done' : 'active');
+    const validationDescKey = validationState === 'locked'
+      ? 'flow_validation_locked'
+      : (validationState === 'done' ? 'flow_validation_done' : 'flow_validation_desc');
+
+    const validationCard = buildCard({
+      icon: validationState === 'locked' ? 'lock' : 'valid',
+      iconColor: validationState === 'locked' ? 'gray' : 'green',
+      titleKey: 'flow_validation',
+      descKey:  validationDescKey,
+      href:     'validation.html',
+      state:    validationState,
+    });
+    if (validationState === 'locked') {
+      validationCard.addEventListener('click', function () {
+        showToast({
+          icon: 'warn',
+          title:   t('flow_validation'),
+          message: t('flow_validation_locked'),
+          autoHide: 4000,
+        });
+      });
+    } else {
+      /* Fresh entry from flow_picker seeds the validation store based on the chosen
+         mapping path. Internal navigation within validation pages will NOT trigger
+         this — that happens only via the picker tile click. */
+      validationCard.addEventListener('click', function () {
+        seedValidationData(getMappingStatus());
+      });
+    }
+    hwList.appendChild(validationCard);
+
     const maintCard = buildCard({
       icon:'maint',    iconColor:'amber',  titleKey:'flow_maintenance', descKey:'flow_maintenance_desc', href:'maintenance.html', state:'active'
     });

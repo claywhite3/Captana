@@ -39,6 +39,8 @@ const I18N = {
     flow_install_locked:  "Veuillez d'abord terminer la cartographie",
     flow_validation:      "Validation",
     flow_validation_desc: "Vérifier les installations terminées",
+    flow_validation_locked:"Terminez d'abord la cartographie",
+    flow_validation_done: "Site validé et signé",
     flow_maintenance:     "Maintenance",
     flow_maintenance_desc:"Diagnostiquer et résoudre les problèmes",
     flow_director:        "Directeur de magasin",
@@ -462,6 +464,7 @@ const I18N = {
     mc_location_label:        "Emplacement",
     mc_camera_label:          "Caméra",
     mc_continue_btn:          "Continuer pour revérifier",
+    mc_continue_btn_validation:"Retour à la validation",
     mc_eyebrow_battery:       "Dépannage terminé",
     mc_title_battery:         "Batterie remplacée",
     mc_body_battery:          "La caméra a redémarré avec une batterie neuve. Vérifions qu'elle est de retour en ligne.",
@@ -516,6 +519,62 @@ const I18N = {
     mt_cov_swap_go:           "C'est parti",
     mt_cov_swap_cancel:       "Annuler",
 
+    /* Validation flow — install-day audit (drill: zones → aisles → sections) */
+    val_eyebrow:              "Validation",
+    val_title_root:           "Vérifions ce site",
+    val_sub_root:             "Examinez chaque zone et résolvez les problèmes avant la livraison.",
+    val_title_zone:           "Zone {name}",
+    val_sub_zone:             "Examinez chaque allée.",
+    val_title_aisle:          "Allée {aisle}",
+    val_sub_aisle:            "Examinez chaque rayon.",
+
+    val_zone_label:           "Zone",
+    val_aisle_label:          "Allée",
+    val_section_label:        "Rayon",
+    val_aisle_one:            "allée",
+    val_aisle_many:           "allées",
+    val_section_one:          "rayon",
+    val_section_many:         "rayons",
+    val_issue_one:            "problème",
+    val_issue_many:           "problèmes",
+    val_not_installed:        "Non installée",
+    val_not_installed_meta:   "à installer",
+
+    val_summary_all_clear:    "Tout est validé",
+    val_summary_all_clear_sub:"Vous pouvez signer ce site.",
+    val_summary_empty:        "Aucune donnée à vérifier",
+    val_summary_action_red:   "À résoudre avant la livraison",
+    val_summary_action_orange:"À résoudre avant la livraison",
+    val_summary_action_grey:  "Installation à compléter",
+
+    val_count_red_one:        "critique",
+    val_count_red_many:       "critiques",
+    val_count_orange_one:     "avertissement",
+    val_count_orange_many:    "avertissements",
+    val_count_grey_one:       "à installer",
+    val_count_grey_many:      "à installer",
+
+    val_signoff_btn:          "Signer ce site",
+    val_signoff_success_title:"Site signé",
+    val_signoff_success_sub:  "Cette installation est complète et validée pour la livraison.",
+    val_signoff_success_done: "Retour à l'accueil",
+
+    /* Section-detail side-modal */
+    val_sd_eyebrow_clean:     "Rayon validé",
+    val_sd_eyebrow_warning:   "À résoudre",
+    val_sd_eyebrow_critical:  "Critique",
+    val_sd_eyebrow_uninstalled:"Pas encore installée",
+    val_sd_loc_label:         "Emplacement",
+    val_sd_cam_label:         "Caméra",
+    val_sd_issues_label:      "Problèmes détectés",
+    val_sd_clean:             "Aucun problème détecté",
+    val_sd_uninstalled:       "Pas encore installée",
+    val_sd_uninstalled_sub:   "Terminez l'installation pour cet emplacement.",
+    val_sd_fix:               "Dépanner",
+    val_sd_recheck:           "Revérifier",
+    val_sd_rechecking:        "Vérification…",
+    val_sd_close:             "Fermer",
+
     /* Common */
     common_back:          "Retour",
     common_next:          "Suivant",
@@ -556,6 +615,8 @@ const I18N = {
     flow_install_locked:  "Please complete mapping first",
     flow_validation:      "Validation",
     flow_validation_desc: "Verify completed installs",
+    flow_validation_locked:"Please complete mapping first",
+    flow_validation_done: "Site validated & signed off",
     flow_maintenance:     "Maintenance",
     flow_maintenance_desc:"Diagnose and resolve issues",
     flow_director:        "Store Director",
@@ -976,6 +1037,7 @@ const I18N = {
     mc_location_label:        "Location",
     mc_camera_label:          "Camera",
     mc_continue_btn:          "Continue to recheck",
+    mc_continue_btn_validation:"Back to validation",
     mc_eyebrow_battery:       "Troubleshooting complete",
     mc_title_battery:         "Battery replaced",
     mc_body_battery:          "The camera rebooted with a fresh battery. Let's verify it's back online.",
@@ -1029,6 +1091,62 @@ const I18N = {
     mt_cov_swap_body:         "We'll start a guided reinstall at this location. The new camera will replace the old one in the system.",
     mt_cov_swap_go:           "Let's do it",
     mt_cov_swap_cancel:       "Cancel",
+
+    /* Validation flow — install-day audit (drill: zones → aisles → sections) */
+    val_eyebrow:              "Validation",
+    val_title_root:           "Let's verify this site",
+    val_sub_root:             "Walk each zone and resolve any issues before handoff.",
+    val_title_zone:           "Zone {name}",
+    val_sub_zone:             "Walk each aisle.",
+    val_title_aisle:          "Aisle {aisle}",
+    val_sub_aisle:            "Walk each section.",
+
+    val_zone_label:           "Zone",
+    val_aisle_label:          "Aisle",
+    val_section_label:        "Section",
+    val_aisle_one:            "aisle",
+    val_aisle_many:           "aisles",
+    val_section_one:          "section",
+    val_section_many:         "sections",
+    val_issue_one:            "issue",
+    val_issue_many:           "issues",
+    val_not_installed:        "Not installed",
+    val_not_installed_meta:   "to install",
+
+    val_summary_all_clear:    "Everything's validated",
+    val_summary_all_clear_sub:"You can sign off this site.",
+    val_summary_empty:        "Nothing to verify",
+    val_summary_action_red:   "Resolve before handoff",
+    val_summary_action_orange:"Resolve before handoff",
+    val_summary_action_grey:  "Install remaining cameras",
+
+    val_count_red_one:        "critical",
+    val_count_red_many:       "critical",
+    val_count_orange_one:     "warning",
+    val_count_orange_many:    "warnings",
+    val_count_grey_one:       "to install",
+    val_count_grey_many:      "to install",
+
+    val_signoff_btn:          "Sign off this site",
+    val_signoff_success_title:"Site signed off",
+    val_signoff_success_sub:  "This install is complete and validated for handoff.",
+    val_signoff_success_done: "Back to home",
+
+    /* Section-detail side-modal */
+    val_sd_eyebrow_clean:     "Section validated",
+    val_sd_eyebrow_warning:   "Resolve to validate",
+    val_sd_eyebrow_critical:  "Critical",
+    val_sd_eyebrow_uninstalled:"Not yet installed",
+    val_sd_loc_label:         "Location",
+    val_sd_cam_label:         "Camera",
+    val_sd_issues_label:      "Detected issues",
+    val_sd_clean:             "No issues detected",
+    val_sd_uninstalled:       "Not yet installed",
+    val_sd_uninstalled_sub:   "Complete installation for this location.",
+    val_sd_fix:               "Fix",
+    val_sd_recheck:           "Recheck",
+    val_sd_rechecking:        "Checking…",
+    val_sd_close:             "Close",
 
     common_back:          "Back",
     common_next:          "Next",
@@ -1544,7 +1662,13 @@ function showMaintCompletionModal(opts) {
   document.getElementById('mcCamLabel').textContent = t('mc_camera_label');
   document.getElementById('mcLocValue').textContent = opts.location || '—';
   document.getElementById('mcCamValue').textContent = opts.cameraId || '—';
-  document.getElementById('mcContinueLabel').textContent = t('mc_continue_btn');
+  /* Continue button copy reflects where the user will be sent next. Validation
+     pulls them back to a finite punch list; maintenance pulls them back to a
+     rolling task list (still called "recheck"). */
+  const continueKey = (opts.returnTo === 'validation')
+    ? 'mc_continue_btn_validation'
+    : 'mc_continue_btn';
+  document.getElementById('mcContinueLabel').textContent = t(continueKey);
 
   /* Old camera ID (swap flow only) */
   const oldEl = document.getElementById('mcCamOldValue');
@@ -1736,6 +1860,252 @@ function seedDemoIssues(force) {
   });
   saveMap(m);
   sessionStorage.setItem('demoIssuesSeeded', '1');
+}
+
+/* ──────────────────── Validation helpers ────────────────────
+   Validation is the day-of-install audit — last step of the contractor SOW.
+   It reads the same map structure as maintenance but uses its own status colors
+   that fold installation completeness (paper-tag path) and detected issues into
+   a single "is this section / aisle / zone signed-off-ready?" answer.
+
+   Status values:
+     'green'  — section/group fully installed and clean
+     'orange' — section/group has at least one warning-severity issue
+     'red'    — section/group has at least one critical-severity issue
+     'grey'   — paper-tag path only: section/group has uninstalled cameras
+
+   Rollup rule (aisle / zone): worst-of-children with one nuance — grey rolls in
+   only if at least one child is grey AND no red/orange is present. Once any
+   real issue exists, that takes precedence over uninstalled state in the color
+   the operator sees (a half-broken aisle reads as "issues to fix", not "more
+   to install"). The detail view still surfaces uninstalled count separately. */
+
+function sectionValidationStatus(s) {
+  if (!s) return 'grey';
+  if (s.skipped) return 'green'; // skipped sections don't count against anything
+  if (!s.installed) return 'grey';
+  if (!s.issues || s.issues.length === 0) return 'green';
+  const hasCrit = s.issues.some(function (i) { return i.sev === 'crit'; });
+  return hasCrit ? 'red' : 'orange';
+}
+
+function aisleValidationStatus(a) {
+  if (!a || a.skipped) return 'green';
+  const realSections = (a.sections || []).filter(function (s) { return !s.skipped; });
+  if (realSections.length === 0) return 'green';
+  const statuses = realSections.map(sectionValidationStatus);
+  if (statuses.indexOf('red')    !== -1) return 'red';
+  if (statuses.indexOf('orange') !== -1) return 'orange';
+  if (statuses.indexOf('grey')   !== -1) return 'grey';
+  return 'green';
+}
+
+function zoneValidationStatus(z) {
+  if (!z) return 'green';
+  const realAisles = (z.aisles || []).filter(function (a) { return !a.skipped; });
+  if (realAisles.length === 0) return 'green';
+  const statuses = realAisles.map(aisleValidationStatus);
+  if (statuses.indexOf('red')    !== -1) return 'red';
+  if (statuses.indexOf('orange') !== -1) return 'orange';
+  if (statuses.indexOf('grey')   !== -1) return 'grey';
+  return 'green';
+}
+
+function siteValidationStatus() {
+  const m = getMap();
+  if (!m.zones || m.zones.length === 0) return 'green';
+  const statuses = m.zones.map(zoneValidationStatus);
+  if (statuses.indexOf('red')    !== -1) return 'red';
+  if (statuses.indexOf('orange') !== -1) return 'orange';
+  if (statuses.indexOf('grey')   !== -1) return 'grey';
+  return 'green';
+}
+
+/* Top-level validation status used by flow_picker:
+     'none'        — not yet seeded (mapping incomplete or validation not entered)
+     'in_progress' — seeded; user may have resolved some issues but not signed off
+     'signed_off'  — entire site is green and user tapped "Sign off site"
+*/
+function getValidationStatus() {
+  return sessionStorage.getItem('validationStatus') || 'none';
+}
+function setValidationStatus(s) { sessionStorage.setItem('validationStatus', s); }
+
+/* Troubleshoot context resolution — both maintenance and validation push the
+   same shape into sessionStorage, just under different keys. Pages downstream
+   (install_v_battery, install_v_nfc, install_v_confirm, etc.) ask for the
+   active context via this helper instead of hard-coding 'maintenanceContext'. */
+function getActiveTroubleshootContext() {
+  /* Validation takes precedence if both are set — validation can route through
+     the same troubleshoot pages and we don't want a leftover maintenanceContext
+     to misdirect the exit. */
+  const raw = sessionStorage.getItem('validationContext')
+           || sessionStorage.getItem('maintenanceContext');
+  if (!raw) return null;
+  try {
+    const ctx = JSON.parse(raw);
+    ctx.__source = sessionStorage.getItem('validationContext') ? 'validation' : 'maintenance';
+    return ctx;
+  } catch (e) { return null; }
+}
+
+function clearActiveTroubleshootContext() {
+  sessionStorage.removeItem('maintenanceContext');
+  sessionStorage.removeItem('validationContext');
+}
+
+/* Return URL for the troubleshoot completion modal's "Continue" button.
+   Both flows take ?resolved=...&section=...&zone=...&aisle=... query params
+   so the listing page can dim/remove the resolved item on arrival. */
+function troubleshootReturnUrl(ctx, params) {
+  const base = (ctx && ctx.__source === 'validation') ? 'validation.html' : 'maintenance.html';
+  const qs = params && params.toString();
+  return base + (qs ? '?' + qs : '');
+}
+
+/* Issue ID helper — keeps determinism so validation modal references are stable */
+function vIssueId(zKey, aKey, sKey, suffix) {
+  return 'vissue_' + zKey + '_' + aKey + '_' + sKey + '_' + suffix;
+}
+
+/* Build a deterministic camera ID for validation seed data so the demo always
+   shows the same values (helps narration in screen-recorded walkthroughs). */
+function vCamId(zoneIdx, aisleIdx, sectionIdx) {
+  const n = (zoneIdx * 100 + aisleIdx * 10 + sectionIdx + 1).toString().padStart(7, '0');
+  return 'tc2ld-' + n;
+}
+
+/* seedValidationData — wipes any prior validation seed and writes a fresh
+   deterministic store appropriate to the chosen mapping path. Called when the
+   user enters validation from flow_picker (NOT on internal navigation, so
+   in-progress resolves stick).
+
+   path: 'vusion' | 'manual'
+     vusion — no uninstalled sections; 3 zones with mixed health
+     manual — paper-tag path; 4 zones including one all-uninstalled-grey
+              and one mixed-issue zone with a red aisle */
+function seedValidationData(path) {
+  /* Vusion store layout — every section installed; issue mix demonstrates rollup colors */
+  if (path === 'vusion') {
+    const m = {
+      zones: [
+        { id: 'val_z_a', name: 'A', aisles: [
+          { id: 'val_a_a1', number: 1, sections: [
+            { id: 'val_s_a11', number: 1, lookAtAisle: 'val_a_a2', installed: true, cameraId: vCamId(0,0,0), issues: [] },
+            { id: 'val_s_a12', number: 2, lookAtAisle: 'val_a_a2', installed: true, cameraId: vCamId(0,0,1), issues: [] },
+            { id: 'val_s_a13', number: 3, lookAtAisle: 'val_a_a2', installed: true, cameraId: vCamId(0,0,2), issues: [] },
+          ]},
+          { id: 'val_a_a2', number: 2, sections: [
+            { id: 'val_s_a21', number: 1, lookAtAisle: 'val_a_a1', installed: true, cameraId: vCamId(0,1,0), issues: [] },
+            { id: 'val_s_a22', number: 2, lookAtAisle: 'val_a_a1', installed: true, cameraId: vCamId(0,1,1), issues: [] },
+          ]},
+        ]},
+        /* Zone B — orange (one aisle with two issues) */
+        { id: 'val_z_b', name: 'B', aisles: [
+          { id: 'val_a_b1', number: 1, sections: [
+            { id: 'val_s_b11', number: 1, lookAtAisle: 'val_a_b2', installed: true, cameraId: vCamId(1,0,0),
+              issues: [{ id: vIssueId('b','1','1','batt'), type: 'battery', sev: 'warn' }] },
+            { id: 'val_s_b12', number: 2, lookAtAisle: 'val_a_b2', installed: true, cameraId: vCamId(1,0,1), issues: [] },
+            { id: 'val_s_b13', number: 3, lookAtAisle: 'val_a_b2', installed: true, cameraId: vCamId(1,0,2),
+              issues: [{ id: vIssueId('b','1','3','cov'), type: 'coverage', sev: 'warn' }] },
+          ]},
+          { id: 'val_a_b2', number: 2, sections: [
+            { id: 'val_s_b21', number: 1, lookAtAisle: 'val_a_b1', installed: true, cameraId: vCamId(1,1,0), issues: [] },
+            { id: 'val_s_b22', number: 2, lookAtAisle: 'val_a_b1', installed: true, cameraId: vCamId(1,1,1), issues: [] },
+          ]},
+        ]},
+        /* Zone C — orange with one red aisle */
+        { id: 'val_z_c', name: 'C', aisles: [
+          { id: 'val_a_c1', number: 1, sections: [
+            { id: 'val_s_c11', number: 1, lookAtAisle: 'val_a_c2', installed: true, cameraId: vCamId(2,0,0), issues: [] },
+            { id: 'val_s_c12', number: 2, lookAtAisle: 'val_a_c2', installed: true, cameraId: vCamId(2,0,1), issues: [] },
+          ]},
+          /* Red aisle: critical issue */
+          { id: 'val_a_c2', number: 2, sections: [
+            { id: 'val_s_c21', number: 1, lookAtAisle: 'val_a_c1', installed: true, cameraId: vCamId(2,1,0),
+              issues: [{ id: vIssueId('c','2','1','net'), type: 'network', sev: 'crit' }] },
+          ]},
+        ]},
+      ]
+    };
+    saveMap(m);
+    setValidationStatus('in_progress');
+    return;
+  }
+
+  /* Paper-tag layout — same shape but with some uninstalled (grey) sections.
+     Per Clay's spec: at least one zone complete, one zone with mixed issues
+     (a couple orange aisles + one red aisle, each problem aisle with 2-3
+     sections having issues), and a couple grey zones.
+
+     Zone A — all green (complete + healthy) — the "good zone" anchor
+     Zone B — orange overall (mix of orange aisles + one red aisle)
+     Zone C — grey (nothing installed yet)
+     Zone D — grey (nothing installed yet) */
+  const m = {
+    zones: [
+      { id: 'val_z_a', name: 'A', aisles: [
+        { id: 'val_a_a1', number: 1, sections: [
+          { id: 'val_s_a11', number: 1, lookAtAisle: 'val_a_a2', installed: true, cameraId: vCamId(0,0,0), issues: [] },
+          { id: 'val_s_a12', number: 2, lookAtAisle: 'val_a_a2', installed: true, cameraId: vCamId(0,0,1), issues: [] },
+          { id: 'val_s_a13', number: 3, lookAtAisle: 'val_a_a2', installed: true, cameraId: vCamId(0,0,2), issues: [] },
+        ]},
+        { id: 'val_a_a2', number: 2, sections: [
+          { id: 'val_s_a21', number: 1, lookAtAisle: 'val_a_a1', installed: true, cameraId: vCamId(0,1,0), issues: [] },
+          { id: 'val_s_a22', number: 2, lookAtAisle: 'val_a_a1', installed: true, cameraId: vCamId(0,1,1), issues: [] },
+        ]},
+      ]},
+      { id: 'val_z_b', name: 'B', aisles: [
+        /* Orange aisle 1: 2 of 3 sections have issues */
+        { id: 'val_a_b1', number: 1, sections: [
+          { id: 'val_s_b11', number: 1, lookAtAisle: 'val_a_b2', installed: true, cameraId: vCamId(1,0,0),
+            issues: [{ id: vIssueId('b','1','1','batt'), type: 'battery', sev: 'warn' }] },
+          { id: 'val_s_b12', number: 2, lookAtAisle: 'val_a_b2', installed: true, cameraId: vCamId(1,0,1), issues: [] },
+          { id: 'val_s_b13', number: 3, lookAtAisle: 'val_a_b2', installed: true, cameraId: vCamId(1,0,2),
+            issues: [{ id: vIssueId('b','1','3','cov'), type: 'coverage', sev: 'warn' }] },
+        ]},
+        /* Orange aisle 2: 2 of 3 sections have issues (mixed types incl. one stacked section) */
+        { id: 'val_a_b2', number: 2, sections: [
+          { id: 'val_s_b21', number: 1, lookAtAisle: 'val_a_b1', installed: true, cameraId: vCamId(1,1,0),
+            issues: [{ id: vIssueId('b','2','1','net'), type: 'network', sev: 'warn' }] },
+          { id: 'val_s_b22', number: 2, lookAtAisle: 'val_a_b1', installed: true, cameraId: vCamId(1,1,1),
+            issues: [
+              { id: vIssueId('b','2','2','batt'), type: 'battery', sev: 'warn' },
+              { id: vIssueId('b','2','2','cov'),  type: 'coverage', sev: 'warn' },
+            ] },
+          { id: 'val_s_b23', number: 3, lookAtAisle: 'val_a_b1', installed: true, cameraId: vCamId(1,1,2), issues: [] },
+        ]},
+        /* Red aisle: both sections have critical issues */
+        { id: 'val_a_b3', number: 3, sections: [
+          { id: 'val_s_b31', number: 1, lookAtAisle: 'val_a_b2', installed: true, cameraId: vCamId(1,2,0),
+            issues: [{ id: vIssueId('b','3','1','net'), type: 'network', sev: 'crit' }] },
+          { id: 'val_s_b32', number: 2, lookAtAisle: 'val_a_b2', installed: true, cameraId: vCamId(1,2,1),
+            issues: [{ id: vIssueId('b','3','2','cov'), type: 'coverage', sev: 'crit' }] },
+        ]},
+      ]},
+      /* Zone C — grey (uninstalled) */
+      { id: 'val_z_c', name: 'C', aisles: [
+        { id: 'val_a_c1', number: 1, sections: [
+          { id: 'val_s_c11', number: 1, lookAtAisle: 'val_a_c2', installed: false, issues: [] },
+          { id: 'val_s_c12', number: 2, lookAtAisle: 'val_a_c2', installed: false, issues: [] },
+        ]},
+        { id: 'val_a_c2', number: 2, sections: [
+          { id: 'val_s_c21', number: 1, lookAtAisle: 'val_a_c1', installed: false, issues: [] },
+          { id: 'val_s_c22', number: 2, lookAtAisle: 'val_a_c1', installed: false, issues: [] },
+        ]},
+      ]},
+      /* Zone D — grey (uninstalled) */
+      { id: 'val_z_d', name: 'D', aisles: [
+        { id: 'val_a_d1', number: 1, sections: [
+          { id: 'val_s_d11', number: 1, lookAtAisle: null, installed: false, issues: [] },
+          { id: 'val_s_d12', number: 2, lookAtAisle: null, installed: false, issues: [] },
+          { id: 'val_s_d13', number: 3, lookAtAisle: null, installed: false, issues: [] },
+        ]},
+      ]},
+    ]
+  };
+  saveMap(m);
+  setValidationStatus('in_progress');
 }
 
 /* ----------- Image with filename fallback -----------

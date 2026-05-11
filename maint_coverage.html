@@ -80,6 +80,57 @@
     }
     .btn-fixed svg { width: 14px; height: 14px; }
 
+    /* Swap-confirmation side-modal — same pattern as the maintCompletion modal in app.js
+       but lives on this page because it needs a "Let's do it" action that mutates session state. */
+    .sw-overlay { position: fixed; inset: 0; background: rgba(17,24,39,0.55); backdrop-filter: blur(2px); display: none; z-index: 900; animation: swFadeIn .25s ease both; }
+    .sw-overlay.open { display: block; }
+    @keyframes swFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .sw-sheet {
+      position: fixed;
+      top: 18%; right: 0;
+      height: 64%;
+      width: min(80vw, 312px);
+      background: #fff;
+      border-radius: 20px 0 0 20px;
+      box-shadow: -12px 0 32px rgba(0,0,0,0.25);
+      z-index: 901;
+      display: none;
+      flex-direction: column;
+      padding: 22px 20px;
+      transform: translateX(100%);
+      transition: transform .35s cubic-bezier(.2,.8,.2,1);
+    }
+    @media (min-width: 391px) { .sw-sheet { right: max(calc(50% - 195px), 0px); } }
+    .sw-sheet.open { display: flex; transform: translateX(0); }
+    .sw-head { display: flex; align-items: center; gap: 12px; }
+    .sw-head > div:last-child { flex: 1; min-width: 0; }
+    .sw-icon-wrap { width: 44px; height: 44px; border-radius: 12px; background: #FEF3C7; border: 1.5px solid #FDE68A; display: flex; align-items: center; justify-content: center; color: var(--c-amber); flex-shrink: 0; }
+    .sw-icon-wrap svg { width: 22px; height: 22px; }
+    .sw-eyebrow { font-size: 10px; font-weight: 800; color: var(--c-amber); letter-spacing: .5px; text-transform: uppercase; }
+    .sw-title { font-size: 17px; font-weight: 800; color: var(--c-ink); margin-top: 2px; line-height: 1.25; }
+    .sw-info { background: #F9FAFB; border: 1px solid #F3F4F6; border-radius: 14px; padding: 14px; margin-top: 16px; }
+    .sw-info-label { font-size: 9px; font-weight: 700; color: var(--c-muted); text-transform: uppercase; letter-spacing: .5px; }
+    .sw-info-value { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; font-weight: 800; color: var(--c-ink); margin-top: 3px; letter-spacing: 1px; }
+    .sw-body { font-size: 12px; color: var(--c-muted); font-weight: 500; line-height: 1.45; margin-top: 16px; }
+    .sw-actions { margin-top: auto; padding-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .sw-btn-go {
+      width: 100%; padding: 14px;
+      background: var(--c-amber); color: #fff;
+      border: none; border-radius: 14px;
+      font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(245,158,11,.30);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .sw-btn-go svg { width: 16px; height: 16px; }
+    .sw-btn-cancel {
+      width: 100%; padding: 14px;
+      background: #fff; color: var(--c-muted);
+      border: 1.5px solid var(--c-line); border-radius: 14px;
+      font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer;
+    }
+
     .hidden { display: none !important; }
   </style>
 </head>
@@ -100,63 +151,8 @@
     <div class="eyebrow" data-i18n="mt_cov_eyebrow">Dépannage image</div>
   </div>
 
-  <!-- Step 1: Blocked -->
+  <!-- Step 1: Damaged (asked first — biggest question; "Yes" routes to camera swap) -->
   <div class="step-card" id="step1">
-    <div class="step-illu">
-      <!-- Camera with a box blocking it -->
-      <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
-        <rect x="0" y="0" width="280" height="160" fill="none"/>
-        <!-- Shelf rail -->
-        <rect x="20" y="120" width="240" height="6" rx="2" fill="#2563EB" opacity="0.4"/>
-        <!-- Camera body -->
-        <rect x="120" y="92" width="40" height="32" rx="5" fill="#111827"/>
-        <!-- Camera lens -->
-        <circle cx="140" cy="108" r="10" fill="#2563EB"/>
-        <circle cx="140" cy="108" r="4" fill="#fff"/>
-        <!-- Blocking box (cardboard/product) -->
-        <rect x="100" y="50" width="80" height="40" rx="3" fill="#F59E0B" opacity="0.85" stroke="#D97706" stroke-width="2"/>
-        <line x1="100" y1="60" x2="180" y2="60" stroke="#D97706" stroke-width="1" opacity="0.5"/>
-        <line x1="120" y1="50" x2="120" y2="90" stroke="#D97706" stroke-width="1" opacity="0.5"/>
-        <line x1="160" y1="50" x2="160" y2="90" stroke="#D97706" stroke-width="1" opacity="0.5"/>
-        <!-- Blocked indicator: X over the camera's view -->
-        <line x1="125" y1="93" x2="155" y2="123" stroke="#DC2626" stroke-width="3" stroke-linecap="round"/>
-        <line x1="155" y1="93" x2="125" y2="123" stroke="#DC2626" stroke-width="3" stroke-linecap="round"/>
-      </svg>
-    </div>
-    <div class="step-title" data-i18n="mt_cov_q1_title">La caméra est-elle bloquée ?</div>
-    <div class="step-sub"   data-i18n="mt_cov_q1_sub">Regardez si un produit, un panneau ou un emballage cache l'objectif.</div>
-  </div>
-  <div class="action-card hidden" id="action1">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    <div class="action-text" data-i18n="mt_cov_action_blocked">Dégagez l'obstruction, puis reprenez une photo.</div>
-  </div>
-
-  <!-- Step 2: Dirty -->
-  <div class="step-card hidden" id="step2">
-    <div class="step-illu">
-      <!-- Lens with dust/smudge -->
-      <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
-        <rect x="60" y="40" width="160" height="100" rx="8" fill="#111827"/>
-        <circle cx="140" cy="90" r="36" fill="#2563EB"/>
-        <circle cx="140" cy="90" r="18" fill="#1E40AF"/>
-        <circle cx="140" cy="90" r="8" fill="#fff"/>
-        <!-- Smudges -->
-        <ellipse cx="125" cy="78" rx="9" ry="4" fill="#9CA3AF" opacity="0.7" transform="rotate(-25 125 78)"/>
-        <ellipse cx="155" cy="100" rx="11" ry="5" fill="#9CA3AF" opacity="0.65" transform="rotate(15 155 100)"/>
-        <circle cx="148" cy="80" r="3" fill="#9CA3AF" opacity="0.6"/>
-        <circle cx="130" cy="98" r="2.5" fill="#9CA3AF" opacity="0.6"/>
-      </svg>
-    </div>
-    <div class="step-title" data-i18n="mt_cov_q2_title">L'objectif est-il sale ?</div>
-    <div class="step-sub"   data-i18n="mt_cov_q2_sub">Poussière, traces de doigts, condensation — tout ce qui peut brouiller la vue.</div>
-  </div>
-  <div class="action-card hidden" id="action2">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    <div class="action-text" data-i18n="mt_cov_action_dirty">Nettoyez délicatement l'objectif avec un chiffon doux, puis reprenez une photo.</div>
-  </div>
-
-  <!-- Step 3: Damaged -->
-  <div class="step-card hidden" id="step3">
     <div class="step-illu">
       <!-- Cracked camera -->
       <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
@@ -170,8 +166,58 @@
         <polyline points="155,55 165,80 145,95" stroke="#DC2626" stroke-width="2" fill="none" stroke-linecap="round"/>
       </svg>
     </div>
-    <div class="step-title" data-i18n="mt_cov_q3_title">La caméra est-elle endommagée ?</div>
-    <div class="step-sub"   data-i18n="mt_cov_q3_sub">Fissures sur le boîtier, objectif cassé, signes physiques de dommage.</div>
+    <div class="step-title" data-i18n="mt_cov_q1_title">La caméra est-elle endommagée ?</div>
+    <div class="step-sub"   data-i18n="mt_cov_q1_sub">Fissures sur le boîtier, objectif cassé, signes physiques de dommage.</div>
+  </div>
+  <!-- No action-card for step 1: "Yes" opens the camera-swap side modal directly -->
+
+  <!-- Step 2: Blocked -->
+  <div class="step-card hidden" id="step2">
+    <div class="step-illu">
+      <!-- Camera with a box blocking it -->
+      <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="280" height="160" fill="none"/>
+        <rect x="20" y="120" width="240" height="6" rx="2" fill="#2563EB" opacity="0.4"/>
+        <rect x="120" y="92" width="40" height="32" rx="5" fill="#111827"/>
+        <circle cx="140" cy="108" r="10" fill="#2563EB"/>
+        <circle cx="140" cy="108" r="4" fill="#fff"/>
+        <rect x="100" y="50" width="80" height="40" rx="3" fill="#F59E0B" opacity="0.85" stroke="#D97706" stroke-width="2"/>
+        <line x1="100" y1="60" x2="180" y2="60" stroke="#D97706" stroke-width="1" opacity="0.5"/>
+        <line x1="120" y1="50" x2="120" y2="90" stroke="#D97706" stroke-width="1" opacity="0.5"/>
+        <line x1="160" y1="50" x2="160" y2="90" stroke="#D97706" stroke-width="1" opacity="0.5"/>
+        <line x1="125" y1="93" x2="155" y2="123" stroke="#DC2626" stroke-width="3" stroke-linecap="round"/>
+        <line x1="155" y1="93" x2="125" y2="123" stroke="#DC2626" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="step-title" data-i18n="mt_cov_q2_title">La caméra est-elle bloquée ?</div>
+    <div class="step-sub"   data-i18n="mt_cov_q2_sub">Regardez si un produit, un panneau ou un emballage cache l'objectif.</div>
+  </div>
+  <div class="action-card hidden" id="action2">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div class="action-text" data-i18n="mt_cov_action_blocked">Dégagez l'obstruction, puis reprenez une photo.</div>
+  </div>
+
+  <!-- Step 3: Dirty -->
+  <div class="step-card hidden" id="step3">
+    <div class="step-illu">
+      <!-- Lens with dust/smudge -->
+      <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
+        <rect x="60" y="40" width="160" height="100" rx="8" fill="#111827"/>
+        <circle cx="140" cy="90" r="36" fill="#2563EB"/>
+        <circle cx="140" cy="90" r="18" fill="#1E40AF"/>
+        <circle cx="140" cy="90" r="8" fill="#fff"/>
+        <ellipse cx="125" cy="78" rx="9" ry="4" fill="#9CA3AF" opacity="0.7" transform="rotate(-25 125 78)"/>
+        <ellipse cx="155" cy="100" rx="11" ry="5" fill="#9CA3AF" opacity="0.65" transform="rotate(15 155 100)"/>
+        <circle cx="148" cy="80" r="3" fill="#9CA3AF" opacity="0.6"/>
+        <circle cx="130" cy="98" r="2.5" fill="#9CA3AF" opacity="0.6"/>
+      </svg>
+    </div>
+    <div class="step-title" data-i18n="mt_cov_q3_title">L'objectif est-il sale ?</div>
+    <div class="step-sub"   data-i18n="mt_cov_q3_sub">Poussière, traces de doigts, condensation — tout ce qui peut brouiller la vue.</div>
+  </div>
+  <div class="action-card hidden" id="action3">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div class="action-text" data-i18n="mt_cov_action_dirty">Nettoyez délicatement l'objectif avec un chiffon doux, puis reprenez une photo.</div>
   </div>
 
   <div class="yesno-row" id="yesnoRow">
@@ -197,9 +243,18 @@
   translatePage();
   document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
 
+  /* Back button routes to whichever flow brought us here */
+  (function () {
+    var ctx = (typeof getActiveTroubleshootContext === 'function') ? getActiveTroubleshootContext() : null;
+    if (ctx && ctx.__source === 'validation') {
+      var bb = document.querySelector('a.btn-circle[href="maintenance.html"]');
+      if (bb) bb.setAttribute('href', 'validation.html');
+    }
+  })();
+
   function maintCtx() {
-    try { return JSON.parse(sessionStorage.getItem('maintenanceContext') || '{}'); }
-    catch (e) { return {}; }
+    var ctx = (typeof getActiveTroubleshootContext === 'function') ? getActiveTroubleshootContext() : null;
+    return ctx || {};
   }
 
   function returnToMaintenance(resolved, fullCleared) {
@@ -214,9 +269,8 @@
     if (fullCleared && ctx.sectionId) {
       params.set('cleared', ctx.sectionId);
     }
-    sessionStorage.removeItem('maintenanceContext');
-    var q = params.toString();
-    window.location.href = 'maintenance.html' + (q ? '?' + q : '');
+    clearActiveTroubleshootContext();
+    window.location.href = troubleshootReturnUrl(ctx, params);
   }
 
   /* Step state. Each step has a question card and an action card that appears
@@ -235,20 +289,15 @@
   }
 
   document.getElementById('yesBtn').addEventListener('click', function () {
-    if (currentStep === 3) {
-      /* Yes — camera damaged → route to reinstall flow with full cleared flag */
-      var ctx = maintCtx();
-      ctx.fullCleared = true;
-      sessionStorage.setItem('maintenanceContext', JSON.stringify(ctx));
-      sessionStorage.setItem('installMode', 'manual');
-      sessionStorage.setItem('manualZoneId',    ctx.zoneId);
-      sessionStorage.setItem('manualAisleId',   ctx.aisleId);
-      sessionStorage.setItem('manualSectionId', ctx.sectionId);
-      sessionStorage.setItem('manualReplacement', '1');
-      window.location.href = 'install_v_battery.html';
+    if (currentStep === 1) {
+      /* Damaged = Yes → open the swap-confirmation side-modal. The modal's "Let's do it"
+         button takes over from there; we don't route anywhere directly. */
+      if (typeof window.__openCoverageSwapModal === 'function') {
+        window.__openCoverageSwapModal();
+      }
       return;
     }
-    /* Yes on step 1 or 2 — show action prompt, swap button to Retake photo */
+    /* Steps 2 (blocked) and 3 (dirty): show the action prompt + swap CTA to Retake photo. */
     var action = document.getElementById('action' + currentStep);
     if (action) action.classList.remove('hidden');
     document.getElementById('yesnoRow').classList.add('hidden');
@@ -269,6 +318,91 @@
   });
 
   showStep(1);
+</script>
+
+<!-- Swap-confirmation side-modal: opens when user answers "Yes" to "Is the camera damaged?".
+     "Let's do it" sets up manual-replacement session state and routes into the install flow,
+     which ends at install_v_confirm where the final image_swap completion modal fires. -->
+<div class="sw-overlay" id="swOverlay"></div>
+<div class="sw-sheet" id="swSheet" role="dialog" aria-modal="true">
+  <div class="sw-head">
+    <div class="sw-icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M21 3l-7 7"/><path d="M8 21H3v-5"/><path d="M3 21l7-7"/></svg>
+    </div>
+    <div>
+      <div class="sw-eyebrow" data-i18n="mt_cov_swap_eyebrow">Caméra endommagée</div>
+      <div class="sw-title"   data-i18n="mt_cov_swap_title">Remplaçons cette caméra</div>
+    </div>
+  </div>
+  <div class="sw-info">
+    <div class="sw-info-label" data-i18n="mt_cov_swap_loc_label">Emplacement</div>
+    <div class="sw-info-value" id="swLocValue">—</div>
+  </div>
+  <div class="sw-body" data-i18n="mt_cov_swap_body">Nous allons lancer une réinstallation guidée à cet emplacement. La nouvelle caméra remplacera l'ancienne dans le système.</div>
+  <div class="sw-actions">
+    <button class="sw-btn-go" id="swGoBtn" type="button">
+      <span data-i18n="mt_cov_swap_go">C'est parti</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="sw-btn-cancel" id="swCancelBtn" type="button" data-i18n="mt_cov_swap_cancel">Annuler</button>
+  </div>
+</div>
+
+<script>
+  /* Swap-modal wiring — has to come after the main coverage script so showStep etc are defined. */
+  (function () {
+    var overlay = document.getElementById('swOverlay');
+    var sheet   = document.getElementById('swSheet');
+
+    function openSwapModal() {
+      var ctx = maintCtx();
+      var m = (typeof getMap === 'function') ? getMap() : null;
+      var locText = '—';
+      if (ctx && m) {
+        var z = (m.zones || []).find(function (x) { return x.id === ctx.zoneId; });
+        if (z) {
+          var a = (z.aisles || []).find(function (x) { return x.id === ctx.aisleId; });
+          if (a) {
+            var s = (a.sections || []).find(function (x) { return x.id === ctx.sectionId; });
+            if (s) locText = z.name + ' · ' + a.number + ' · ' + s.number;
+          }
+        }
+      }
+      document.getElementById('swLocValue').textContent = locText;
+      translatePage();
+      overlay.classList.add('open');
+      sheet.classList.add('open');
+    }
+    function closeSwapModal() {
+      overlay.classList.remove('open');
+      sheet.classList.remove('open');
+    }
+    overlay.addEventListener('click', closeSwapModal);
+    document.getElementById('swCancelBtn').addEventListener('click', closeSwapModal);
+
+    document.getElementById('swGoBtn').addEventListener('click', function () {
+      /* "Let's do it" — set up manual-replacement state and route into install flow.
+         The active context (maintenance OR validation) is updated with fullCleared
+         and written back under its original key so the source survives the trip
+         through the install pages. */
+      var ctx = maintCtx();
+      ctx.fullCleared = true;
+      var sourceKey = ctx.__source === 'validation' ? 'validationContext' : 'maintenanceContext';
+      /* Strip the internal __source flag before persisting (it's derived at read time) */
+      var persisted = Object.assign({}, ctx);
+      delete persisted.__source;
+      sessionStorage.setItem(sourceKey, JSON.stringify(persisted));
+      sessionStorage.setItem('installMode', 'manual');
+      sessionStorage.setItem('manualZoneId',    ctx.zoneId);
+      sessionStorage.setItem('manualAisleId',   ctx.aisleId);
+      sessionStorage.setItem('manualSectionId', ctx.sectionId);
+      sessionStorage.setItem('manualReplacement', '1');
+      window.location.href = 'install_v_battery.html';
+    });
+
+    /* Expose for the yes-button handler in the main script to call. */
+    window.__openCoverageSwapModal = openSwapModal;
+  })();
 </script>
 </body>
 </html>

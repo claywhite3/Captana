@@ -164,26 +164,51 @@
     document.getElementById('locationValue').textContent = z + ' · ' + a + ' · ' + s;
   })();
 
-  /* Maintenance mode: shortcut. Battery resolved → return to maintenance. */
-  var __maintCtx = null;
-  try { __maintCtx = JSON.parse(sessionStorage.getItem('maintenanceContext') || 'null'); } catch (e) {}
+  /* Maintenance/validation mode: this page is page 2 of 2 in the battery troubleshooting flow.
+     Both contexts route through here — we use the active-context helper to figure out which
+     and where to bounce back. */
+  var __maintCtx = (typeof getActiveTroubleshootContext === 'function') ? getActiveTroubleshootContext() : null;
 
   if (__maintCtx && __maintCtx.issueType === 'battery') {
-    /* Override the back button to go back to maintenance */
     var bb = document.querySelector('a.btn-circle');
-    if (bb) bb.setAttribute('href', 'maintenance.html');
+    if (bb) bb.setAttribute('href', 'maint_battery_remove.html');
+    var eyeb = document.querySelector('[data-i18n="inv_batt_eyebrow"]');
+    if (eyeb) { eyeb.setAttribute('data-i18n', 'mbr_eyebrow'); eyeb.textContent = t('mbr_eyebrow'); }
+    var ttl = document.querySelector('[data-i18n="inv_batt_title"]');
+    if (ttl) { ttl.setAttribute('data-i18n', 'mbi_title'); ttl.textContent = t('mbi_title'); }
+    var sub = document.querySelector('[data-i18n="inv_batt_sub"]');
+    if (sub) { sub.setAttribute('data-i18n', 'mbi_sub'); sub.textContent = t('mbi_sub'); }
   }
 
   document.getElementById('confirmBtn').addEventListener('click', function () {
     if (__maintCtx && __maintCtx.issueType === 'battery') {
-      /* Resolve the battery issue and bounce to maintenance */
-      var params = new URLSearchParams();
-      params.set('resolved', __maintCtx.issueId);
-      if (__maintCtx.sectionId) params.set('section', __maintCtx.sectionId);
-      if (__maintCtx.zoneId)    params.set('zone',    __maintCtx.zoneId);
-      if (__maintCtx.aisleId)   params.set('aisle',   __maintCtx.aisleId);
-      sessionStorage.removeItem('maintenanceContext');
-      window.location.href = 'maintenance.html?' + params.toString();
+      var m = (typeof getMap === 'function') ? getMap() : null;
+      var locText = '—', cam = '—';
+      if (m) {
+        var z = (m.zones || []).find(function (x) { return x.id === __maintCtx.zoneId; });
+        if (z) {
+          var a = (z.aisles || []).find(function (x) { return x.id === __maintCtx.aisleId; });
+          if (a) {
+            var s = (a.sections || []).find(function (x) { return x.id === __maintCtx.sectionId; });
+            if (s) { locText = z.name + ' · ' + a.number + ' · ' + s.number; cam = s.cameraId || '—'; }
+          }
+        }
+      }
+      showMaintCompletionModal({
+        flow: 'battery',
+        location: locText,
+        cameraId: cam,
+        returnTo: __maintCtx.__source, // 'maintenance' | 'validation'
+        onContinue: function () {
+          var params = new URLSearchParams();
+          params.set('resolved', __maintCtx.issueId);
+          if (__maintCtx.sectionId) params.set('section', __maintCtx.sectionId);
+          if (__maintCtx.zoneId)    params.set('zone',    __maintCtx.zoneId);
+          if (__maintCtx.aisleId)   params.set('aisle',   __maintCtx.aisleId);
+          clearActiveTroubleshootContext();
+          window.location.href = troubleshootReturnUrl(__maintCtx, params);
+        }
+      });
       return;
     }
     /* Normal install flow: side-toast narrates the transition while we route to NFC */

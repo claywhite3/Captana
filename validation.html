@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Validation</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    /* Shell already has padding-bottom for sticky footer (see app.css). We
+       reserve a bit extra here for the sign-off CTA. */
+    .shell { padding-bottom: 120px; }
+
+    /* Breadcrumb chip row — mirrors the mm_ pages */
+    .crumb-row {
+      padding: 0 20px 4px;
+      display: flex; gap: 8px;
+      flex-wrap: wrap;
+      animation: fadeUp .35s .04s ease both; opacity: 0;
+    }
+    .crumb-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 11px 7px 12px;
+      background: var(--c-blue-soft);
+      border: 1px solid var(--c-blue-line);
+      border-radius: 999px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform .12s;
+    }
+    .crumb-chip:active { transform: scale(.97); }
+    .crumb-label {
+      font-size: 10px; font-weight: 800;
+      color: var(--c-blue);
+      letter-spacing: .5px; text-transform: uppercase;
+    }
+    .crumb-value {
+      font-size: 13px; font-weight: 800;
+      color: var(--c-blue);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .crumb-chip svg { width: 12px; height: 12px; color: var(--c-blue); }
+
+    /* Status summary banner — one-line answer to "what's left?" */
+    .summary-card {
+      margin: 12px 20px 0;
+      padding: 14px 16px;
+      border-radius: 14px;
+      display: flex; align-items: center; gap: 12px;
+      animation: fadeUp .35s .08s ease both; opacity: 0;
+    }
+    .summary-card.green  { background: var(--c-green-soft);  border: 1.5px solid var(--c-green-line); }
+    .summary-card.orange { background: #FEF3C7; border: 1.5px solid #FDE68A; }
+    .summary-card.red    { background: #FEE2E2; border: 1.5px solid #FCA5A5; }
+    .summary-card.grey   { background: #F3F4F6; border: 1.5px solid #E5E7EB; }
+    .summary-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .summary-card.green  .summary-dot { background: var(--c-green); }
+    .summary-card.orange .summary-dot { background: var(--c-amber); }
+    .summary-card.red    .summary-dot { background: #DC2626; }
+    .summary-card.grey   .summary-dot { background: #9CA3AF; }
+    .summary-label {
+      font-size: 13px; font-weight: 700;
+      color: var(--c-ink);
+      line-height: 1.3;
+    }
+    .summary-sub {
+      font-size: 11px; font-weight: 600;
+      color: var(--c-muted);
+      margin-top: 2px;
+    }
+
+    /* Card grid — each card carries a status color via its border + dot */
+    .v-card-list { margin-top: 14px; padding: 0 20px; }
+    .v-card {
+      display: flex; align-items: center; gap: 14px;
+      background: #fff;
+      border: 1.5px solid var(--c-line);
+      border-left-width: 4px;
+      border-radius: 16px;
+      padding: 14px 14px 14px 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: transform .12s, box-shadow .12s;
+      text-decoration: none;
+      animation: fadeUp .3s ease both; opacity: 0;
+    }
+    .v-card:active { transform: scale(.985); box-shadow: 0 1px 5px rgba(0,0,0,0.08); }
+    .v-card.green  { border-left-color: var(--c-green); }
+    .v-card.orange { border-left-color: var(--c-amber); }
+    .v-card.red    { border-left-color: #DC2626; }
+    .v-card.grey   { border-left-color: #9CA3AF; opacity: .72; }
+
+    .v-card-tile {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 17px; font-weight: 800;
+    }
+    .v-card.green  .v-card-tile { background: var(--c-green-soft);  color: var(--c-green); border: 1.5px solid var(--c-green-line); }
+    .v-card.orange .v-card-tile { background: #FEF3C7; color: var(--c-amber); border: 1.5px solid #FDE68A; }
+    .v-card.red    .v-card-tile { background: #FEE2E2; color: #DC2626; border: 1.5px solid #FCA5A5; }
+    .v-card.grey   .v-card-tile { background: #F3F4F6; color: #6B7280; border: 1.5px solid #E5E7EB; }
+
+    .v-card-body { flex: 1; min-width: 0; }
+    .v-card-title {
+      font-size: 15px; font-weight: 800;
+      color: var(--c-ink);
+    }
+    .v-card-meta {
+      font-size: 12px; font-weight: 600;
+      color: var(--c-muted);
+      margin-top: 2px;
+      display: flex; align-items: center; gap: 6px;
+      flex-wrap: wrap;
+    }
+    .v-card-meta .dot { color: #D1D5DB; }
+
+    .v-issue-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 11px; font-weight: 700;
+      font-family: inherit;
+    }
+    .v-issue-pill.orange { background: #FEF3C7; color: #92400E; }
+    .v-issue-pill.red    { background: #FEE2E2; color: #B91C1C; }
+    .v-issue-pill .pill-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .v-issue-pill.orange .pill-dot { background: var(--c-amber); }
+    .v-issue-pill.red    .pill-dot { background: #DC2626; }
+
+    .v-card-arrow {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #F3F4F6;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--c-muted-2);
+    }
+    .v-card-arrow svg { width: 14px; height: 14px; }
+
+    /* Sign-off sticky footer */
+    .signoff-wrap {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 390px;
+      background: #fff;
+      padding: 12px 20px 28px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.07);
+      border-top: 1px solid #F3F4F6;
+      z-index: 50;
+    }
+    .btn-signoff {
+      width: 100%; padding: 15px;
+      background: var(--c-green); color: #fff;
+      border: none; border-radius: 16px;
+      font-family: inherit; font-size: 15px; font-weight: 800;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 4px 14px rgba(22,163,74,.30);
+      transition: transform .15s;
+    }
+    .btn-signoff:active { transform: scale(.975); }
+    .btn-signoff svg { width: 18px; height: 18px; }
+    .btn-signoff.is-disabled {
+      background: #E5E7EB;
+      color: #9CA3AF;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+    .btn-signoff.is-disabled:active { transform: none; }
+
+    /* Section-detail side-modal (mirrors the maintCompletion pattern) */
+    .sd-overlay { position: fixed; inset: 0; background: rgba(17,24,39,0.55); backdrop-filter: blur(2px); display: none; z-index: 900; animation: sdFadeIn .25s ease both; }
+    .sd-overlay.open { display: block; }
+    @keyframes sdFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .sd-sheet {
+      position: fixed;
+      top: 14%; right: 0;
+      height: 72%;
+      width: min(80vw, 312px);
+      background: #fff;
+      border-radius: 20px 0 0 20px;
+      box-shadow: -12px 0 32px rgba(0,0,0,0.25);
+      z-index: 901;
+      display: none;
+      flex-direction: column;
+      padding: 20px;
+      transform: translateX(100%);
+      transition: transform .35s cubic-bezier(.2,.8,.2,1);
+    }
+    @media (min-width: 391px) { .sd-sheet { right: max(calc(50% - 195px), 0px); } }
+    .sd-sheet.open { display: flex; transform: translateX(0); }
+    .sd-head { display: flex; align-items: center; gap: 12px; }
+    .sd-head > div:last-child { flex: 1; min-width: 0; }
+    .sd-icon-wrap { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sd-icon-wrap.orange { background: #FEF3C7; border: 1.5px solid #FDE68A; color: var(--c-amber); }
+    .sd-icon-wrap.red    { background: #FEE2E2; border: 1.5px solid #FCA5A5; color: #DC2626; }
+    .sd-icon-wrap svg { width: 22px; height: 22px; }
+    .sd-eyebrow { font-size: 10px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; }
+    .sd-eyebrow.orange { color: var(--c-amber); }
+    .sd-eyebrow.red    { color: #DC2626; }
+    .sd-title { font-size: 17px; font-weight: 800; color: var(--c-ink); margin-top: 2px; line-height: 1.25; }
+
+    .sd-info {
+      background: #F9FAFB; border: 1px solid #F3F4F6; border-radius: 14px;
+      padding: 12px 14px;
+      margin-top: 14px;
+    }
+    .sd-info-row { display: flex; align-items: center; gap: 10px; }
+    .sd-info-row + .sd-info-row { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #E5E7EB; }
+    .sd-info-label { font-size: 9px; font-weight: 700; color: var(--c-muted); text-transform: uppercase; letter-spacing: .5px; }
+    .sd-info-value { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; font-weight: 800; color: var(--c-ink); margin-top: 1px; letter-spacing: 1px; }
+
+    .sd-issues-label {
+      font-size: 10px; font-weight: 800; color: var(--c-muted);
+      letter-spacing: .5px; text-transform: uppercase;
+      margin: 16px 0 8px;
+    }
+    .sd-issue-row {
+      display: flex; align-items: center; gap: 10px;
+      background: #fff;
+      border: 1.5px solid var(--c-line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+    .sd-issue-row.crit { border-color: #FCA5A5; background: #FEF2F2; }
+    .sd-issue-row.warn { border-color: #FDE68A; background: #FFFBEB; }
+    .sd-issue-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .sd-issue-row.crit .sd-issue-dot { background: #DC2626; }
+    .sd-issue-row.warn .sd-issue-dot { background: var(--c-amber); }
+    .sd-issue-label { font-size: 13px; font-weight: 700; color: var(--c-ink); flex: 1; }
+    .sd-issue-fix {
+      padding: 6px 11px;
+      background: var(--c-blue); color: #fff;
+      border: none; border-radius: 999px;
+      font-family: inherit; font-size: 11px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(37,99,235,.20);
+    }
+
+    .sd-actions { margin-top: auto; padding-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+    .sd-btn-recheck {
+      width: 100%; padding: 12px;
+      background: #fff;
+      border: 1.5px solid var(--c-blue-line);
+      color: var(--c-blue);
+      border-radius: 12px;
+      font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .sd-btn-recheck svg { width: 14px; height: 14px; }
+    .sd-btn-recheck.checking { opacity: .6; cursor: progress; }
+    .sd-btn-close {
+      width: 100%; padding: 12px;
+      background: #F3F4F6; color: #374151;
+      border: none; border-radius: 12px;
+      font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Clean section view — shown in modal when section is already green */
+    .sd-clean {
+      margin-top: 18px;
+      padding: 16px;
+      background: var(--c-green-soft);
+      border: 1.5px solid var(--c-green-line);
+      border-radius: 14px;
+      text-align: center;
+    }
+    .sd-clean-icon {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--c-green); color: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-bottom: 8px;
+    }
+    .sd-clean-icon svg { width: 22px; height: 22px; }
+    .sd-clean-text { font-size: 13px; font-weight: 700; color: var(--c-green); }
+
+    /* Grey (uninstalled) section view */
+    .sd-uninstalled {
+      margin-top: 18px;
+      padding: 16px;
+      background: #F3F4F6;
+      border: 1.5px dashed #D1D5DB;
+      border-radius: 14px;
+      text-align: center;
+    }
+    .sd-uninstalled-text { font-size: 13px; font-weight: 700; color: var(--c-muted); }
+    .sd-uninstalled-sub  { font-size: 11px; font-weight: 600; color: var(--c-muted-2); margin-top: 4px; }
+
+    /* Sign-off success overlay (full-page) */
+    .signoff-overlay {
+      position: fixed; inset: 0;
+      background: rgba(17,24,39,0.55); backdrop-filter: blur(2px);
+      display: none; z-index: 950;
+      animation: sdFadeIn .25s ease both;
+    }
+    .signoff-overlay.open { display: flex; align-items: center; justify-content: center; }
+    .signoff-card {
+      background: #fff;
+      border-radius: 22px;
+      padding: 28px 24px 24px;
+      width: min(86vw, 320px);
+      text-align: center;
+      box-shadow: 0 20px 48px rgba(0,0,0,0.30);
+      animation: fadeUp .35s ease both; opacity: 0;
+    }
+    .signoff-check {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--c-green); color: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+    }
+    .signoff-check svg { width: 30px; height: 30px; }
+    .signoff-title { font-size: 20px; font-weight: 800; color: var(--c-ink); }
+    .signoff-sub   { font-size: 13px; font-weight: 600; color: var(--c-muted); margin-top: 6px; line-height: 1.4; }
+    .signoff-cta {
+      margin-top: 18px;
+      width: 100%; padding: 13px;
+      background: var(--c-blue); color: #fff;
+      border: none; border-radius: 14px;
+      font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="#" id="backLink" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" data-i18n="val_eyebrow">Validation</div>
+    <div class="hero-title" id="heroTitle" data-i18n="val_title_root">Vérifions ce site</div>
+    <div class="hero-sub"   id="heroSub"   data-i18n="val_sub_root">Examinez chaque zone et résolvez les problèmes avant la livraison.</div>
+  </div>
+
+  <!-- Breadcrumbs (built dynamically) -->
+  <div class="crumb-row" id="crumbRow"></div>
+
+  <!-- Status summary (one-liner above the list) -->
+  <div class="summary-card" id="summaryCard">
+    <div class="summary-dot"></div>
+    <div>
+      <div class="summary-label" id="summaryLabel">—</div>
+      <div class="summary-sub"   id="summarySub">—</div>
+    </div>
+  </div>
+
+  <!-- Drill list — zones, aisles, or sections depending on URL params -->
+  <div class="v-card-list stagger" id="cardList"></div>
+
+</div>
+
+<!-- Sticky sign-off CTA: hidden on detail views, shown at root level -->
+<div class="signoff-wrap" id="signoffWrap" style="display:none;">
+  <button class="btn-signoff is-disabled" id="signoffBtn" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    <span data-i18n="val_signoff_btn">Signer ce site</span>
+  </button>
+</div>
+
+<!-- Section-detail side modal -->
+<div class="sd-overlay" id="sdOverlay"></div>
+<div class="sd-sheet" id="sdSheet" role="dialog" aria-modal="true">
+  <div class="sd-head">
+    <div class="sd-icon-wrap" id="sdIconWrap">
+      <svg id="sdIconSvg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <div>
+      <div class="sd-eyebrow" id="sdEyebrow"></div>
+      <div class="sd-title"   id="sdTitle"></div>
+    </div>
+  </div>
+  <div class="sd-info">
+    <div class="sd-info-row">
+      <div class="sd-info-label" data-i18n="val_sd_loc_label">Emplacement</div>
+      <div class="sd-info-value" id="sdLocValue">—</div>
+    </div>
+    <div class="sd-info-row" id="sdCamRow">
+      <div>
+        <div class="sd-info-label" data-i18n="val_sd_cam_label">Caméra</div>
+        <div class="sd-info-value" id="sdCamValue">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- One of three states renders below: issue list, clean message, or uninstalled message -->
+  <div id="sdIssueBlock" style="display:none;">
+    <div class="sd-issues-label" data-i18n="val_sd_issues_label">Problèmes détectés</div>
+    <div id="sdIssueList"></div>
+  </div>
+  <div class="sd-clean" id="sdCleanBlock" style="display:none;">
+    <div class="sd-clean-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div class="sd-clean-text" data-i18n="val_sd_clean">Aucun problème détecté</div>
+  </div>
+  <div class="sd-uninstalled" id="sdUninstalledBlock" style="display:none;">
+    <div class="sd-uninstalled-text" data-i18n="val_sd_uninstalled">Pas encore installée</div>
+    <div class="sd-uninstalled-sub" data-i18n="val_sd_uninstalled_sub">Terminez l'installation pour cet emplacement.</div>
+  </div>
+
+  <div class="sd-actions">
+    <button class="sd-btn-recheck" id="sdRecheckBtn" type="button" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      <span data-i18n="val_sd_recheck" id="sdRecheckLabel">Revérifier</span>
+    </button>
+    <button class="sd-btn-close" id="sdCloseBtn" type="button" data-i18n="val_sd_close">Fermer</button>
+  </div>
+</div>
+
+<!-- Sign-off success overlay -->
+<div class="signoff-overlay" id="signoffSuccessOverlay">
+  <div class="signoff-card">
+    <div class="signoff-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div class="signoff-title" data-i18n="val_signoff_success_title">Site signé</div>
+    <div class="signoff-sub"   data-i18n="val_signoff_success_sub">Cette installation est complète et validée pour la livraison.</div>
+    <button class="signoff-cta" id="signoffCloseBtn" type="button" data-i18n="val_signoff_success_done">Retour à l'accueil</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+
+  /* Parse URL params — drives which level to render */
+  const params  = new URLSearchParams(window.location.search);
+  const zoneId  = params.get('zone');
+  const aisleId = params.get('aisle');
+  const LEVEL = aisleId ? 'sections' : (zoneId ? 'aisles' : 'zones');
+
+  /* Process any incoming resolve/cleared params FIRST, before we snapshot the map.
+     When a troubleshoot flow completes via the completion modal, it routes back
+     here with ?resolved=ISSUE_ID or ?cleared=SECTION_ID. We mutate the map and
+     strip those params from the URL so reloads don't double-process. */
+  (function processResolveParams() {
+    const resolved = params.get('resolved');
+    const cleared  = params.get('cleared');
+    const fromSection = params.get('section');
+    if (!resolved && !cleared) return;
+
+    const m = getMap();
+    if (resolved && fromSection) {
+      m.zones.forEach(function (z) {
+        z.aisles.forEach(function (a) {
+          a.sections.forEach(function (s) {
+            if (s.id === fromSection && s.issues) {
+              s.issues = s.issues.filter(function (iss) { return iss.id !== resolved; });
+            }
+          });
+        });
+      });
+    }
+    if (cleared) {
+      m.zones.forEach(function (z) {
+        z.aisles.forEach(function (a) {
+          a.sections.forEach(function (s) {
+            if (s.id === cleared) { s.issues = []; }
+          });
+        });
+      });
+    }
+    saveMap(m);
+
+    /* Strip query params so a reload doesn't reapply. Preserve the actual nav
+       context (zone, aisle) so the user lands back at the level they were at. */
+    const url = new URL(window.location.href);
+    url.searchParams.delete('resolved');
+    url.searchParams.delete('cleared');
+    url.searchParams.delete('section');
+    /* Preserve zone/aisle if originally present so the view stays at that level */
+    window.history.replaceState({}, '', url.toString());
+  })();
+
+  /* Back link: drill-up rather than browser history */
+  document.getElementById('backLink').addEventListener('click', function (e) {
+    e.preventDefault();
+    if (LEVEL === 'sections') {
+      window.location.href = 'validation.html?zone=' + encodeURIComponent(zoneId);
+    } else if (LEVEL === 'aisles') {
+      window.location.href = 'validation.html';
+    } else {
+      window.location.href = 'flow_picker.html';
+    }
+  });
+
+  /* Status text + summary card. Returns { label, sub, status } given a status string + counts. */
+  function buildSummary(status, counts) {
+    /* counts: { green, orange, red, grey, total } */
+    if (counts.total === 0) {
+      return { status: 'green', label: t('val_summary_empty'), sub: '' };
+    }
+    if (status === 'green') {
+      return { status: 'green', label: t('val_summary_all_clear'), sub: t('val_summary_all_clear_sub') };
+    }
+    const parts = [];
+    if (counts.red > 0)    parts.push(counts.red    + ' ' + t(counts.red    === 1 ? 'val_count_red_one'    : 'val_count_red_many'));
+    if (counts.orange > 0) parts.push(counts.orange + ' ' + t(counts.orange === 1 ? 'val_count_orange_one' : 'val_count_orange_many'));
+    if (counts.grey > 0)   parts.push(counts.grey   + ' ' + t(counts.grey   === 1 ? 'val_count_grey_one'   : 'val_count_grey_many'));
+    return {
+      status: status,
+      label: parts.join(' · '),
+      sub: t('val_summary_action_' + status),
+    };
+  }
+
+  function applySummary(s) {
+    const card = document.getElementById('summaryCard');
+    card.className = 'summary-card ' + s.status;
+    document.getElementById('summaryLabel').textContent = s.label;
+    document.getElementById('summarySub').textContent   = s.sub;
+  }
+
+  /* Build a card row */
+  function buildCard(opts) {
+    const a = document.createElement('a');
+    a.className = 'v-card ' + opts.status;
+    a.href = opts.href || '#';
+    if (opts.onClick) {
+      a.href = '#';
+      a.addEventListener('click', function (e) { e.preventDefault(); opts.onClick(); });
+    }
+    const meta = opts.meta || [];
+    const metaHTML = meta.length
+      ? '<div class="v-card-meta">' + meta.map(function (m, i) {
+          return (i > 0 ? '<span class="dot">·</span>' : '') + m;
+        }).join('') + '</div>'
+      : '';
+    a.innerHTML = '' +
+      '<div class="v-card-tile">' + opts.tile + '</div>' +
+      '<div class="v-card-body">' +
+        '<div class="v-card-title">' + opts.title + '</div>' +
+        metaHTML +
+      '</div>' +
+      '<div class="v-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>';
+    return a;
+  }
+
+  /* Count children by status — used for both rollup labels and summary line */
+  function countByStatus(items, statusFn) {
+    const c = { green: 0, orange: 0, red: 0, grey: 0, total: 0 };
+    items.forEach(function (it) {
+      c.total++;
+      const s = statusFn(it);
+      c[s] = (c[s] || 0) + 1;
+    });
+    return c;
+  }
+
+  function issuePillsFor(section) {
+    if (!section.issues || section.issues.length === 0) return '';
+    const crits = section.issues.filter(function (i) { return i.sev === 'crit'; }).length;
+    const warns = section.issues.filter(function (i) { return i.sev === 'warn'; }).length;
+    let html = '';
+    if (crits > 0) html += '<span class="v-issue-pill red"><span class="pill-dot"></span>' + crits + '</span>';
+    if (warns > 0) html += '<span class="v-issue-pill orange"><span class="pill-dot"></span>' + warns + '</span>';
+    return html;
+  }
+
+  /* ───────────── Render ───────────── */
+  const map = getMap();
+
+  function metaForGroupStatus(counts, kindOneKey, kindManyKey) {
+    /* "5 sections · 2 issues" or "5 aisles · 1 not installed" depending on what's notable */
+    const parts = [];
+    parts.push(counts.total + ' ' + t(counts.total === 1 ? kindOneKey : kindManyKey));
+    const issues = (counts.red || 0) + (counts.orange || 0);
+    if (issues > 0) {
+      parts.push(issues + ' ' + t(issues === 1 ? 'val_issue_one' : 'val_issue_many'));
+    }
+    if (counts.grey > 0) {
+      parts.push(counts.grey + ' ' + t('val_not_installed_meta'));
+    }
+    return parts;
+  }
+
+  function renderZones() {
+    document.getElementById('heroTitle').textContent = t('val_title_root');
+    document.getElementById('heroSub').textContent   = t('val_sub_root');
+    document.getElementById('crumbRow').style.display = 'none';
+
+    const zones = map.zones || [];
+    const counts = countByStatus(zones, zoneValidationStatus);
+    applySummary(buildSummary(siteValidationStatus(), counts));
+
+    const list = document.getElementById('cardList');
+    list.innerHTML = '';
+    zones.forEach(function (z) {
+      const status = zoneValidationStatus(z);
+      const realAisles = (z.aisles || []).filter(function (a) { return !a.skipped; });
+      const aisleCounts = countByStatus(realAisles, aisleValidationStatus);
+      const meta = metaForGroupStatus(aisleCounts, 'val_aisle_one', 'val_aisle_many');
+      list.appendChild(buildCard({
+        status: status,
+        tile:   escapeHtml(z.name),
+        title:  t('val_zone_label') + ' ' + escapeHtml(z.name),
+        meta:   meta,
+        href:   'validation.html?zone=' + encodeURIComponent(z.id),
+      }));
+    });
+
+    /* Show the sign-off CTA at the root level only */
+    document.getElementById('signoffWrap').style.display = 'block';
+    const allGreen = siteValidationStatus() === 'green' && counts.total > 0;
+    const btn = document.getElementById('signoffBtn');
+    if (allGreen) btn.classList.remove('is-disabled');
+    else          btn.classList.add('is-disabled');
+  }
+
+  function renderAisles() {
+    const z = (map.zones || []).find(function (x) { return x.id === zoneId; });
+    if (!z) { window.location.href = 'validation.html'; return; }
+
+    document.getElementById('heroTitle').textContent = t('val_title_zone').replace('{name}', z.name);
+    document.getElementById('heroSub').textContent   = t('val_sub_zone');
+    document.getElementById('heroTitle').removeAttribute('data-i18n');
+    document.getElementById('heroSub').removeAttribute('data-i18n');
+
+    /* Breadcrumb: just "Zone X" since we're inside a single zone */
+    const crumbRow = document.getElementById('crumbRow');
+    crumbRow.style.display = 'flex';
+    crumbRow.innerHTML = makeCrumb('val_zone_label', z.name, 'validation.html');
+
+    const realAisles = (z.aisles || []).filter(function (a) { return !a.skipped; });
+    const counts = countByStatus(realAisles, aisleValidationStatus);
+    applySummary(buildSummary(zoneValidationStatus(z), counts));
+
+    const list = document.getElementById('cardList');
+    list.innerHTML = '';
+    realAisles.forEach(function (a) {
+      const status = aisleValidationStatus(a);
+      const realSecs = (a.sections || []).filter(function (s) { return !s.skipped; });
+      const secCounts = countByStatus(realSecs, sectionValidationStatus);
+      const meta = metaForGroupStatus(secCounts, 'val_section_one', 'val_section_many');
+      list.appendChild(buildCard({
+        status: status,
+        tile:   String(a.number),
+        title:  t('val_aisle_label') + ' ' + a.number,
+        meta:   meta,
+        href:   'validation.html?zone=' + encodeURIComponent(zoneId) + '&aisle=' + encodeURIComponent(a.id),
+      }));
+    });
+
+    document.getElementById('signoffWrap').style.display = 'none';
+  }
+
+  function renderSections() {
+    const z = (map.zones || []).find(function (x) { return x.id === zoneId; });
+    if (!z) { window.location.href = 'validation.html'; return; }
+    const a = (z.aisles || []).find(function (x) { return x.id === aisleId; });
+    if (!a) { window.location.href = 'validation.html?zone=' + encodeURIComponent(zoneId); return; }
+
+    document.getElementById('heroTitle').textContent = t('val_title_aisle').replace('{aisle}', a.number);
+    document.getElementById('heroSub').textContent   = t('val_sub_aisle');
+    /* Strip data-i18n so subsequent translatePage() calls (e.g. from openSectionModal)
+       don't clobber the dynamically computed title. */
+    document.getElementById('heroTitle').removeAttribute('data-i18n');
+    document.getElementById('heroSub').removeAttribute('data-i18n');
+
+    /* Two breadcrumbs: Zone (jumps back to root) + Aisle (jumps to this zone's aisles) */
+    const crumbRow = document.getElementById('crumbRow');
+    crumbRow.style.display = 'flex';
+    crumbRow.innerHTML =
+      makeCrumb('val_zone_label',  z.name,       'validation.html') +
+      makeCrumb('val_aisle_label', a.number,     'validation.html?zone=' + encodeURIComponent(zoneId));
+
+    const realSecs = (a.sections || []).filter(function (s) { return !s.skipped; });
+    const counts = countByStatus(realSecs, sectionValidationStatus);
+    applySummary(buildSummary(aisleValidationStatus(a), counts));
+
+    const list = document.getElementById('cardList');
+    list.innerHTML = '';
+    realSecs.forEach(function (s) {
+      const status = sectionValidationStatus(s);
+      const meta = [];
+      meta.push(s.installed && s.cameraId ? escapeHtml(s.cameraId) : t('val_not_installed'));
+      const pills = issuePillsFor(s);
+      if (pills) meta.push(pills);
+      list.appendChild(buildCard({
+        status:  status,
+        tile:    String(s.number),
+        title:   t('val_section_label') + ' ' + s.number,
+        meta:    meta,
+        onClick: function () { openSectionModal(z, a, s); },
+      }));
+    });
+
+    document.getElementById('signoffWrap').style.display = 'none';
+  }
+
+  function makeCrumb(labelKey, value, href) {
+    return '<a class="crumb-chip" href="' + href + '">' +
+             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>' +
+             '<span class="crumb-label">' + t(labelKey) + '</span>' +
+             '<span class="crumb-value">' + escapeHtml(String(value)) + '</span>' +
+           '</a>';
+  }
+
+  /* ───────────── Section-detail side modal ───────────── */
+
+  let currentSectionCtx = null;
+
+  function openSectionModal(z, a, s) {
+    currentSectionCtx = { zoneId: z.id, aisleId: a.id, sectionId: s.id };
+    const status = sectionValidationStatus(s);
+
+    /* Icon + eyebrow colors track section status */
+    const iconWrap = document.getElementById('sdIconWrap');
+    const eyebrow  = document.getElementById('sdEyebrow');
+    iconWrap.className = 'sd-icon-wrap ' + (status === 'red' ? 'red' : (status === 'orange' ? 'orange' : ''));
+    eyebrow.className  = 'sd-eyebrow '   + (status === 'red' ? 'red' : (status === 'orange' ? 'orange' : ''));
+
+    if (status === 'green') {
+      eyebrow.textContent = t('val_sd_eyebrow_clean');
+      document.getElementById('sdIconSvg').innerHTML = '<polyline points="20 6 9 17 4 12"/>';
+      iconWrap.style.background = 'var(--c-green-soft)';
+      iconWrap.style.borderColor = 'var(--c-green-line)';
+      iconWrap.style.color = 'var(--c-green)';
+    } else if (status === 'grey') {
+      eyebrow.textContent = t('val_sd_eyebrow_uninstalled');
+      document.getElementById('sdIconSvg').innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>';
+      iconWrap.style.background = '#F3F4F6';
+      iconWrap.style.borderColor = '#E5E7EB';
+      iconWrap.style.color = '#9CA3AF';
+    } else {
+      eyebrow.textContent = status === 'red'
+        ? t('val_sd_eyebrow_critical')
+        : t('val_sd_eyebrow_warning');
+      document.getElementById('sdIconSvg').innerHTML = '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+      iconWrap.style.background = '';
+      iconWrap.style.borderColor = '';
+      iconWrap.style.color = '';
+    }
+
+    document.getElementById('sdTitle').textContent =
+      t('val_section_label') + ' ' + z.name + ' · ' + a.number + ' · ' + s.number;
+    document.getElementById('sdLocValue').textContent = z.name + ' · ' + a.number + ' · ' + s.number;
+    if (s.installed && s.cameraId) {
+      document.getElementById('sdCamValue').textContent = s.cameraId;
+      document.getElementById('sdCamRow').style.display = '';
+    } else {
+      document.getElementById('sdCamRow').style.display = 'none';
+    }
+
+    /* Body section: issue list, clean message, or uninstalled message */
+    const issueBlock = document.getElementById('sdIssueBlock');
+    const cleanBlock = document.getElementById('sdCleanBlock');
+    const uninstBlock = document.getElementById('sdUninstalledBlock');
+    issueBlock.style.display = 'none';
+    cleanBlock.style.display = 'none';
+    uninstBlock.style.display = 'none';
+
+    if (status === 'grey') {
+      uninstBlock.style.display = '';
+    } else if (status === 'green') {
+      cleanBlock.style.display = '';
+    } else {
+      issueBlock.style.display = '';
+      renderIssueList(s);
+    }
+
+    /* Recheck only shown when there are issues to recheck */
+    const recheckBtn = document.getElementById('sdRecheckBtn');
+    recheckBtn.style.display = (status === 'orange' || status === 'red') ? '' : 'none';
+    recheckBtn.classList.remove('checking');
+    document.getElementById('sdRecheckLabel').textContent = t('val_sd_recheck');
+
+    document.getElementById('sdOverlay').classList.add('open');
+    document.getElementById('sdSheet').classList.add('open');
+    translatePage();
+  }
+
+  function renderIssueList(s) {
+    const list = document.getElementById('sdIssueList');
+    list.innerHTML = '';
+    sortIssuesByPriority(s.issues).forEach(function (iss) {
+      const row = document.createElement('div');
+      row.className = 'sd-issue-row ' + iss.sev;
+      row.innerHTML = '' +
+        '<div class="sd-issue-dot"></div>' +
+        '<div class="sd-issue-label">' + escapeHtml(t('mt_sev_' + iss.type + '_' + iss.sev)) + '</div>' +
+        '<button class="sd-issue-fix" type="button">' + escapeHtml(t('val_sd_fix')) + '</button>';
+      row.querySelector('.sd-issue-fix').addEventListener('click', function () {
+        startTroubleshoot(iss);
+      });
+      list.appendChild(row);
+    });
+  }
+
+  function closeModal() {
+    document.getElementById('sdOverlay').classList.remove('open');
+    document.getElementById('sdSheet').classList.remove('open');
+  }
+  document.getElementById('sdOverlay').addEventListener('click', closeModal);
+  document.getElementById('sdCloseBtn').addEventListener('click', closeModal);
+
+  /* Troubleshoot launch — sets validationContext (parallel to maintenanceContext)
+     and routes to the right per-type troubleshoot page. The troubleshoot pages
+     have been updated to read either context and route the completion-modal exit
+     back to validation when validationContext is set. */
+  function startTroubleshoot(iss) {
+    sessionStorage.setItem('validationContext', JSON.stringify({
+      issueId:   iss.id,
+      issueType: iss.type,
+      zoneId:    currentSectionCtx.zoneId,
+      aisleId:   currentSectionCtx.aisleId,
+      sectionId: currentSectionCtx.sectionId,
+    }));
+    /* Mirror maintenance's routing table */
+    let next = 'validation.html';
+    if      (iss.type === 'battery')  next = 'maint_battery_remove.html';
+    else if (iss.type === 'network')  next = 'maint_network_remove.html';
+    else if (iss.type === 'coverage') next = 'maint_coverage.html';
+    window.location.href = next;
+  }
+
+  /* Recheck simulates a re-evaluation of the section's issues — same logic the
+     maintenance page uses. ~50% chance any given issue clears; criticals may
+     improve to warning. */
+  document.getElementById('sdRecheckBtn').addEventListener('click', function () {
+    const btn = this;
+    if (btn.classList.contains('checking')) return;
+    btn.classList.add('checking');
+    document.getElementById('sdRecheckLabel').textContent = t('val_sd_rechecking');
+
+    setTimeout(function () {
+      const m = getMap();
+      const z = (m.zones || []).find(function (x) { return x.id === currentSectionCtx.zoneId; });
+      const a = z && (z.aisles || []).find(function (x) { return x.id === currentSectionCtx.aisleId; });
+      const s = a && (a.sections || []).find(function (x) { return x.id === currentSectionCtx.sectionId; });
+      if (s && s.issues) {
+        const remaining = [];
+        s.issues.forEach(function (iss) {
+          const newSev = simulateRecheck(iss.sev);
+          if (newSev !== null) remaining.push({ id: iss.id, type: iss.type, sev: newSev });
+        });
+        s.issues = remaining;
+        saveMap(m);
+      }
+      /* Re-render: refresh modal contents AND background lists in case status changed */
+      btn.classList.remove('checking');
+      document.getElementById('sdRecheckLabel').textContent = t('val_sd_recheck');
+      if (s) openSectionModal(z, a, s);
+      /* Background re-render: simplest is to reload the page; state persists */
+      setTimeout(function () { window.location.reload(); }, 400);
+    }, 1400);
+  });
+
+  /* ───────────── Sign-off action ───────────── */
+  document.getElementById('signoffBtn').addEventListener('click', function () {
+    if (this.classList.contains('is-disabled')) return;
+    setValidationStatus('signed_off');
+    document.getElementById('signoffSuccessOverlay').classList.add('open');
+  });
+  document.getElementById('signoffCloseBtn').addEventListener('click', function () {
+    window.location.href = 'flow_picker.html';
+  });
+
+  /* ───────────── Dispatch ───────────── */
+  if      (LEVEL === 'sections') renderSections();
+  else if (LEVEL === 'aisles')   renderAisles();
+  else                           renderZones();
+
+  /* Helpers */
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+    });
+  }
+</script>
+</body>
+</html>

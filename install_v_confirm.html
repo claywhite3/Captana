@@ -521,24 +521,58 @@
   /* ────────────────── Confirm-coverage handler ────────────────── */
 
   document.getElementById('confirmBtn').addEventListener('click', function () {
-    /* Maintenance mode: coverage resolved on confirm → bounce back, skip the
-       milestone modal entirely. The hardware/full-replacement case sets
-       fullCleared in the context so the section gets fully cleared. */
-    var maintCtx = null;
-    try { maintCtx = JSON.parse(sessionStorage.getItem('maintenanceContext') || 'null'); } catch (e) {}
+    /* Maintenance/validation mode: show the appropriate completion side-modal.
+       - fullCleared = true  → camera was swapped → image_swap modal with NEW camera ID + struck-through old ID
+       - fullCleared = false → image was just recaptured (after cleaning/clearing) → image_clean modal with existing camera ID */
+    var maintCtx = (typeof getActiveTroubleshootContext === 'function') ? getActiveTroubleshootContext() : null;
     if (maintCtx) {
-      var params = new URLSearchParams();
-      if (maintCtx.fullCleared && maintCtx.sectionId) {
-        params.set('cleared', maintCtx.sectionId);
-      } else if (maintCtx.issueId) {
-        params.set('resolved', maintCtx.issueId);
-        if (maintCtx.sectionId) params.set('section', maintCtx.sectionId);
-        if (maintCtx.zoneId)    params.set('zone',    maintCtx.zoneId);
-        if (maintCtx.aisleId)   params.set('aisle',   maintCtx.aisleId);
+      var m = (typeof getMap === 'function') ? getMap() : null;
+      var locText = '—', currentCam = '—';
+      if (m) {
+        var zz = (m.zones || []).find(function (x) { return x.id === maintCtx.zoneId; });
+        if (zz) {
+          var aa = (zz.aisles || []).find(function (x) { return x.id === maintCtx.aisleId; });
+          if (aa) {
+            var ss = (aa.sections || []).find(function (x) { return x.id === maintCtx.sectionId; });
+            if (ss) { locText = zz.name + ' · ' + aa.number + ' · ' + ss.number; currentCam = ss.cameraId || '—'; }
+          }
+        }
       }
-      sessionStorage.removeItem('maintenanceContext');
-      sessionStorage.removeItem('manualReplacement');
-      window.location.href = 'maintenance.html' + (params.toString() ? '?' + params.toString() : '');
+      var isSwap = !!maintCtx.fullCleared;
+      var newCam = sessionStorage.getItem('vusionCameraId') || '';
+
+      showMaintCompletionModal({
+        flow: isSwap ? 'image_swap' : 'image_clean',
+        location: locText,
+        cameraId:    isSwap ? (newCam || currentCam) : currentCam,
+        oldCameraId: isSwap ? currentCam : null,
+        returnTo:    maintCtx.__source,
+        onContinue: function () {
+          var params = new URLSearchParams();
+          if (maintCtx.fullCleared && maintCtx.sectionId) {
+            params.set('cleared', maintCtx.sectionId);
+            /* Persist the new camera ID into the section so the demo reflects the swap going forward */
+            if (newCam && m) {
+              var zz2 = (m.zones || []).find(function (x) { return x.id === maintCtx.zoneId; });
+              if (zz2) {
+                var aa2 = (zz2.aisles || []).find(function (x) { return x.id === maintCtx.aisleId; });
+                if (aa2) {
+                  var ss2 = (aa2.sections || []).find(function (x) { return x.id === maintCtx.sectionId; });
+                  if (ss2) { ss2.cameraId = newCam; saveMap(m); }
+                }
+              }
+            }
+          } else if (maintCtx.issueId) {
+            params.set('resolved', maintCtx.issueId);
+            if (maintCtx.sectionId) params.set('section', maintCtx.sectionId);
+            if (maintCtx.zoneId)    params.set('zone',    maintCtx.zoneId);
+            if (maintCtx.aisleId)   params.set('aisle',   maintCtx.aisleId);
+          }
+          clearActiveTroubleshootContext();
+          sessionStorage.removeItem('manualReplacement');
+          window.location.href = troubleshootReturnUrl(maintCtx, params);
+        }
+      });
       return;
     }
 

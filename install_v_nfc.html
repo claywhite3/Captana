@@ -289,20 +289,70 @@
 
 <script src="app.js"></script>
 <script>
-  if (sessionStorage.getItem('installMode') === 'manual') {
+  /* Detect mode early. Maintenance/validation network mode reuses this whole page
+     (animation, ring pulse, pills) but reframes everything as "resending credentials"
+     — the camera is already provisioned, this is not activation. */
+  var __maintCtx = (typeof getActiveTroubleshootContext === 'function') ? getActiveTroubleshootContext() : null;
+  var __isNetMaint = !!(__maintCtx && __maintCtx.issueType === 'network');
+
+  if (sessionStorage.getItem('installMode') === 'manual' && !__isNetMaint) {
     var eyeb = document.querySelector('[data-i18n="inv_nfc_eyebrow"]');
     if (eyeb) eyeb.setAttribute('data-i18n', 'im_eyebrow');
+  }
+  if (__isNetMaint) {
+    /* Eyebrow → "Network troubleshooting", back → page 1 of the flow */
+    var eyebN = document.querySelector('[data-i18n="inv_nfc_eyebrow"]');
+    if (eyebN) eyebN.setAttribute('data-i18n', 'mnr_eyebrow');
+    var bbN = document.querySelector('a.btn-circle');
+    if (bbN) bbN.setAttribute('href', 'maint_network_remove.html');
+    /* Hero copy swap on initial render — animation steps below also use the maintenance keys */
+    var ht = document.querySelector('[data-i18n="inv_nfc_title"]');
+    if (ht) ht.setAttribute('data-i18n', 'mnr2_title');
+    var hs = document.querySelector('[data-i18n="inv_nfc_sub"]');
+    if (hs) hs.setAttribute('data-i18n', 'mnr2_sub');
+    /* Wi-Fi pill default text */
+    var wt = document.querySelector('[data-i18n="inv_nfc_wifi_sending"]');
+    if (wt) wt.setAttribute('data-i18n', 'mnr2_wifi_sending');
   }
   translatePage();
   document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
 
-  /* Pull resolved location into the status card */
+  /* Location: install flow uses session-storage placeholders; maintenance/network
+     mode pulls the real section info out of maintenanceContext. */
   (function () {
-    var z = sessionStorage.getItem('vusionInstallZone')    || 'A';
-    var a = sessionStorage.getItem('vusionInstallAisle')   || '4';
-    var s = sessionStorage.getItem('vusionInstallSection') || '5';
-    document.getElementById('locationValue').textContent = z + ' · ' + a + ' · ' + s;
+    if (__isNetMaint) {
+      var m = (typeof getMap === 'function') ? getMap() : null;
+      var locText = '—';
+      if (m) {
+        var zz = (m.zones || []).find(function (x) { return x.id === __maintCtx.zoneId; });
+        if (zz) {
+          var aa = (zz.aisles || []).find(function (x) { return x.id === __maintCtx.aisleId; });
+          if (aa) {
+            var ss = (aa.sections || []).find(function (x) { return x.id === __maintCtx.sectionId; });
+            if (ss) locText = zz.name + ' · ' + aa.number + ' · ' + ss.number;
+          }
+        }
+      }
+      document.getElementById('locationValue').textContent = locText;
+    } else {
+      var z = sessionStorage.getItem('vusionInstallZone')    || 'A';
+      var a = sessionStorage.getItem('vusionInstallAisle')   || '4';
+      var s = sessionStorage.getItem('vusionInstallSection') || '5';
+      document.getElementById('locationValue').textContent = z + ' · ' + a + ' · ' + s;
+    }
   })();
+
+  /* In maintenance/network mode we hide the camera-ID pill (no new camera is being
+     registered) and the install-guide link (irrelevant for re-pairing). Status card
+     label switches from "Installation location" to just "Location". */
+  if (__isNetMaint) {
+    var camPill = document.getElementById('pillCamId');
+    if (camPill) camPill.style.display = 'none';
+    var guideRow = document.querySelector('.guide-link-row');
+    if (guideRow) guideRow.style.display = 'none';
+    var statusLabel = document.querySelector('[data-i18n="inv_batt_status_label"]');
+    if (statusLabel) { statusLabel.setAttribute('data-i18n', 'mbr_loc_label'); statusLabel.textContent = t('mbr_loc_label'); }
+  }
 
   var phone       = document.getElementById('phoneGroup');
   var ring        = document.getElementById('ringPulse');
@@ -326,8 +376,8 @@
   setTimeout(function () {
     ring.style.opacity = '1';
     pSteady.style.opacity = '1';
-    hTitle.textContent = t('inv_nfc_active_title');
-    hSub.textContent  = t('inv_nfc_active_sub');
+    hTitle.textContent = t(__isNetMaint ? 'mnr2_active_title' : 'inv_nfc_active_title');
+    hSub.textContent  = t(__isNetMaint ? 'mnr2_active_sub'   : 'inv_nfc_active_sub');
   }, 4000);
 
   setTimeout(function () { pWifi.style.opacity = '1'; }, 4900);
@@ -335,11 +385,14 @@
   setTimeout(function () {
     wifiSpinner.style.display = 'none';
     wifiCheck.style.display = 'inline-block';
-    wifiText.textContent = t('inv_nfc_wifi_sent');
+    wifiText.textContent = t(__isNetMaint ? 'mnr2_wifi_sent' : 'inv_nfc_wifi_sent');
     wifiText.style.color = '#15803D';
   }, 6400);
 
-  setTimeout(function () { pCam.style.opacity = '1'; }, 6700);
+  /* Camera-ID pill reveal: install flow only — in maintenance we hid it above */
+  if (!__isNetMaint) {
+    setTimeout(function () { pCam.style.opacity = '1'; }, 6700);
+  }
 
   setTimeout(function () {
     ring.style.opacity = '0';
@@ -347,25 +400,47 @@
     success.setAttribute('opacity', '1');
     phone.classList.remove('phone-rock');
     phone.classList.add('phone-retreat');
-    hTitle.textContent = t('inv_nfc_done_title');
-    hSub.textContent  = t('inv_nfc_done_sub');
+    hTitle.textContent = t(__isNetMaint ? 'mnr2_done_title' : 'inv_nfc_done_title');
+    hSub.textContent  = t(__isNetMaint ? 'mnr2_done_sub'   : 'inv_nfc_done_sub');
     contBtn.disabled = false;
 
-    sessionStorage.setItem('vusionCameraId', CAMERA_ID);
+    /* Install flow registers a new camera ID. Maintenance flow does NOT — we're
+       just re-pushing credentials to a camera that already has an ID. */
+    if (!__isNetMaint) {
+      sessionStorage.setItem('vusionCameraId', CAMERA_ID);
+    }
     if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
   }, 7800);
 
   contBtn.addEventListener('click', function () {
-    var maintCtx = null;
-    try { maintCtx = JSON.parse(sessionStorage.getItem('maintenanceContext') || 'null'); } catch (e) {}
-    if (maintCtx && maintCtx.issueType === 'network') {
-      var params = new URLSearchParams();
-      params.set('resolved', maintCtx.issueId);
-      if (maintCtx.sectionId) params.set('section', maintCtx.sectionId);
-      if (maintCtx.zoneId)    params.set('zone',    maintCtx.zoneId);
-      if (maintCtx.aisleId)   params.set('aisle',   maintCtx.aisleId);
-      sessionStorage.removeItem('maintenanceContext');
-      window.location.href = 'maintenance.html?' + params.toString();
+    if (__isNetMaint) {
+      var m = (typeof getMap === 'function') ? getMap() : null;
+      var locText = '—', cam = '—';
+      if (m) {
+        var zz = (m.zones || []).find(function (x) { return x.id === __maintCtx.zoneId; });
+        if (zz) {
+          var aa = (zz.aisles || []).find(function (x) { return x.id === __maintCtx.aisleId; });
+          if (aa) {
+            var ss = (aa.sections || []).find(function (x) { return x.id === __maintCtx.sectionId; });
+            if (ss) { locText = zz.name + ' · ' + aa.number + ' · ' + ss.number; cam = ss.cameraId || '—'; }
+          }
+        }
+      }
+      showMaintCompletionModal({
+        flow: 'network',
+        location: locText,
+        cameraId: cam,
+        returnTo: __maintCtx.__source,
+        onContinue: function () {
+          var params = new URLSearchParams();
+          params.set('resolved', __maintCtx.issueId);
+          if (__maintCtx.sectionId) params.set('section', __maintCtx.sectionId);
+          if (__maintCtx.zoneId)    params.set('zone',    __maintCtx.zoneId);
+          if (__maintCtx.aisleId)   params.set('aisle',   __maintCtx.aisleId);
+          clearActiveTroubleshootContext();
+          window.location.href = troubleshootReturnUrl(__maintCtx, params);
+        }
+      });
       return;
     }
     /* Normal flow: route by install mode */
