@@ -240,8 +240,37 @@ body {
   padding: 0 20px;
   display: flex; flex-direction: column;
   gap: 12px;
-  margin-top: auto;
   padding-top: 24px;
+}
+
+/* Global footer-stack — sits naturally below content with breathing room.
+   Earlier per-page definitions used margin-top: auto which pushed the footer
+   to the bottom of the viewport (creating giant gaps on tall phones when the
+   content was short). This version hugs the content. Pages that need a truly
+   sticky footer should use .footer-sticky-wrap instead.
+
+   Default animation matches what most pages were doing locally. Override the
+   animation-delay inline if a page needs different timing. */
+.footer-stack {
+  padding: 24px 20px 0;
+  display: flex; flex-direction: column;
+  gap: 10px;
+  animation: fadeUp .4s .12s ease both;
+  opacity: 0;
+}
+
+/* Sticky footer pattern for long-content pages where the primary action would
+   otherwise scroll off-screen. Sits pinned to the viewport bottom inside the
+   shell, with a soft shadow to lift it off the content underneath. */
+.footer-sticky-wrap {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  padding: 16px 20px 24px;
+  background: var(--c-bg);
+  box-shadow: 0 -8px 16px -8px rgba(17,24,39,0.10);
+  display: flex; flex-direction: column;
+  gap: 10px;
 }
 
 /* ---------- Image with filename fallback ---------- */
