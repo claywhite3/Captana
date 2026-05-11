@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Maintenance</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    /* Progress tracker */
+    .tracker { margin: 14px 20px 0; background: #fff; border-radius: 16px; padding: 14px 18px; box-shadow: var(--shadow-sm); }
+    .tracker-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .tracker-label { font-size: 12px; font-weight: 700; color: var(--c-muted); }
+    .tracker-count { font-size: 12px; font-weight: 700; color: var(--c-blue); }
+    .progress-bar { height: 6px; background: #E5E7EB; border-radius: 6px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--c-blue); border-radius: 6px; transition: width .4s ease; }
+
+    /* Filter pills */
+    .filter-bar { padding: 14px 20px 0; display: flex; gap: 8px; }
+    .filter-pill { flex: 1; padding: 9px 4px; border-radius: 12px; border: 1.5px solid #E5E7EB; background: #fff; font-family: inherit; font-size: 11px; font-weight: 700; color: var(--c-muted-2); cursor: pointer; text-align: center; transition: all .15s; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .filter-pill .pill-dot { width: 8px; height: 8px; border-radius: 50%; background: #D1D5DB; transition: background .15s; }
+    .filter-pill.active { border-color: #BFDBFE; background: var(--c-blue-soft); color: var(--c-blue); }
+    .filter-pill.active .pill-dot { background: var(--c-blue); }
+
+    /* Zone sections */
+    .zones { padding: 14px 20px 0; display: flex; flex-direction: column; gap: 10px; }
+    .zone-section { background: #fff; border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-sm); }
+    .zone-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; cursor: pointer; user-select: none; background: #F9FAFB; }
+    .zone-header-left { display: flex; align-items: center; gap: 10px; }
+    .zone-tile { width: 36px; height: 36px; border-radius: 10px; background: var(--c-blue-soft); color: var(--c-blue); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
+    .zone-name { font-size: 16px; font-weight: 800; color: var(--c-ink); }
+    .zone-count { font-size: 12px; font-weight: 600; color: var(--c-muted-2); margin-top: 1px; }
+    .zone-chevron { transition: transform .2s; color: var(--c-muted-2); }
+    .zone-chevron svg { width: 16px; height: 16px; }
+    .zone-section.open .zone-chevron { transform: rotate(90deg); }
+    .zone-section:not(.open) .zone-header { background: #fff; }
+    .zone-body { display: none; border-top: 1px solid #F3F4F6; }
+    .zone-section.open .zone-body { display: block; }
+
+    /* Issue items */
+    .issue-item { padding: 14px 18px; border-bottom: 1px solid #F3F4F6; display: flex; align-items: flex-start; gap: 14px; }
+    .issue-item:last-child { border-bottom: none; }
+    .issue-id-stack { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+    .issue-loc-pill {
+      background: var(--c-blue-soft);
+      border: 1.5px solid #BFDBFE;
+      border-radius: 10px;
+      padding: 6px 10px;
+      display: inline-flex; align-items: center; gap: 6px;
+      cursor: pointer;
+      user-select: none;
+      transition: transform .15s, background .15s;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+    .issue-loc-pill:active { transform: scale(.96); background: #DBEAFE; }
+    .issue-loc { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; font-weight: 800; color: var(--c-ink); letter-spacing: .5px; }
+    .issue-cam-id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; font-weight: 600; color: var(--c-muted-2); padding: 0 10px; letter-spacing: .5px; }
+    .issue-body { flex: 1; min-width: 0; }
+    .issue-pills { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; }
+    .issue-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+    .ip-warn { background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA; }
+    .ip-crit { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
+    .ip-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .dot-orange { background: #F97316; }
+    .dot-red { background: #DC2626; }
+    .issue-meta { font-size: 11px; color: var(--c-muted-2); font-weight: 500; margin-bottom: 0; }
+    .issue-btns { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+    .btn-helpme { padding: 8px 14px; background: #FEF2F2; color: #DC2626; border: 1.5px solid #FECACA; border-radius: 10px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 5px; transition: transform .15s; white-space: nowrap; }
+    .btn-helpme:active { transform: scale(.97); }
+    .btn-helpme svg { width: 11px; height: 11px; }
+    .btn-recheck { padding: 8px 14px; background: #fff; color: #374151; border: 1.5px solid #86EFAC; border-radius: 10px; font-family: inherit; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: transform .15s; white-space: nowrap; }
+    .btn-recheck:active { transform: scale(.97); }
+    .btn-recheck svg { width: 12px; height: 12px; }
+    .issue-item.checking .btn-recheck { pointer-events: none; opacity: .6; }
+    @keyframes spinAnim { to { transform: rotate(360deg); } }
+    .spin-icon { display: inline-block; animation: spinAnim .8s linear infinite; }
+
+    /* Completed list */
+    .completed-section { margin: 14px 20px 0; }
+    .completed-header { font-size: 11px; font-weight: 700; color: var(--c-muted-2); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .completed-count { color: var(--c-green); font-weight: 700; }
+    .completed-list { display: flex; flex-direction: column; gap: 6px; }
+    .completed-item { background: #fff; border-radius: 14px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 6px rgba(0,0,0,0.04); opacity: .65; }
+    .completed-loc { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; font-weight: 700; color: var(--c-muted-2); text-decoration: line-through; }
+    .completed-badge { font-size: 11px; font-weight: 700; color: var(--c-green); display: flex; align-items: center; gap: 4px; }
+    .completed-badge svg { width: 12px; height: 12px; }
+
+    /* Sticky footer */
+    .check-btn-wrap { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 390px; background: #fff; padding: 12px 20px 28px; box-shadow: 0 -4px 20px rgba(0,0,0,0.07); border-top: 1px solid #F3F4F6; }
+    .btn-check { width: 100%; padding: 15px; background: var(--c-ink); color: #fff; border: none; border-radius: 16px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform .15s; }
+    .btn-check:active { transform: scale(.975); }
+    .btn-check svg { width: 16px; height: 16px; }
+
+    .shell { padding-bottom: 100px; }
+
+    /* Rail-options side-modal */
+    .rail-overlay { position: fixed; inset: 0; background: rgba(17,24,39,0.55); backdrop-filter: blur(2px); display: none; z-index: 900; animation: fadeIn .25s ease both; }
+    .rail-overlay.open { display: block; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .rail-sheet {
+      position: fixed;
+      top: 18%; right: 0;
+      height: 64%;
+      width: min(80vw, 312px);
+      background: #fff;
+      border-radius: 20px 0 0 20px;
+      box-shadow: -12px 0 32px rgba(0,0,0,0.25);
+      z-index: 901;
+      display: none;
+      flex-direction: column;
+      padding: 22px 20px;
+      transform: translateX(100%);
+      transition: transform .35s cubic-bezier(.2,.8,.2,1);
+    }
+    @media (min-width: 391px) { .rail-sheet { right: max(calc(50% - 195px), 0px); } }
+    .rail-sheet.open { display: flex; transform: translateX(0); }
+    .rail-head { display: flex; align-items: center; gap: 12px; }
+    .rail-info { background: #F9FAFB; border: 1px solid #F3F4F6; border-radius: 14px; padding: 14px; margin-top: 16px; }
+    .rail-info-row { display: flex; align-items: center; gap: 10px; }
+    .rail-info-row + .rail-info-row { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #E5E7EB; }
+    .rail-info-tile { border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .rail-info-tile.lg { width: 36px; height: 36px; background: rgba(22,163,74,.18); color: var(--c-green); }
+    .rail-info-tile.sm { width: 30px; height: 30px; background: #F3F4F6; color: var(--c-muted); }
+    .rail-info-tile.lg svg { width: 18px; height: 18px; }
+    .rail-info-tile.sm svg { width: 16px; height: 16px; }
+    .rail-info-text { flex: 1; min-width: 0; }
+    .rail-info-label-green { font-size: 9.5px; font-weight: 700; color: var(--c-green); text-transform: uppercase; letter-spacing: .5px; }
+    .rail-info-label-gray { font-size: 9px; font-weight: 700; color: var(--c-muted); text-transform: uppercase; letter-spacing: .5px; }
+    .rail-info-value-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; font-weight: 800; color: var(--c-ink); margin-top: 1px; letter-spacing: 1px; }
+    .rail-info-value-small-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; font-weight: 700; color: #374151; margin-top: 1px; letter-spacing: 1px; }
+    .rail-info-value-text { font-size: 12px; font-weight: 600; color: #374151; margin-top: 2px; }
+    .rail-body { font-size: 12px; color: var(--c-muted); font-weight: 500; line-height: 1.45; margin-top: 16px; }
+    .rail-actions { margin-top: auto; padding-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .rail-btn-replace {
+      width: 100%; padding: 14px;
+      background: var(--c-amber); color: #fff;
+      border: none; border-radius: 14px;
+      font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(245,158,11,.30);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .rail-btn-replace svg { width: 16px; height: 16px; }
+    .rail-btn-close {
+      width: 100%; padding: 14px;
+      background: #fff; color: var(--c-muted);
+      border: 1.5px solid var(--c-line); border-radius: 14px;
+      font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Remaining-work modal (bottom sheet) */
+    .uw-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 850; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
+    .uw-overlay.open { opacity: 1; pointer-events: all; }
+    .uw-sheet { background: #fff; border-radius: 24px 24px 0 0; padding: 28px 20px 40px; width: 100%; max-width: 390px; transform: translateY(100%); transition: transform .25s cubic-bezier(.4,0,.2,1); }
+    .uw-overlay.open .uw-sheet { transform: translateY(0); }
+    .uw-title { font-size: 19px; font-weight: 800; color: var(--c-ink); margin-bottom: 8px; }
+    .uw-body { font-size: 14px; color: var(--c-muted); line-height: 1.6; margin-bottom: 20px; }
+    .uw-body strong { color: var(--c-ink); }
+    .uw-btns { display: flex; flex-direction: column; gap: 10px; }
+    .uw-btn-clear { padding: 15px; background: var(--c-blue); color: #fff; border: none; border-radius: 14px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+    .uw-btn-keep { padding: 15px; background: #F3F4F6; color: #374151; border: none; border-radius: 14px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="flow_picker.html" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" data-i18n="mt_eyebrow">Maintenance</div>
+    <div class="hero-title" data-i18n="mt_title">Travail à faire</div>
+    <div class="hero-sub" id="storeLabel"></div>
+  </div>
+
+  <div class="tracker">
+    <div class="tracker-row">
+      <div class="tracker-label" id="trackerLabel" data-i18n="mt_progress_label">Progression</div>
+      <div class="tracker-count" id="trackerCount">0 / 0</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-pill active" data-type="battery" type="button"><div class="pill-dot"></div><span data-i18n="mt_filter_battery">Batterie</span></button>
+    <button class="filter-pill active" data-type="network" type="button"><div class="pill-dot"></div><span data-i18n="mt_filter_network">Réseau</span></button>
+    <button class="filter-pill active" data-type="coverage" type="button"><div class="pill-dot"></div><span data-i18n="mt_filter_coverage">Image</span></button>
+    <button class="filter-pill active" data-type="hardware" type="button"><div class="pill-dot"></div><span data-i18n="mt_filter_hardware">Matériel</span></button>
+  </div>
+
+  <div class="zones" id="zonesContainer"></div>
+
+  <div class="completed-section" id="completedSection" style="display:none;">
+    <div class="completed-header">
+      <span data-i18n="mt_completed">Terminé</span>
+      <span class="completed-count" id="completedCount"></span>
+    </div>
+    <div class="completed-list" id="completedList"></div>
+  </div>
+
+</div>
+
+<div class="check-btn-wrap">
+  <button class="btn-check" id="checkRemainingBtn" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    <span data-i18n="mt_check_remaining">Vérifier le travail restant</span>
+  </button>
+</div>
+
+<!-- Rail options side-modal -->
+<div class="rail-overlay" id="railOverlay"></div>
+<div class="rail-sheet" id="railSheet" role="dialog" aria-modal="true">
+  <div class="rail-head">
+    <div class="issue-loc-pill" style="cursor: default;"><span class="issue-loc" id="railLoc">—</span></div>
+    <div style="flex: 1; min-width: 0;">
+      <div style="font-size: 11px; font-weight: 700; color: var(--c-muted); text-transform: uppercase; letter-spacing: .5px;" data-i18n="mt_rail_eyebrow">Options du rail</div>
+    </div>
+  </div>
+
+  <div class="rail-info">
+    <div class="rail-info-row">
+      <div class="rail-info-tile lg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </div>
+      <div class="rail-info-text">
+        <div class="rail-info-label-green" data-i18n="mt_rail_camera_label">Caméra installée</div>
+        <div class="rail-info-value-mono" id="railCamera">—</div>
+      </div>
+    </div>
+    <div class="rail-info-row">
+      <div class="rail-info-tile sm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg>
+      </div>
+      <div class="rail-info-text">
+        <div class="rail-info-label-gray" data-i18n="mt_rail_observing_label">Observe</div>
+        <div class="rail-info-value-small-mono" id="railObserving">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rail-body" data-i18n="mt_rail_body">Si cette caméra est endommagée ou irrécupérable, remplacez-la. Le remplacement lance une nouvelle installation sur ce rail.</div>
+
+  <div class="rail-actions">
+    <button class="rail-btn-replace" id="railReplaceBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      <span data-i18n="mt_rail_replace">Remplacer la caméra</span>
+    </button>
+    <button class="rail-btn-close" id="railCloseBtn" type="button" data-i18n="mt_rail_close">Fermer</button>
+  </div>
+</div>
+
+<!-- Uncompleted work modal -->
+<div class="uw-overlay" id="uwOverlay">
+  <div class="uw-sheet">
+    <div class="uw-title" id="uwTitle"></div>
+    <div class="uw-body"  id="uwBody"></div>
+    <div class="uw-btns">
+      <button class="uw-btn-clear" id="uwClearBtn" type="button" data-i18n="mt_clear_filters">Effacer tous les filtres</button>
+      <button class="uw-btn-keep"  id="uwKeepBtn"  type="button" data-i18n="mt_keep_filters">Garder les filtres et continuer</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+
+  /* Show the current store name as the subtitle */
+  (function setStore() {
+    var stores = (typeof CARREFOUR_STORES !== 'undefined') ? CARREFOUR_STORES : [];
+    var storeId = sessionStorage.getItem('selectedStoreId');
+    var st = stores.find(function (s) { return s.id === storeId; });
+    document.getElementById('storeLabel').textContent = st ? st.name : '';
+  })();
+
+  /* Seed demo issues if not already present, but only on a fresh demo session.
+     We clear the seed flag every time the user enters via flow_picker, so the
+     demo always shows fresh issues — per CW's note that gray clutter persists
+     in production but not in the demo. */
+  if (sessionStorage.getItem('maintenanceFreshDemo') === '1') {
+    /* Reseed: clear all issues, then re-seed */
+    (function reseed() {
+      var m = getMap();
+      (m.zones || []).forEach(function (z) {
+        (z.aisles || []).forEach(function (a) {
+          (a.sections || []).forEach(function (s) { s.issues = []; });
+        });
+      });
+      saveMap(m);
+      sessionStorage.removeItem('demoIssuesSeeded');
+      sessionStorage.removeItem('maintenanceFreshDemo');
+      sessionStorage.removeItem('mtCompleted');
+    })();
+  }
+  seedDemoIssues();
+
+  /* Completed set — sections that had issues but all are now cleared in this session */
+  var completed = new Set(JSON.parse(sessionStorage.getItem('mtCompleted') || '[]'));
+  function saveCompleted() {
+    sessionStorage.setItem('mtCompleted', JSON.stringify([...completed]));
+  }
+
+  /* If the user is returning from a fix flow, mark the issue resolved */
+  (function handleReturn() {
+    var p = new URLSearchParams(window.location.search);
+    var resolved = p.get('resolved');     // 'iss_xxx' — resolved issue
+    var fullCleared = p.get('cleared');   // 'sectionId' — entire section cleared (e.g. after reinstall)
+    if (resolved) {
+      var sectionId = p.get('section');
+      var zoneId    = p.get('zone');
+      var aisleId   = p.get('aisle');
+      if (sectionId && zoneId && aisleId) {
+        var remaining = resolveIssue(zoneId, aisleId, sectionId, resolved);
+        if (remaining && remaining.length === 0) {
+          completed.add(sectionId);
+          saveCompleted();
+        }
+      }
+    }
+    if (fullCleared) {
+      completed.add(fullCleared);
+      saveCompleted();
+      // Also clear issues array so it doesn't reappear
+      var m = getMap();
+      (m.zones || []).forEach(function (z) {
+        (z.aisles || []).forEach(function (a) {
+          (a.sections || []).forEach(function (s) {
+            if (s.id === fullCleared) s.issues = [];
+          });
+        });
+      });
+      saveMap(m);
+    }
+    /* Strip the query so reloads don't re-resolve */
+    if (resolved || fullCleared) {
+      history.replaceState({}, '', 'maintenance.html');
+    }
+  })();
+
+  var activeFilters = new Set(['battery', 'network', 'coverage', 'hardware']);
+  var checking = new Set(); // section ids currently being rechecked
+  var prevOpenZones = null;
+
+  function pillSeverityClass(sev) { return sev === 'crit' ? 'ip-crit' : 'ip-warn'; }
+  function pillDotClass(sev)      { return sev === 'crit' ? 'dot-red' : 'dot-orange'; }
+
+  function severityLabel(issue) {
+    var key = 'mt_sev_' + issue.type + '_' + issue.sev;
+    return t(key) || issue.type;
+  }
+
+  function fmtLastSeen(s) {
+    /* For the demo we just show a fake stale-ness based on section ID hash */
+    var hash = (s.cameraId || s.id || '').split('').reduce(function (acc, ch) { return acc + ch.charCodeAt(0); }, 0);
+    var hours = (hash % 48) + 1;
+    return t('mt_last_seen') + ': ' + hours + 'h';
+  }
+
+  function render() {
+    var openIssues = allOpenIssues();
+    var totalAssigned = openIssues.length + completed.size;
+
+    document.getElementById('trackerLabel').textContent =
+      (completed.size > 0 && openIssues.length === 0)
+        ? t('mt_progress_all_done')
+        : t('mt_progress_label');
+    document.getElementById('trackerCount').textContent =
+      completed.size + ' / ' + totalAssigned;
+    document.getElementById('progressFill').style.width =
+      (totalAssigned > 0 ? Math.round(completed.size / totalAssigned * 100) : 0) + '%';
+
+    /* Filter and group by zone */
+    var byZone = {};
+    openIssues.forEach(function (item) {
+      var matchedFilter = item.issues.some(function (i) { return activeFilters.has(i.type); });
+      if (!matchedFilter) return;
+      if (!byZone[item.zoneName]) byZone[item.zoneName] = [];
+      byZone[item.zoneName].push(item);
+    });
+
+    var container = document.getElementById('zonesContainer');
+    /* Remember which zones were open before re-rendering */
+    if (prevOpenZones === null) {
+      prevOpenZones = new Set();
+      /* On first render: auto-open zones that have critical issues; if none, open the first */
+      var zonesWithCrit = Object.keys(byZone).filter(function (zn) {
+        return byZone[zn].some(function (item) {
+          return item.issues.some(function (i) { return i.sev === 'crit'; });
+        });
+      });
+      if (zonesWithCrit.length > 0) {
+        zonesWithCrit.forEach(function (zn) { prevOpenZones.add(zn); });
+      } else if (Object.keys(byZone).length > 0) {
+        prevOpenZones.add(Object.keys(byZone).sort()[0]);
+      }
+    } else {
+      var stillOpen = new Set();
+      container.querySelectorAll('.zone-section.open').forEach(function (el) {
+        stillOpen.add(el.dataset.zone);
+      });
+      prevOpenZones = stillOpen;
+    }
+    container.innerHTML = '';
+
+    Object.keys(byZone).sort().forEach(function (zoneName) {
+      var items = byZone[zoneName];
+      var sec = document.createElement('div');
+      sec.className = 'zone-section' + (prevOpenZones.has(zoneName) ? ' open' : '');
+      sec.dataset.zone = zoneName;
+
+      var header = document.createElement('div');
+      header.className = 'zone-header';
+      header.innerHTML =
+        '<div class="zone-header-left">' +
+          '<div class="zone-tile">' + zoneName + '</div>' +
+          '<div>' +
+            '<div class="zone-name">' + t('mt_zone') + ' ' + zoneName + '</div>' +
+            '<div class="zone-count">' + items.length + ' ' + (items.length === 1 ? t('mt_items_one') : t('mt_items_many')) + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="zone-chevron">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>' +
+        '</div>';
+      header.addEventListener('click', function () { sec.classList.toggle('open'); });
+      sec.appendChild(header);
+
+      var body = document.createElement('div');
+      body.className = 'zone-body';
+
+      items.forEach(function (item) {
+        var locStr = item.zoneName + ' · ' + item.aisleNumber + ' · ' + item.sectionNumber;
+        var topIss = item.issues[0];
+        var isChecking = checking.has(item.sectionId);
+        var pillsHtml = item.issues.map(function (iss) {
+          return '<span class="issue-pill ' + pillSeverityClass(iss.sev) + '">' +
+            '<span class="ip-dot ' + pillDotClass(iss.sev) + '"></span>' +
+            severityLabel(iss) +
+          '</span>';
+        }).join('');
+
+        var row = document.createElement('div');
+        row.className = 'issue-item' + (isChecking ? ' checking' : '');
+        row.innerHTML =
+          '<div class="issue-id-stack">' +
+            '<button class="issue-loc-pill" data-action="long-press" data-section="' + item.sectionId + '" data-zone="' + item.zoneId + '" data-aisle="' + item.aisleId + '" type="button">' +
+              '<span class="issue-loc">' + locStr + '</span>' +
+            '</button>' +
+            '<div class="issue-cam-id">' + (item.cameraId || '—') + '</div>' +
+          '</div>' +
+          '<div class="issue-body">' +
+            '<div class="issue-pills">' + pillsHtml + '</div>' +
+            '<div class="issue-meta">' + fmtLastSeen(item) + '</div>' +
+          '</div>' +
+          '<div class="issue-btns">' +
+            '<button class="btn-helpme" data-action="help" data-section="' + item.sectionId + '" data-zone="' + item.zoneId + '" data-aisle="' + item.aisleId + '" type="button">' +
+              t('mt_help_me') +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>' +
+            '</button>' +
+            '<button class="btn-recheck" data-action="recheck" data-section="' + item.sectionId + '" data-zone="' + item.zoneId + '" data-aisle="' + item.aisleId + '" type="button">' +
+              (isChecking
+                ? '<span class="spin-icon">↻</span> ' + t('mt_checking')
+                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.84"/></svg> ' + t('mt_check')) +
+            '</button>' +
+          '</div>';
+        body.appendChild(row);
+      });
+      sec.appendChild(body);
+      container.appendChild(sec);
+    });
+
+    /* Completed list */
+    var compSec = document.getElementById('completedSection');
+    if (completed.size > 0) {
+      compSec.style.display = 'block';
+      document.getElementById('completedCount').textContent = completed.size + ' ' + t('mt_completed_count');
+      document.getElementById('completedList').innerHTML = [...completed].map(function (sectionId) {
+        /* Look up the section so we can show its location */
+        var m = getMap();
+        var loc = sectionId;
+        (m.zones || []).forEach(function (z) {
+          (z.aisles || []).forEach(function (a) {
+            (a.sections || []).forEach(function (s) {
+              if (s.id === sectionId) loc = z.name + ' · ' + a.number + ' · ' + s.number;
+            });
+          });
+        });
+        return '<div class="completed-item">' +
+          '<div class="completed-loc">' + loc + '</div>' +
+          '<div class="completed-badge">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+            t('mt_completed') +
+          '</div>' +
+        '</div>';
+      }).join('');
+    } else {
+      compSec.style.display = 'none';
+    }
+  }
+
+  /* ────────────── Interaction handlers ────────────── */
+
+  /* Long-press detection on the location pill */
+  var pressTimer = null;
+  var longPressed = false;
+  function attachLongPress() {
+    document.querySelectorAll('[data-action="long-press"]').forEach(function (el) {
+      el.addEventListener('pointerdown', function (e) {
+        longPressed = false;
+        clearTimeout(pressTimer);
+        var btn = e.currentTarget;
+        pressTimer = setTimeout(function () {
+          longPressed = true;
+          openRailModal({
+            sectionId: btn.dataset.section,
+            zoneId:    btn.dataset.zone,
+            aisleId:   btn.dataset.aisle,
+          });
+          if (navigator.vibrate) navigator.vibrate(20);
+        }, 450);
+      });
+      ['pointerup','pointerleave','pointercancel'].forEach(function (ev) {
+        el.addEventListener(ev, function () { clearTimeout(pressTimer); });
+      });
+      el.addEventListener('click', function (e) {
+        if (longPressed) { e.preventDefault(); e.stopPropagation(); longPressed = false; }
+      });
+    });
+  }
+
+  /* Delegated click handlers (for buttons that get re-rendered) */
+  document.addEventListener('click', function (e) {
+    var helpBtn = e.target.closest('[data-action="help"]');
+    if (helpBtn) {
+      handleHelpMe(helpBtn.dataset.zone, helpBtn.dataset.aisle, helpBtn.dataset.section);
+      return;
+    }
+    var recheckBtn = e.target.closest('[data-action="recheck"]');
+    if (recheckBtn) {
+      runRecheck(recheckBtn.dataset.zone, recheckBtn.dataset.aisle, recheckBtn.dataset.section);
+      return;
+    }
+    var filterBtn = e.target.closest('.filter-pill');
+    if (filterBtn) {
+      toggleFilter(filterBtn.dataset.type, filterBtn);
+      return;
+    }
+  });
+
+  function toggleFilter(type, btn) {
+    if (activeFilters.has(type)) {
+      activeFilters.delete(type);
+      btn.classList.remove('active');
+    } else {
+      activeFilters.add(type);
+      btn.classList.add('active');
+    }
+    render();
+    attachLongPress();
+  }
+
+  function handleHelpMe(zoneId, aisleId, sectionId) {
+    var m = getMap();
+    var z = findZone(m, zoneId);
+    var a = z ? findAisle(z, aisleId) : null;
+    var s = a ? findSection(a, sectionId) : null;
+    if (!s) return;
+    var top = topIssueFor(s);
+    if (!top) return;
+
+    /* Set context that the destination page reads to know it's in maintenance mode */
+    sessionStorage.setItem('maintenanceContext', JSON.stringify({
+      issueId: top.id,
+      issueType: top.type,
+      zoneId: zoneId,
+      aisleId: aisleId,
+      sectionId: sectionId,
+    }));
+
+    /* Pre-fill the install-style location keys so downstream pages have data */
+    sessionStorage.setItem('vusionInstallZone', z.name);
+    sessionStorage.setItem('vusionInstallAisle', String(a.number));
+    sessionStorage.setItem('vusionInstallSection', String(s.number));
+    sessionStorage.setItem('vusionCameraId', s.cameraId || '');
+    if (s.lookAtAisle) {
+      var lookAt = (z.aisles || []).find(function (x) { return x.id === s.lookAtAisle; });
+      if (lookAt) {
+        sessionStorage.setItem('vusionTargetZone', z.name);
+        sessionStorage.setItem('vusionTargetAisle', String(lookAt.number));
+        sessionStorage.setItem('vusionTargetSection', String(s.number));
+      }
+    }
+
+    /* Hardware = direct reinstall path through the picker — set manual flow context */
+    if (top.type === 'hardware') {
+      sessionStorage.setItem('installMode', 'manual');
+      sessionStorage.setItem('manualZoneId', zoneId);
+      sessionStorage.setItem('manualAisleId', aisleId);
+      sessionStorage.setItem('manualSectionId', sectionId);
+      sessionStorage.setItem('manualReplacement', '1');
+      window.location.href = 'install_v_battery.html';
+      return;
+    }
+
+    window.location.href = maintenanceRouteFor(top.type);
+  }
+
+  function runRecheck(zoneId, aisleId, sectionId) {
+    if (checking.has(sectionId)) return;
+    checking.add(sectionId);
+    render(); attachLongPress();
+    setTimeout(function () {
+      checking.delete(sectionId);
+      var m = getMap();
+      var z = findZone(m, zoneId);
+      var a = z ? findAisle(z, aisleId) : null;
+      var s = a ? findSection(a, sectionId) : null;
+      if (s && s.issues) {
+        var remaining = [];
+        s.issues.forEach(function (iss) {
+          var newSev = simulateRecheck(iss.sev);
+          if (newSev !== null) remaining.push({ id: iss.id, type: iss.type, sev: newSev });
+        });
+        s.issues = remaining;
+        if (remaining.length === 0) {
+          completed.add(sectionId);
+          saveCompleted();
+        }
+        saveMap(m);
+      }
+      render(); attachLongPress();
+    }, 2400);
+  }
+
+  /* ────────────── Rail-options modal ────────────── */
+
+  function openRailModal(ctx) {
+    var m = getMap();
+    var z = findZone(m, ctx.zoneId);
+    var a = z ? findAisle(z, ctx.aisleId) : null;
+    var s = a ? findSection(a, ctx.sectionId) : null;
+    if (!s) return;
+
+    document.getElementById('railLoc').textContent = z.name + ' · ' + a.number + ' · ' + s.number;
+    document.getElementById('railCamera').textContent = s.cameraId || '—';
+
+    var observingText = '—';
+    if (s.lookAtAisle) {
+      var la = (z.aisles || []).find(function (x) { return x.id === s.lookAtAisle; });
+      if (la) observingText = z.name + ' · ' + la.number + ' · ' + s.number;
+    }
+    document.getElementById('railObserving').textContent = observingText;
+
+    document.getElementById('railOverlay').classList.add('open');
+    document.getElementById('railSheet').classList.add('open');
+
+    /* Save the context for replace handler */
+    document.getElementById('railReplaceBtn').dataset.section = ctx.sectionId;
+    document.getElementById('railReplaceBtn').dataset.zone = ctx.zoneId;
+    document.getElementById('railReplaceBtn').dataset.aisle = ctx.aisleId;
+  }
+  function closeRailModal() {
+    document.getElementById('railOverlay').classList.remove('open');
+    document.getElementById('railSheet').classList.remove('open');
+  }
+  document.getElementById('railOverlay').addEventListener('click', closeRailModal);
+  document.getElementById('railCloseBtn').addEventListener('click', closeRailModal);
+  document.getElementById('railReplaceBtn').addEventListener('click', function () {
+    var btn = this;
+    var m = getMap();
+    var z = findZone(m, btn.dataset.zone);
+    var a = z ? findAisle(z, btn.dataset.aisle) : null;
+    var s = a ? findSection(a, btn.dataset.section) : null;
+    if (!s) return;
+    /* Set up manual reinstall context */
+    sessionStorage.setItem('installMode', 'manual');
+    sessionStorage.setItem('manualZoneId', btn.dataset.zone);
+    sessionStorage.setItem('manualAisleId', btn.dataset.aisle);
+    sessionStorage.setItem('manualSectionId', btn.dataset.section);
+    sessionStorage.setItem('manualReplacement', '1');
+    sessionStorage.setItem('vusionInstallZone', z.name);
+    sessionStorage.setItem('vusionInstallAisle', String(a.number));
+    sessionStorage.setItem('vusionInstallSection', String(s.number));
+    sessionStorage.setItem('vusionCameraId', '');
+    /* Mark this as a maintenance-originated full replacement */
+    sessionStorage.setItem('maintenanceContext', JSON.stringify({
+      issueId: 'rail-replace',
+      issueType: 'hardware',
+      zoneId: btn.dataset.zone,
+      aisleId: btn.dataset.aisle,
+      sectionId: btn.dataset.section,
+      fullCleared: true,
+    }));
+    window.location.href = 'install_v_battery.html';
+  });
+
+  /* ────────────── Uncompleted-work modal ────────────── */
+
+  function openUncompleted() {
+    var openIssues = allOpenIssues();
+    var pending = openIssues.length;
+    var hidden = openIssues.filter(function (item) {
+      return !item.issues.some(function (i) { return activeFilters.has(i.type); });
+    }).length;
+
+    if (pending === 0) {
+      document.getElementById('uwTitle').textContent = t('mt_all_done_title');
+      document.getElementById('uwBody').textContent = t('mt_all_done_body');
+      document.getElementById('uwClearBtn').style.display = 'none';
+      document.getElementById('uwKeepBtn').textContent = (getLang() === 'fr' ? 'Terminé' : 'Done');
+    } else if (hidden > 0) {
+      document.getElementById('uwTitle').textContent = hidden + ' ' + t('mt_hidden_title');
+      document.getElementById('uwBody').innerHTML =
+        (getLang() === 'fr' ? 'Vous avez ' : 'You have ') +
+        '<strong>' + pending + ' ' + t('mt_remaining_title') + '</strong>. ' +
+        hidden + ' ' + (getLang() === 'fr' ? 'sont cachés par vos filtres.' : 'are hidden by your filters.');
+      document.getElementById('uwClearBtn').style.display = '';
+      document.getElementById('uwKeepBtn').textContent = t('mt_keep_filters');
+    } else {
+      document.getElementById('uwTitle').textContent = pending + ' ' + t('mt_remaining_title');
+      document.getElementById('uwBody').textContent = t('mt_remaining_body');
+      document.getElementById('uwClearBtn').style.display = 'none';
+      document.getElementById('uwKeepBtn').textContent = (getLang() === 'fr' ? 'OK' : 'OK');
+    }
+    document.getElementById('uwOverlay').classList.add('open');
+  }
+  function closeUncompleted() {
+    document.getElementById('uwOverlay').classList.remove('open');
+  }
+  document.getElementById('checkRemainingBtn').addEventListener('click', openUncompleted);
+  document.getElementById('uwOverlay').addEventListener('click', function (e) {
+    if (e.target === this) closeUncompleted();
+  });
+  document.getElementById('uwKeepBtn').addEventListener('click', closeUncompleted);
+  document.getElementById('uwClearBtn').addEventListener('click', function () {
+    ['battery','network','coverage','hardware'].forEach(function (type) {
+      activeFilters.add(type);
+      var btn = document.querySelector('.filter-pill[data-type="' + type + '"]');
+      if (btn) btn.classList.add('active');
+    });
+    closeUncompleted();
+    render();
+    attachLongPress();
+  });
+
+  render();
+  attachLongPress();
+</script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Réseau</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    .basics-list { margin: 18px 20px 0; display: flex; flex-direction: column; gap: 10px; }
+    .basic-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: var(--shadow-sm);
+      display: flex; align-items: flex-start; gap: 14px;
+      animation: fadeUp .35s ease both; opacity: 0;
+    }
+    .basic-card:nth-child(1) { animation-delay: .04s; }
+    .basic-card:nth-child(2) { animation-delay: .10s; }
+    .basic-card:nth-child(3) { animation-delay: .16s; }
+    .basic-card:nth-child(4) { animation-delay: .22s; }
+    .basic-icon {
+      width: 44px; height: 44px;
+      border-radius: 11px;
+      background: var(--c-blue-soft);
+      color: var(--c-blue);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .basic-icon svg { width: 22px; height: 22px; }
+    .basic-text { flex: 1; min-width: 0; }
+    .basic-title {
+      font-size: 14px; font-weight: 800;
+      color: var(--c-ink); line-height: 1.3;
+    }
+    .basic-body {
+      font-size: 13px; color: var(--c-muted);
+      font-weight: 500; line-height: 1.4;
+      margin-top: 3px;
+    }
+
+    .footer-stack {
+      padding: 24px 20px 0;
+      display: flex; flex-direction: column; gap: 10px;
+      margin-top: auto;
+      animation: fadeUp .4s .30s ease both; opacity: 0;
+    }
+    .btn-fixed {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      color: var(--c-green);
+      border: none;
+      font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer;
+      text-decoration: underline; text-underline-offset: 2px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-fixed svg { width: 14px; height: 14px; }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="maintenance.html" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" data-i18n="mt_net_eyebrow">Dépannage réseau</div>
+    <div class="hero-title" data-i18n="mt_net_title">Vérifications rapides</div>
+    <div class="hero-sub" data-i18n="mt_net_sub">Parcourez ces points avant de réappairer.</div>
+  </div>
+
+  <div class="basics-list">
+    <div class="basic-card">
+      <div class="basic-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="18" height="10" rx="2"/><line x1="22" y1="11" x2="22" y2="13"/><line x1="11" y1="10" x2="11" y2="14"/><line x1="13" y1="12" x2="13" y2="12"/></svg>
+      </div>
+      <div class="basic-text">
+        <div class="basic-title" data-i18n="mt_net_power_t">Pas d'alimentation, pas de signal</div>
+        <div class="basic-body"  data-i18n="mt_net_power_b">Si la caméra n'a pas d'alimentation, elle ne peut pas communiquer. Vérifiez d'abord la batterie.</div>
+      </div>
+    </div>
+
+    <div class="basic-card">
+      <div class="basic-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><circle cx="12" cy="16" r="3"/></svg>
+      </div>
+      <div class="basic-text">
+        <div class="basic-title" data-i18n="mt_net_cluster_t">D'autres caméras à proximité ont des soucis ?</div>
+        <div class="basic-body"  data-i18n="mt_net_cluster_b">Si plusieurs caméras de la même allée sont en panne, le problème vient peut-être de la zone, pas de cet appareil.</div>
+      </div>
+    </div>
+
+    <div class="basic-card">
+      <div class="basic-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="6" rx="1"/><line x1="6" y1="13" x2="6" y2="21"/><line x1="12" y1="13" x2="12" y2="21"/><line x1="18" y1="13" x2="18" y2="21"/></svg>
+      </div>
+      <div class="basic-text">
+        <div class="basic-title" data-i18n="mt_net_metal_t">Du métal au-dessus de la caméra</div>
+        <div class="basic-body"  data-i18n="mt_net_metal_b">Les boîtes, emballages métalliques ou affiches au-dessus de la caméra peuvent bloquer le signal. Déplacez-les.</div>
+      </div>
+    </div>
+
+    <div class="basic-card">
+      <div class="basic-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+      </div>
+      <div class="basic-text">
+        <div class="basic-title" data-i18n="mt_net_water_t">De l'eau au-dessus de la caméra</div>
+        <div class="basic-body"  data-i18n="mt_net_water_b">Un pack d'eau sur l'étagère du dessus, de la condensation ou un déversement à proximité peuvent absorber le signal.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-stack">
+    <button class="btn-primary" id="continueBtn">
+      <span data-i18n="mt_net_continue">Continuer pour réappairer la caméra</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+    <button class="btn-fixed" id="fixedBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <span data-i18n="mt_fixed_it">C'est réglé</span>
+    </button>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+
+  function maintCtx() {
+    try { return JSON.parse(sessionStorage.getItem('maintenanceContext') || '{}'); }
+    catch (e) { return {}; }
+  }
+
+  function returnToMaintenance(resolved) {
+    var ctx = maintCtx();
+    var params = new URLSearchParams();
+    if (resolved && ctx.issueId) {
+      params.set('resolved', ctx.issueId);
+      if (ctx.sectionId) params.set('section', ctx.sectionId);
+      if (ctx.zoneId)    params.set('zone',    ctx.zoneId);
+      if (ctx.aisleId)   params.set('aisle',   ctx.aisleId);
+    }
+    sessionStorage.removeItem('maintenanceContext');
+    var q = params.toString();
+    window.location.href = 'maintenance.html' + (q ? '?' + q : '');
+  }
+
+  document.getElementById('continueBtn').addEventListener('click', function () {
+    /* Continue to NFC in maintenance mode */
+    window.location.href = 'install_v_nfc.html';
+  });
+  document.getElementById('fixedBtn').addEventListener('click', function () {
+    returnToMaintenance(true);
+  });
+</script>
+</body>
+</html>

@@ -528,6 +528,27 @@
   /* ────────────────── Confirm-coverage handler ────────────────── */
 
   document.getElementById('confirmBtn').addEventListener('click', function () {
+    /* Maintenance mode: coverage resolved on confirm → bounce back, skip the
+       milestone modal entirely. The hardware/full-replacement case sets
+       fullCleared in the context so the section gets fully cleared. */
+    var maintCtx = null;
+    try { maintCtx = JSON.parse(sessionStorage.getItem('maintenanceContext') || 'null'); } catch (e) {}
+    if (maintCtx) {
+      var params = new URLSearchParams();
+      if (maintCtx.fullCleared && maintCtx.sectionId) {
+        params.set('cleared', maintCtx.sectionId);
+      } else if (maintCtx.issueId) {
+        params.set('resolved', maintCtx.issueId);
+        if (maintCtx.sectionId) params.set('section', maintCtx.sectionId);
+        if (maintCtx.zoneId)    params.set('zone',    maintCtx.zoneId);
+        if (maintCtx.aisleId)   params.set('aisle',   maintCtx.aisleId);
+      }
+      sessionStorage.removeItem('maintenanceContext');
+      sessionStorage.removeItem('manualReplacement');
+      window.location.href = 'maintenance.html' + (params.toString() ? '?' + params.toString() : '');
+      return;
+    }
+
     var iz  = sessionStorage.getItem('vusionInstallZone')    || 'A';
     var ia  = sessionStorage.getItem('vusionInstallAisle')   || '4';
     var is_ = sessionStorage.getItem('vusionInstallSection') || '5';

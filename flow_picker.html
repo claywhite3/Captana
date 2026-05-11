@@ -196,9 +196,15 @@
     opsList.appendChild(buildCard({
       icon:'valid',    iconColor:'green',  titleKey:'flow_validation',  descKey:'flow_validation_desc',  href:'#', state:'active'
     }));
-    opsList.appendChild(buildCard({
-      icon:'maint',    iconColor:'amber',  titleKey:'flow_maintenance', descKey:'flow_maintenance_desc', href:'#', state:'active'
-    }));
+    const maintCard = buildCard({
+      icon:'maint',    iconColor:'amber',  titleKey:'flow_maintenance', descKey:'flow_maintenance_desc', href:'maintenance.html', state:'active'
+    });
+    /* When user enters maintenance from flow picker, mark a fresh demo session
+       so the page reseeds with consistent issues each visit. */
+    maintCard.addEventListener('click', function () {
+      sessionStorage.setItem('maintenanceFreshDemo', '1');
+    });
+    opsList.appendChild(maintCard);
     opsList.appendChild(buildCard({
       icon:'director', iconColor:'blue',   titleKey:'flow_director',    descKey:'flow_director_desc',    href:'#', state:'active'
     }));

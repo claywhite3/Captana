@@ -363,7 +363,19 @@
   }, 7800);
 
   contBtn.addEventListener('click', function () {
-    /* Step 3 of 4 (target tag scan) is built next */
+    var maintCtx = null;
+    try { maintCtx = JSON.parse(sessionStorage.getItem('maintenanceContext') || 'null'); } catch (e) {}
+    if (maintCtx && maintCtx.issueType === 'network') {
+      var params = new URLSearchParams();
+      params.set('resolved', maintCtx.issueId);
+      if (maintCtx.sectionId) params.set('section', maintCtx.sectionId);
+      if (maintCtx.zoneId)    params.set('zone',    maintCtx.zoneId);
+      if (maintCtx.aisleId)   params.set('aisle',   maintCtx.aisleId);
+      sessionStorage.removeItem('maintenanceContext');
+      window.location.href = 'maintenance.html?' + params.toString();
+      return;
+    }
+    /* Normal flow: route by install mode */
     var nextPage = sessionStorage.getItem('installMode') === 'manual'
       ? 'install_v_capture.html'
       : 'install_v_scan_target.html';

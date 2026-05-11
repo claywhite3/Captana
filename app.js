@@ -368,6 +368,85 @@ const I18N = {
     ms_zone_progress:         "zones faites",
     ms_zone_next:              "Zone suivante",
 
+    /* Maintenance — entry page */
+    mt_eyebrow:               "Maintenance",
+    mt_title:                 "Travail à faire",
+    mt_progress_label:        "Progression",
+    mt_progress_all_done:     "Tout est fait !",
+    mt_filter_battery:        "Batterie",
+    mt_filter_network:        "Réseau",
+    mt_filter_coverage:       "Image",
+    mt_filter_hardware:       "Matériel",
+    mt_zone:                  "Zone",
+    mt_items_one:             "élément",
+    mt_items_many:            "éléments",
+    mt_help_me:               "Aidez-moi !",
+    mt_check:                 "Vérifier",
+    mt_checking:              "Vérification…",
+    mt_last_seen:             "Vu pour la dernière fois",
+    mt_completed:             "Terminé",
+    mt_completed_count:       "fait",
+    mt_check_remaining:       "Vérifier le travail restant",
+    mt_remaining_title:       "élément(s) restant(s)",
+    mt_remaining_body:        "Vous avez encore du travail non terminé.",
+    mt_hidden_title:          "Éléments cachés par les filtres",
+    mt_clear_filters:         "Effacer tous les filtres",
+    mt_keep_filters:          "Garder les filtres et continuer",
+    mt_all_done_title:        "Tout est terminé !",
+    mt_all_done_body:         "Chaque élément assigné a été résolu. Bon travail.",
+
+    /* Severity labels */
+    mt_sev_battery_crit:      "Batterie morte",
+    mt_sev_battery_warn:      "Batterie faible",
+    mt_sev_network_crit:      "Hors ligne",
+    mt_sev_network_warn:      "Signal faible",
+    mt_sev_coverage_crit:     "Aucune image",
+    mt_sev_coverage_warn:     "Image floue",
+    mt_sev_hardware_crit:     "Panne matérielle",
+
+    /* Rail-options side-modal */
+    mt_rail_eyebrow:          "Options du rail",
+    mt_rail_camera_label:     "Caméra installée",
+    mt_rail_observing_label:  "Observe",
+    mt_rail_installed_label:  "Installée le",
+    mt_rail_by:               "par",
+    mt_rail_body:             "Si cette caméra est endommagée ou irrécupérable, remplacez-la. Le remplacement lance une nouvelle installation sur ce rail.",
+    mt_rail_replace:          "Remplacer la caméra",
+    mt_rail_close:            "Fermer",
+
+    /* Maintenance-mode patches on existing pages */
+    mt_save_return:           "Enregistrer et revenir",
+    mt_fixed_it:              "C'est réglé",
+    mt_coverage_updated:      "Image mise à jour",
+
+    /* Network basics */
+    mt_net_eyebrow:           "Dépannage réseau",
+    mt_net_title:             "Vérifications rapides",
+    mt_net_sub:               "Parcourez ces points avant de réappairer. La plupart des problèmes se règlent avec un petit ajustement.",
+    mt_net_power_t:           "Pas d'alimentation, pas de signal",
+    mt_net_power_b:           "Si la caméra n'a pas d'alimentation, elle ne peut pas communiquer. Vérifiez d'abord la batterie.",
+    mt_net_cluster_t:         "D'autres caméras à proximité ont des soucis ?",
+    mt_net_cluster_b:         "Si plusieurs caméras de la même allée sont en panne, le problème vient peut-être de la zone, pas de cet appareil.",
+    mt_net_metal_t:           "Du métal au-dessus de la caméra",
+    mt_net_metal_b:           "Les boîtes, emballages métalliques ou affiches au-dessus de la caméra peuvent bloquer le signal. Déplacez-les.",
+    mt_net_water_t:           "De l'eau au-dessus de la caméra",
+    mt_net_water_b:           "Un pack d'eau sur l'étagère du dessus, de la condensation ou un déversement à proximité peuvent absorber le signal.",
+    mt_net_continue:          "Continuer pour réappairer la caméra",
+
+    /* Coverage diagnostic */
+    mt_cov_eyebrow:           "Dépannage image",
+    mt_cov_q1_title:          "La caméra est-elle bloquée ?",
+    mt_cov_q1_sub:            "Regardez si un produit, un panneau ou un emballage cache l'objectif.",
+    mt_cov_q2_title:          "L'objectif est-il sale ?",
+    mt_cov_q2_sub:            "Poussière, traces de doigts, condensation — tout ce qui peut brouiller la vue.",
+    mt_cov_q3_title:          "La caméra est-elle endommagée ?",
+    mt_cov_q3_sub:            "Fissures sur le boîtier, objectif cassé, signes physiques de dommage.",
+    mt_cov_yes:               "Oui",
+    mt_cov_no:                "Non",
+    mt_cov_action_blocked:    "Dégagez l'obstruction, puis reprenez une photo.",
+    mt_cov_action_dirty:      "Nettoyez délicatement l'objectif avec un chiffon doux, puis reprenez une photo.",
+    mt_cov_continue_recapture: "Reprendre la photo",
+
     /* Common */
     common_back:          "Retour",
     common_next:          "Suivant",
@@ -734,6 +813,85 @@ const I18N = {
     ms_zone_progress:         "zones done",
     ms_zone_next:             "Next zone",
 
+    /* Maintenance — entry page */
+    mt_eyebrow:               "Maintenance",
+    mt_title:                 "Assigned work",
+    mt_progress_label:        "Progress",
+    mt_progress_all_done:     "All done!",
+    mt_filter_battery:        "Battery",
+    mt_filter_network:        "Network",
+    mt_filter_coverage:       "Coverage",
+    mt_filter_hardware:       "Hardware",
+    mt_zone:                  "Zone",
+    mt_items_one:             "item",
+    mt_items_many:            "items",
+    mt_help_me:               "Help Me!",
+    mt_check:                 "Check",
+    mt_checking:              "Checking…",
+    mt_last_seen:             "Last seen",
+    mt_completed:             "Completed",
+    mt_completed_count:       "done",
+    mt_check_remaining:       "Check remaining work",
+    mt_remaining_title:       "item(s) remaining",
+    mt_remaining_body:        "You still have uncompleted work.",
+    mt_hidden_title:          "items hidden by filters",
+    mt_clear_filters:         "Clear all filters",
+    mt_keep_filters:          "Keep filters & continue",
+    mt_all_done_title:        "All work complete!",
+    mt_all_done_body:         "Every assigned item has been resolved. Great work.",
+
+    /* Severity labels */
+    mt_sev_battery_crit:      "Dead battery",
+    mt_sev_battery_warn:      "Low battery",
+    mt_sev_network_crit:      "Offline",
+    mt_sev_network_warn:      "Low signal",
+    mt_sev_coverage_crit:     "No image",
+    mt_sev_coverage_warn:     "Blurry image",
+    mt_sev_hardware_crit:     "Hardware fault",
+
+    /* Rail-options side-modal */
+    mt_rail_eyebrow:          "Rail options",
+    mt_rail_camera_label:     "Installed camera",
+    mt_rail_observing_label:  "Observing",
+    mt_rail_installed_label:  "Installed",
+    mt_rail_by:               "by",
+    mt_rail_body:             "If this camera is damaged or unrecoverable, replace it. The replacement starts a fresh install at this rail.",
+    mt_rail_replace:          "Replace camera",
+    mt_rail_close:            "Close",
+
+    /* Maintenance-mode patches on existing pages */
+    mt_save_return:           "Save & return",
+    mt_fixed_it:              "I fixed it",
+    mt_coverage_updated:      "Coverage updated",
+
+    /* Network basics */
+    mt_net_eyebrow:           "Network troubleshooting",
+    mt_net_title:             "Quick checks first",
+    mt_net_sub:               "Walk through these before re-pairing. Many issues clear up after a small fix.",
+    mt_net_power_t:           "No power, no signal",
+    mt_net_power_b:           "If the camera has no power, it can't talk to the network. Check the battery first.",
+    mt_net_cluster_t:         "Other cameras nearby acting up?",
+    mt_net_cluster_b:         "If a few cameras in the same aisle are down, the problem may be the area, not this device.",
+    mt_net_metal_t:           "Metal hanging over the camera",
+    mt_net_metal_b:           "Cans, foil packaging, or signs draped above the camera can block the signal. Move them.",
+    mt_net_water_t:           "Water sitting above the camera",
+    mt_net_water_b:           "A case of water on the shelf above, condensation, or a spill nearby will absorb the signal.",
+    mt_net_continue:          "Continue to re-pair the camera",
+
+    /* Coverage diagnostic */
+    mt_cov_eyebrow:           "Coverage troubleshooting",
+    mt_cov_q1_title:          "Is the camera blocked?",
+    mt_cov_q1_sub:             "Look for product, signage, or packaging covering the lens.",
+    mt_cov_q2_title:          "Is the lens dirty?",
+    mt_cov_q2_sub:            "Dust, fingerprints, condensation — anything that would blur the view.",
+    mt_cov_q3_title:          "Is the camera damaged?",
+    mt_cov_q3_sub:            "Cracks on the housing, broken lens, physical signs of damage.",
+    mt_cov_yes:               "Yes",
+    mt_cov_no:                "No",
+    mt_cov_action_blocked:    "Clear the obstruction, then retake the photo.",
+    mt_cov_action_dirty:      "Gently clean the lens with a soft cloth, then retake the photo.",
+    mt_cov_continue_recapture: "Retake photo",
+
     common_back:          "Back",
     common_next:          "Next",
     common_continue:      "Continue",
@@ -1090,6 +1248,176 @@ function milestoneAfterInstall(zoneId, aisleId) {
   const zStats = zoneInstallStats(zoneId);
   if (zStats.installed === zStats.total) return 'zone';
   return 'aisle';
+}
+
+/* ──────────────────── Maintenance helpers ────────────────────
+   Each installed section can have an `issues` array. Each issue:
+     { id, type, sev }
+       type: 'battery' | 'network' | 'coverage' | 'hardware'
+       sev:  'crit' | 'warn'
+   Priority order (highest first): battery → network → coverage → hardware.
+   When a camera has multiple issues, route troubleshooting starts at the
+   highest-priority unresolved issue and walks down. */
+const MAINT_PRIORITY = ['battery', 'network', 'coverage', 'hardware'];
+
+/* Comparator that orders an issues array by priority. */
+function sortIssuesByPriority(issues) {
+  return issues.slice().sort((a, b) => {
+    return MAINT_PRIORITY.indexOf(a.type) - MAINT_PRIORITY.indexOf(b.type);
+  });
+}
+
+/* Return the top-priority unresolved issue for a section, or null. */
+function topIssueFor(section) {
+  if (!section || !section.issues || section.issues.length === 0) return null;
+  const sorted = sortIssuesByPriority(section.issues);
+  return sorted[0];
+}
+
+/* Route a troubleshooting flow based on issue type. */
+function maintenanceRouteFor(issueType) {
+  switch (issueType) {
+    case 'battery':  return 'install_v_battery.html';
+    case 'network':  return 'maint_network_basics.html';
+    case 'coverage': return 'maint_coverage.html';
+    case 'hardware': return 'install_manual_section.html'; // reinstall flow
+    default:         return 'maintenance.html';
+  }
+}
+
+/* Resolve one issue on a section. If no issues remain after removal, the
+   section is considered fully cleared and maintenance.html will move it to
+   the completed list. Returns the remaining issues array. */
+function resolveIssue(zoneId, aisleId, sectionId, issueId) {
+  const m = getMap();
+  const z = findZone(m, zoneId); if (!z) return null;
+  const a = findAisle(z, aisleId); if (!a) return null;
+  const s = findSection(a, sectionId); if (!s) return null;
+  s.issues = (s.issues || []).filter(i => i.id !== issueId);
+  saveMap(m);
+  return s.issues;
+}
+
+/* For the recheck button — simulate whether an issue is resolved/improved/unchanged. */
+function simulateRecheck(currentSev) {
+  const r = Math.random();
+  if (r < 0.50) return null; // resolved
+  if (currentSev === 'crit' && r < 0.70) return 'warn'; // improved
+  return currentSev; // unchanged
+}
+
+/* Collect all sections that have issues, with zone/aisle context attached. */
+function allOpenIssues() {
+  const m = getMap();
+  const out = [];
+  (m.zones || []).forEach(z => {
+    (z.aisles || []).forEach(a => {
+      if (a.skipped) return;
+      (a.sections || []).forEach(s => {
+        if (s.skipped) return;
+        if (!s.installed) return;
+        if (!s.issues || s.issues.length === 0) return;
+        out.push({
+          zoneId: z.id, zoneName: z.name,
+          aisleId: a.id, aisleNumber: a.number,
+          sectionId: s.id, sectionNumber: s.number,
+          cameraId: s.cameraId || '',
+          lookAtAisle: s.lookAtAisle || '',
+          issues: sortIssuesByPriority(s.issues),
+        });
+      });
+    });
+  });
+  return out;
+}
+
+/* Seed the demo with realistic faked issues. Builds a complete fake store
+   (zones → aisles → sections → installed cameras → issues) if no installed
+   sections exist yet. Idempotent within a session unless force=true. */
+function seedDemoIssues(force) {
+  if (!force && sessionStorage.getItem('demoIssuesSeeded') === '1') return;
+
+  let m = getMap();
+
+  // Collect any sections already installed in the existing map
+  const installedSections = [];
+  (m.zones || []).forEach(z => {
+    (z.aisles || []).forEach(a => {
+      (a.sections || []).forEach(s => {
+        if (s.installed && !s.skipped) installedSections.push(s);
+      });
+    });
+  });
+
+  // If nothing is installed yet, build a self-contained demo store from scratch
+  if (installedSections.length === 0) {
+    m = {
+      zones: [
+        { id: 'demo_z_a', name: 'A', aisles: [
+          { id: 'demo_a_a1', number: 1, sections: [
+            { id: 'demo_s_a11', number: 1, lookAtAisle: 'demo_a_a2', installed: true, cameraId: 'tc2ld-0000111' },
+            { id: 'demo_s_a12', number: 2, lookAtAisle: 'demo_a_a2', installed: true, cameraId: 'tc2ld-0000222' },
+            { id: 'demo_s_a13', number: 3, lookAtAisle: 'demo_a_a2', installed: true, cameraId: 'tc2ld-0000333' },
+          ]},
+          { id: 'demo_a_a2', number: 2, sections: [
+            { id: 'demo_s_a21', number: 1, lookAtAisle: 'demo_a_a1', installed: true, cameraId: 'tc2ld-0000444' },
+            { id: 'demo_s_a22', number: 2, lookAtAisle: 'demo_a_a1', installed: true, cameraId: 'tc2ld-0000555' },
+          ]},
+        ]},
+        { id: 'demo_z_b', name: 'B', aisles: [
+          { id: 'demo_a_b1', number: 1, sections: [
+            { id: 'demo_s_b11', number: 1, lookAtAisle: 'demo_a_b2', installed: true, cameraId: 'tc2ld-0000666' },
+            { id: 'demo_s_b12', number: 2, lookAtAisle: 'demo_a_b2', installed: true, cameraId: 'tc2ld-0000777' },
+          ]},
+          { id: 'demo_a_b2', number: 2, sections: [
+            { id: 'demo_s_b21', number: 1, lookAtAisle: 'demo_a_b1', installed: true, cameraId: 'tc2ld-0000888' },
+          ]},
+        ]},
+        { id: 'demo_z_c', name: 'C', aisles: [
+          { id: 'demo_a_c1', number: 1, sections: [
+            { id: 'demo_s_c11', number: 1, lookAtAisle: 'demo_a_c2', installed: true, cameraId: 'tc2ld-0000999' },
+          ]},
+          { id: 'demo_a_c2', number: 2, sections: [
+            { id: 'demo_s_c21', number: 1, lookAtAisle: 'demo_a_c1', installed: true, cameraId: 'tc2ld-0001000' },
+          ]},
+        ]},
+      ]
+    };
+    saveMap(m);
+  }
+
+  // Re-collect after potential seeding
+  const targetSections = [];
+  (m.zones || []).forEach(z => {
+    (z.aisles || []).forEach(a => {
+      (a.sections || []).forEach(s => {
+        if (s.installed && !s.skipped) targetSections.push(s);
+      });
+    });
+  });
+  if (targetSections.length === 0) return;
+
+  // Deterministic issue pattern so the demo looks the same each load
+  const patterns = [
+    [ { type: 'battery',  sev: 'crit' } ],
+    [ { type: 'network',  sev: 'crit' }, { type: 'coverage', sev: 'warn' } ],
+    [ { type: 'battery',  sev: 'warn' } ],
+    [ { type: 'coverage', sev: 'crit' } ],
+    [ { type: 'network',  sev: 'warn' } ],
+    [ { type: 'hardware', sev: 'crit' } ],
+    [ { type: 'coverage', sev: 'warn' } ],
+  ];
+
+  targetSections.slice(0, patterns.length).forEach((s, i) => {
+    const baseIssues = patterns[i];
+    s.issues = baseIssues.map((iss, j) => ({
+      id: 'iss_' + Date.now() + '_' + i + '_' + j + '_' + Math.random().toString(36).slice(2, 6),
+      type: iss.type,
+      sev: iss.sev,
+    }));
+  });
+  saveMap(m);
+  sessionStorage.setItem('demoIssuesSeeded', '1');
 }
 
 /* ----------- Image with filename fallback -----------

@@ -171,8 +171,29 @@
     document.getElementById('locationValue').textContent = z + ' · ' + a + ' · ' + s;
   })();
 
+  /* Maintenance mode: shortcut. Battery resolved → return to maintenance. */
+  var __maintCtx = null;
+  try { __maintCtx = JSON.parse(sessionStorage.getItem('maintenanceContext') || 'null'); } catch (e) {}
+
+  if (__maintCtx && __maintCtx.issueType === 'battery') {
+    /* Override the back button to go back to maintenance */
+    var bb = document.querySelector('a.btn-circle');
+    if (bb) bb.setAttribute('href', 'maintenance.html');
+  }
+
   document.getElementById('confirmBtn').addEventListener('click', function () {
-    /* Side-toast narrates the transition while we route to NFC */
+    if (__maintCtx && __maintCtx.issueType === 'battery') {
+      /* Resolve the battery issue and bounce to maintenance */
+      var params = new URLSearchParams();
+      params.set('resolved', __maintCtx.issueId);
+      if (__maintCtx.sectionId) params.set('section', __maintCtx.sectionId);
+      if (__maintCtx.zoneId)    params.set('zone',    __maintCtx.zoneId);
+      if (__maintCtx.aisleId)   params.set('aisle',   __maintCtx.aisleId);
+      sessionStorage.removeItem('maintenanceContext');
+      window.location.href = 'maintenance.html?' + params.toString();
+      return;
+    }
+    /* Normal install flow: side-toast narrates the transition while we route to NFC */
     showToast({
       icon: 'info',
       title:   t('inv_batt_toast_title'),
