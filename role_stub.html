@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    .stub-body {
+      flex: 1;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 28px 0;
+      text-align: center;
+      animation: fadeUp .4s .08s ease both; opacity: 0;
+    }
+    .stub-icon {
+      width: 96px; height: 96px;
+      border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 24px;
+    }
+    .stub-icon svg { width: 44px; height: 44px; }
+
+    /* Match flow_picker card-icon color palette */
+    .stub-icon.blue   { background: var(--c-blue-soft);   border: 1.5px solid var(--c-blue-line);   color: var(--c-blue); }
+    .stub-icon.green  { background: #DCFCE7; border: 1.5px solid #BBF7D0; color: #15803D; }
+    .stub-icon.amber  { background: #FEF3C7; border: 1.5px solid #FDE68A; color: #B45309; }
+    .stub-icon.purple { background: #EDE9FE; border: 1.5px solid #DDD6FE; color: #6D28D9; }
+
+    .stub-title {
+      font-size: 22px; font-weight: 800;
+      color: var(--c-ink);
+      line-height: 1.25;
+    }
+    .stub-msg {
+      margin-top: 12px;
+      font-size: 14px; color: var(--c-muted);
+      line-height: 1.5;
+      font-weight: 500;
+      max-width: 300px;
+    }
+    .stub-tag {
+      margin-top: 20px;
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px;
+      background: var(--c-blue-soft);
+      border: 1px solid var(--c-blue-line);
+      border-radius: 999px;
+      font-size: 12px; font-weight: 700;
+      color: var(--c-blue);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .stub-tag svg { width: 12px; height: 12px; }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="#" id="backLink" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" id="eyebrowEl">Captana</div>
+    <div class="hero-title" id="titleEl">&nbsp;</div>
+  </div>
+
+  <div class="stub-body">
+    <div class="stub-icon blue" id="iconEl"></div>
+    <div class="stub-title" id="soonTitleEl" data-i18n="role_stub_soon_title">Bientôt disponible</div>
+    <div class="stub-msg" id="soonMsgEl"></div>
+    <div class="stub-tag">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span data-i18n="role_stub_tag">Prochaine version</span>
+    </div>
+  </div>
+
+  <div class="footer-stack">
+    <button class="btn-primary" id="backBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;margin-right:6px;vertical-align:-3px;"><path d="M15 18l-6-6 6-6"/></svg>
+      <span data-i18n="common_back">Retour</span>
+    </button>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+
+  /* Role config — keyed off ?role= query param.
+     Icon SVGs match flow_picker.html ICONS map so the visual identity is consistent. */
+  const ROLES = {
+    validation: {
+      color: 'green',
+      iconPath: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+      titleKey: 'flow_validation',
+      msgKey:   'role_stub_msg_validation'
+    },
+    director: {
+      color: 'blue',
+      iconPath: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
+      titleKey: 'flow_director',
+      msgKey:   'role_stub_msg_director'
+    },
+    section_mgr: {
+      color: 'purple',
+      iconPath: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+      titleKey: 'flow_section_mgr',
+      msgKey:   'role_stub_msg_section_mgr'
+    },
+    associate: {
+      color: 'green',
+      iconPath: '<polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+      titleKey: 'flow_associate',
+      msgKey:   'role_stub_msg_associate'
+    }
+  };
+
+  function getRoleKey() {
+    const params = new URLSearchParams(window.location.search);
+    const r = (params.get('role') || '').toLowerCase();
+    return ROLES[r] ? r : 'validation';
+  }
+
+  function applyRole() {
+    const key = getRoleKey();
+    const cfg = ROLES[key];
+
+    /* Icon — apply color class + inject SVG */
+    const iconEl = document.getElementById('iconEl');
+    iconEl.className = 'stub-icon ' + cfg.color;
+    iconEl.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+      cfg.iconPath + '</svg>';
+
+    /* Title (role name) and supporting copy */
+    document.getElementById('titleEl').textContent = t(cfg.titleKey);
+    document.getElementById('soonMsgEl').textContent = t(cfg.msgKey);
+
+    /* Eyebrow: localized "Coming soon" tag */
+    document.getElementById('eyebrowEl').textContent = t('role_stub_eyebrow');
+
+    /* Update page title for browser tab */
+    document.title = 'Captana — ' + t(cfg.titleKey);
+  }
+
+  applyRole();
+
+  document.getElementById('backLink').addEventListener('click', function (e) {
+    e.preventDefault();
+    history.back();
+  });
+  document.getElementById('backBtn').addEventListener('click', function () {
+    history.back();
+  });
+</script>
+</body>
+</html>

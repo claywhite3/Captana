@@ -248,6 +248,15 @@ const I18N = {
     inv_guide_soon_title:     "Bientôt disponible",
     inv_guide_soon_msg:       "Les instructions pas-à-pas pour cette étape arriveront dans une prochaine version.",
 
+    /* Role stub — shared placeholder for Validation / Director / Section Mgr / Associate */
+    role_stub_eyebrow:        "Aperçu",
+    role_stub_soon_title:     "Bientôt disponible",
+    role_stub_tag:            "Prochaine version",
+    role_stub_msg_validation: "Audit en lecture seule des installations terminées. Disponible dans une prochaine version.",
+    role_stub_msg_director:   "Tableau de bord de la disponibilité en rayon à l'échelle du magasin. Disponible dans une prochaine version.",
+    role_stub_msg_section_mgr:"Attribution et suivi des tâches de réassort aux équipes. Disponible dans une prochaine version.",
+    role_stub_msg_associate:  "Liste des tâches de réassort assignées. Disponible dans une prochaine version.",
+
     /* Target tag scan — Step 3 of 4 */
     inv_tscan_eyebrow:        "Étape 3 sur 4",
     inv_tscan_title:          "Scannez l'étiquette cible",
@@ -692,6 +701,15 @@ const I18N = {
     inv_guide_title:          "Installation guide",
     inv_guide_soon_title:     "Coming soon",
     inv_guide_soon_msg:       "Step-by-step instructions for this step will arrive in a future release.",
+
+    /* Role stub — shared placeholder for Validation / Director / Section Mgr / Associate */
+    role_stub_eyebrow:        "Preview",
+    role_stub_soon_title:     "Coming soon",
+    role_stub_tag:            "Next release",
+    role_stub_msg_validation: "Read-only audit of completed installs. Coming in a future release.",
+    role_stub_msg_director:   "Store-wide on-shelf availability dashboard. Coming in a future release.",
+    role_stub_msg_section_mgr:"Assign and track fill tasks across your team. Coming in a future release.",
+    role_stub_msg_associate:  "List of fill tasks assigned to you. Coming in a future release.",
 
     /* Target tag scan — Step 3 of 4 */
     inv_tscan_eyebrow:        "Step 3 of 4",
