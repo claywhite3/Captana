@@ -73,8 +73,8 @@
     <div class="hero-sub"   data-i18n="flow_sub">Sélectionnez un flux pour commencer</div>
   </div>
 
-  <div class="section-header" data-i18n="flow_section_install">Installation & cartographie</div>
-  <div class="card-list stagger" id="installList"></div>
+  <div class="section-header" data-i18n="flow_section_hw">Gestion des équipements</div>
+  <div class="card-list stagger" id="hwList"></div>
 
   <div class="section-header" data-i18n="flow_section_ops">Opérations en magasin</div>
   <div class="card-list stagger" id="opsList"></div>
@@ -113,10 +113,12 @@
 
   /* Build a card row */
   function buildCard({ icon, iconColor, titleKey, descKey, descOverride, href, state }) {
-    // state: 'active' | 'done' | 'locked'
+    // state: 'active' | 'done' | 'locked' | 'stub'
+    //   stub = dimmed visual (signals "coming soon / placeholder") but still clickable
     const classes = ['card-row'];
     if (state === 'done')   classes.push('is-done');
     if (state === 'locked') classes.push('is-disabled');
+    if (state === 'stub')   classes.push('is-stub');
 
     const tag = (state === 'locked') ? 'button' : 'a';
     const el  = document.createElement(tag);
@@ -140,10 +142,10 @@
 
   /* State-aware install/mapping logic */
   function refresh() {
-    const installList = document.getElementById('installList');
-    const opsList     = document.getElementById('opsList');
-    installList.innerHTML = '';
-    opsList.innerHTML     = '';
+    const hwList  = document.getElementById('hwList');
+    const opsList = document.getElementById('opsList');
+    hwList.innerHTML  = '';
+    opsList.innerHTML = '';
 
     const status = getMappingStatus();
     // 'none'   -> Mapping=active, Install=locked
@@ -164,7 +166,7 @@
       href: mappingHref,
       state: status === 'none' ? 'active' : 'done',
     });
-    installList.appendChild(mapping);
+    hwList.appendChild(mapping);
 
     const installState = status === 'none' ? 'locked' : 'active';
     const installHref  = status === 'vusion' ? 'install_vusion_intro.html' : 'install_manual_zone.html';
@@ -190,10 +192,12 @@
         });
       });
     }
-    installList.appendChild(install);
+    hwList.appendChild(install);
 
-    /* Ops cards */
-    opsList.appendChild(buildCard({
+    /* Validation and Maintenance are part of the asset-management lifecycle —
+       they're about keeping the installed hardware healthy, not about driving
+       operational value from it, so they live in the hardware list. */
+    hwList.appendChild(buildCard({
       icon:'valid',    iconColor:'green',  titleKey:'flow_validation',  descKey:'flow_validation_desc',  href:'role_stub.html?role=validation', state:'active'
     }));
     const maintCard = buildCard({
@@ -204,15 +208,19 @@
     maintCard.addEventListener('click', function () {
       sessionStorage.setItem('maintenanceFreshDemo', '1');
     });
-    opsList.appendChild(maintCard);
+    hwList.appendChild(maintCard);
+
+    /* Store operations: about driving value from the installed system. All three
+       roles are stubbed for now — dim them visually so it's obvious they're
+       placeholders, but the links still work and route to role_stub.html. */
     opsList.appendChild(buildCard({
-      icon:'director', iconColor:'blue',   titleKey:'flow_director',    descKey:'flow_director_desc',    href:'role_stub.html?role=director', state:'active'
+      icon:'director', iconColor:'blue',   titleKey:'flow_director',    descKey:'flow_director_desc',    href:'role_stub.html?role=director', state:'stub'
     }));
     opsList.appendChild(buildCard({
-      icon:'section',  iconColor:'purple', titleKey:'flow_section_mgr', descKey:'flow_section_mgr_desc', href:'role_stub.html?role=section_mgr', state:'active'
+      icon:'section',  iconColor:'purple', titleKey:'flow_section_mgr', descKey:'flow_section_mgr_desc', href:'role_stub.html?role=section_mgr', state:'stub'
     }));
     opsList.appendChild(buildCard({
-      icon:'assoc',    iconColor:'green',  titleKey:'flow_associate',   descKey:'flow_associate_desc',   href:'role_stub.html?role=associate', state:'active'
+      icon:'assoc',    iconColor:'green',  titleKey:'flow_associate',   descKey:'flow_associate_desc',   href:'role_stub.html?role=associate', state:'stub'
     }));
   }
 

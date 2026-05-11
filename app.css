@@ -156,6 +156,12 @@ body {
 }
 .card-row.is-disabled:active { transform: none; }
 
+/* Stub: dimmed visual signaling "coming soon / placeholder" but still clickable (routes to role_stub.html) */
+.card-row.is-stub {
+  opacity: .60;
+}
+.card-row.is-stub .card-arrow svg { opacity: .65; }
+
 .card-row.is-done {
   background: #F9FAFB;
   border: 1.5px dashed var(--c-green-line);

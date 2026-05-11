@@ -29,7 +29,7 @@ const I18N = {
     /* Flow picker */
     flow_title:           "Captana",
     flow_sub:             "Sélectionnez un flux pour commencer",
-    flow_section_install: "Installation & cartographie",
+    flow_section_hw:      "Gestion des équipements",
     flow_section_ops:     "Opérations en magasin",
     flow_mapping:         "Cartographie",
     flow_mapping_desc:    "Créer la structure du magasin",
@@ -426,6 +426,55 @@ const I18N = {
     mt_rail_replace:          "Remplacer la caméra",
     mt_rail_close:            "Fermer",
 
+    /* Maintenance — battery remove page (page 1 of 2 in battery troubleshooting) */
+    mbr_eyebrow:              "Dépannage batterie",
+    mbr_title:                "Retirez la batterie déchargée",
+    mbr_sub:                  "Ouvrez le compartiment et retirez la batterie usagée. Vous allez ensuite installer une batterie neuve.",
+    mbr_loc_label:            "Emplacement",
+    mbr_confirm:              "Batterie retirée",
+
+    /* Maintenance — battery insert (page 2 of 2). Overrides on install_v_battery when reached from maintenance. */
+    mbi_title:                "Insérez une batterie neuve",
+    mbi_sub:                  "Glissez une batterie chargée dans le compartiment, dans le sens indiqué.",
+
+    /* Maintenance — network remove (page 1 of 2 in network troubleshooting) */
+    mnr_eyebrow:              "Dépannage réseau",
+    mnr_title:                "Retirez la batterie",
+    mnr_sub:                  "Retirez la batterie de la caméra. Attendez environ 20 secondes avant de la remettre.",
+    mnr_loc_label:            "Emplacement",
+    mnr_confirm:              "Batterie retirée",
+    mnr_count_label:          "Attente du redémarrage",
+    mnr_count_msg:            "Laissez la batterie hors de la caméra…",
+
+    /* Maintenance — network resend (page 2 of 2, overlays install_v_nfc when in maintenance/network mode).
+       Critical: this is NOT activation. The camera is already provisioned; we're re-pushing the saved
+       Wi-Fi credentials so it can rejoin the network. Wording must reflect that. */
+    mnr2_title:               "Remettez la batterie et approchez le téléphone",
+    mnr2_sub:                 "Réinsérez la batterie, puis levez le haut du téléphone vers la caméra pour renvoyer les identifiants.",
+    mnr2_active_title:        "Renvoi en cours",
+    mnr2_active_sub:          "Retransmission des identifiants Wi-Fi…",
+    mnr2_done_title:          "Identifiants renvoyés",
+    mnr2_done_sub:            "Vous pouvez retirer le téléphone et continuer.",
+    mnr2_wifi_sending:        "Renvoi des identifiants Wi-Fi…",
+    mnr2_wifi_sent:           "Identifiants retransmis",
+
+    /* Maintenance completion side-modal — one shared modal at the end of every troubleshooting flow */
+    mc_location_label:        "Emplacement",
+    mc_camera_label:          "Caméra",
+    mc_continue_btn:          "Continuer pour revérifier",
+    mc_eyebrow_battery:       "Dépannage terminé",
+    mc_title_battery:         "Batterie remplacée",
+    mc_body_battery:          "La caméra a redémarré avec une batterie neuve. Vérifions qu'elle est de retour en ligne.",
+    mc_eyebrow_network:       "Dépannage terminé",
+    mc_title_network:         "Identifiants Wi-Fi renvoyés",
+    mc_body_network:          "Les identifiants réseau ont été retransmis à la caméra. Vérifions qu'elle est de retour en ligne.",
+    mc_eyebrow_image:         "Dépannage terminé",
+    mc_title_image_clean:     "Image rétablie",
+    mc_body_image_clean:      "La vue est de nouveau claire. Vérifions que tout fonctionne.",
+    mc_eyebrow_swap:          "Caméra remplacée",
+    mc_title_image_swap:      "Échange réussi",
+    mc_body_image_swap:       "L'ancienne caméra a été retirée et la nouvelle est en place. Vérifions qu'elle est en ligne.",
+
     /* Maintenance-mode patches on existing pages */
     mt_save_return:           "Enregistrer et revenir",
     mt_fixed_it:              "C'est réglé",
@@ -447,17 +496,25 @@ const I18N = {
 
     /* Coverage diagnostic */
     mt_cov_eyebrow:           "Dépannage image",
-    mt_cov_q1_title:          "La caméra est-elle bloquée ?",
-    mt_cov_q1_sub:            "Regardez si un produit, un panneau ou un emballage cache l'objectif.",
-    mt_cov_q2_title:          "L'objectif est-il sale ?",
-    mt_cov_q2_sub:            "Poussière, traces de doigts, condensation — tout ce qui peut brouiller la vue.",
-    mt_cov_q3_title:          "La caméra est-elle endommagée ?",
-    mt_cov_q3_sub:            "Fissures sur le boîtier, objectif cassé, signes physiques de dommage.",
+    mt_cov_q1_title:          "La caméra est-elle endommagée ?",
+    mt_cov_q1_sub:            "Fissures sur le boîtier, objectif cassé, signes physiques de dommage.",
+    mt_cov_q2_title:          "La caméra est-elle bloquée ?",
+    mt_cov_q2_sub:            "Regardez si un produit, un panneau ou un emballage cache l'objectif.",
+    mt_cov_q3_title:          "L'objectif est-il sale ?",
+    mt_cov_q3_sub:            "Poussière, traces de doigts, condensation — tout ce qui peut brouiller la vue.",
     mt_cov_yes:               "Oui",
     mt_cov_no:                "Non",
     mt_cov_action_blocked:    "Dégagez l'obstruction, puis reprenez une photo.",
     mt_cov_action_dirty:      "Nettoyez délicatement l'objectif avec un chiffon doux, puis reprenez une photo.",
     mt_cov_continue_recapture: "Reprendre la photo",
+
+    /* Coverage swap-confirmation side-modal — opens when "Is the camera damaged?" = Yes */
+    mt_cov_swap_eyebrow:      "Caméra endommagée",
+    mt_cov_swap_title:        "Remplaçons cette caméra",
+    mt_cov_swap_loc_label:    "Emplacement",
+    mt_cov_swap_body:         "Nous allons lancer une réinstallation guidée à cet emplacement. La nouvelle caméra remplacera l'ancienne dans le système.",
+    mt_cov_swap_go:           "C'est parti",
+    mt_cov_swap_cancel:       "Annuler",
 
     /* Common */
     common_back:          "Retour",
@@ -489,7 +546,7 @@ const I18N = {
 
     flow_title:           "Captana",
     flow_sub:             "Select a workflow to begin",
-    flow_section_install: "Install & mapping",
+    flow_section_hw:      "Hardware management",
     flow_section_ops:     "Store operations",
     flow_mapping:         "Mapping",
     flow_mapping_desc:    "Build the store structure",
@@ -844,7 +901,7 @@ const I18N = {
     mt_progress_all_done:     "All done!",
     mt_filter_battery:        "Battery",
     mt_filter_network:        "Network",
-    mt_filter_coverage:       "Coverage",
+    mt_filter_coverage:       "Image",
     mt_filter_hardware:       "Hardware",
     mt_zone:                  "Zone",
     mt_items_one:             "item",
@@ -883,10 +940,59 @@ const I18N = {
     mt_rail_replace:          "Replace camera",
     mt_rail_close:            "Close",
 
+    /* Maintenance — battery remove page (page 1 of 2 in battery troubleshooting) */
+    mbr_eyebrow:              "Battery troubleshooting",
+    mbr_title:                "Remove the discharged battery",
+    mbr_sub:                  "Open the compartment and take out the used battery. You'll install a fresh one next.",
+    mbr_loc_label:            "Location",
+    mbr_confirm:              "Battery removed",
+
+    /* Maintenance — battery insert (page 2 of 2). Overrides on install_v_battery when reached from maintenance. */
+    mbi_title:                "Insert a fresh battery",
+    mbi_sub:                  "Slide a charged battery into the compartment, following the orientation shown.",
+
+    /* Maintenance — network remove (page 1 of 2 in network troubleshooting) */
+    mnr_eyebrow:              "Network troubleshooting",
+    mnr_title:                "Remove the battery",
+    mnr_sub:                  "Take the battery out of the camera. We'll wait about 20 seconds before you put it back.",
+    mnr_loc_label:            "Location",
+    mnr_confirm:              "Battery removed",
+    mnr_count_label:          "Waiting for reboot",
+    mnr_count_msg:            "Keep the battery out of the camera…",
+
+    /* Maintenance — network resend (overlays install_v_nfc when in maintenance/network mode).
+       Critical: this is NOT activation — the camera is already provisioned, we're re-pushing
+       Wi-Fi credentials so it can rejoin the network. */
+    mnr2_title:               "Reinsert the battery and hold up your phone",
+    mnr2_sub:                 "Put the battery back in, then raise the top of your phone toward the camera to resend its credentials.",
+    mnr2_active_title:        "Resending",
+    mnr2_active_sub:          "Retransmitting Wi-Fi credentials…",
+    mnr2_done_title:          "Credentials resent",
+    mnr2_done_sub:            "You can lower your phone and continue.",
+    mnr2_wifi_sending:        "Resending Wi-Fi credentials…",
+    mnr2_wifi_sent:           "Credentials retransmitted",
+
+    /* Maintenance completion side-modal */
+    mc_location_label:        "Location",
+    mc_camera_label:          "Camera",
+    mc_continue_btn:          "Continue to recheck",
+    mc_eyebrow_battery:       "Troubleshooting complete",
+    mc_title_battery:         "Battery replaced",
+    mc_body_battery:          "The camera rebooted with a fresh battery. Let's verify it's back online.",
+    mc_eyebrow_network:       "Troubleshooting complete",
+    mc_title_network:         "Wi-Fi credentials resent",
+    mc_body_network:          "The network credentials were retransmitted to the camera. Let's verify it's back online.",
+    mc_eyebrow_image:         "Troubleshooting complete",
+    mc_title_image_clean:     "Image restored",
+    mc_body_image_clean:      "The view is clear again. Let's verify everything's working.",
+    mc_eyebrow_swap:          "Camera swapped",
+    mc_title_image_swap:      "Swap successful",
+    mc_body_image_swap:       "The old camera was removed and the new one is in place. Let's verify it's online.",
+
     /* Maintenance-mode patches on existing pages */
     mt_save_return:           "Save & return",
     mt_fixed_it:              "I fixed it",
-    mt_coverage_updated:      "Coverage updated",
+    mt_coverage_updated:      "Image updated",
 
     /* Network basics */
     mt_net_eyebrow:           "Network troubleshooting",
@@ -903,18 +1009,26 @@ const I18N = {
     mt_net_continue:          "Continue to re-pair the camera",
 
     /* Coverage diagnostic */
-    mt_cov_eyebrow:           "Coverage troubleshooting",
-    mt_cov_q1_title:          "Is the camera blocked?",
-    mt_cov_q1_sub:             "Look for product, signage, or packaging covering the lens.",
-    mt_cov_q2_title:          "Is the lens dirty?",
-    mt_cov_q2_sub:            "Dust, fingerprints, condensation — anything that would blur the view.",
-    mt_cov_q3_title:          "Is the camera damaged?",
-    mt_cov_q3_sub:            "Cracks on the housing, broken lens, physical signs of damage.",
+    mt_cov_eyebrow:           "Image troubleshooting",
+    mt_cov_q1_title:          "Is the camera damaged?",
+    mt_cov_q1_sub:            "Cracks on the housing, broken lens, physical signs of damage.",
+    mt_cov_q2_title:          "Is the camera blocked?",
+    mt_cov_q2_sub:             "Look for product, signage, or packaging covering the lens.",
+    mt_cov_q3_title:          "Is the lens dirty?",
+    mt_cov_q3_sub:            "Dust, fingerprints, condensation — anything that would blur the view.",
     mt_cov_yes:               "Yes",
     mt_cov_no:                "No",
     mt_cov_action_blocked:    "Clear the obstruction, then retake the photo.",
     mt_cov_action_dirty:      "Gently clean the lens with a soft cloth, then retake the photo.",
     mt_cov_continue_recapture: "Retake photo",
+
+    /* Coverage swap-confirmation side-modal — opens when "Is the camera damaged?" = Yes */
+    mt_cov_swap_eyebrow:      "Camera damaged",
+    mt_cov_swap_title:        "Let's swap this camera",
+    mt_cov_swap_loc_label:    "Location",
+    mt_cov_swap_body:         "We'll start a guided reinstall at this location. The new camera will replace the old one in the system.",
+    mt_cov_swap_go:           "Let's do it",
+    mt_cov_swap_cancel:       "Cancel",
 
     common_back:          "Back",
     common_next:          "Next",
@@ -1274,15 +1388,195 @@ function milestoneAfterInstall(zoneId, aisleId) {
   return 'aisle';
 }
 
+/* ──────────────────── Maintenance completion side-modal ────────────────────
+   One-source-of-truth right-side modal used at the end of every maintenance
+   troubleshooting flow. Content varies by what was fixed (battery / network /
+   image cleaned / camera swapped), but the layout, animation, and behavior are
+   shared. The modal injects itself into the page on first call so individual
+   troubleshooting pages stay clean.
+
+   Usage:
+     showMaintCompletionModal({
+       flow: 'battery' | 'network' | 'image_clean' | 'image_swap',
+       location:    'A · 4 · 5',
+       cameraId:    'tc2ld-0000111',   // current camera (or new camera if swapped)
+       oldCameraId: 'tc2ld-0000000',   // only for image_swap, shown struck-through
+       onContinue:  () => { ... }      // called when "Continue to recheck" tapped
+     });
+
+   The Continue handler should clean up maintenanceContext and route back to
+   maintenance.html with the right ?resolved/?cleared query params.
+*/
+function ensureMaintCompletionModalDOM() {
+  if (document.getElementById('mcOverlay')) return;
+
+  const css = `
+    .mc-overlay { position: fixed; inset: 0; background: rgba(17,24,39,0.55); backdrop-filter: blur(2px); display: none; z-index: 900; animation: mcFadeIn .25s ease both; }
+    .mc-overlay.open { display: block; }
+    @keyframes mcFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .mc-sheet {
+      position: fixed;
+      top: 18%; right: 0;
+      height: 64%;
+      width: min(80vw, 312px);
+      background: #fff;
+      border-radius: 20px 0 0 20px;
+      box-shadow: -12px 0 32px rgba(0,0,0,0.25);
+      z-index: 901;
+      display: none;
+      flex-direction: column;
+      padding: 22px 20px;
+      transform: translateX(100%);
+      transition: transform .35s cubic-bezier(.2,.8,.2,1);
+    }
+    @media (min-width: 391px) { .mc-sheet { right: max(calc(50% - 195px), 0px); } }
+    .mc-sheet.open { display: flex; transform: translateX(0); }
+    .mc-head { display: flex; align-items: center; gap: 12px; }
+    .mc-head > div:last-child { flex: 1; min-width: 0; }
+    .mc-icon-wrap { width: 44px; height: 44px; border-radius: 12px; background: var(--c-green-soft); border: 1.5px solid var(--c-green-line); display: flex; align-items: center; justify-content: center; color: var(--c-green); flex-shrink: 0; }
+    .mc-icon-wrap svg { width: 22px; height: 22px; }
+    .mc-eyebrow { font-size: 10px; font-weight: 800; color: var(--c-green); letter-spacing: .5px; text-transform: uppercase; }
+    .mc-title { font-size: 17px; font-weight: 800; color: var(--c-ink); margin-top: 2px; line-height: 1.25; }
+    .mc-info { background: #F9FAFB; border: 1px solid #F3F4F6; border-radius: 14px; padding: 14px; margin-top: 16px; }
+    .mc-info-row { display: flex; align-items: center; gap: 10px; }
+    .mc-info-row + .mc-info-row { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #E5E7EB; }
+    .mc-info-tile { width: 30px; height: 30px; border-radius: 9px; background: #F3F4F6; color: var(--c-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .mc-info-tile svg { width: 16px; height: 16px; }
+    .mc-info-text { flex: 1; min-width: 0; }
+    .mc-info-label { font-size: 9px; font-weight: 700; color: var(--c-muted); text-transform: uppercase; letter-spacing: .5px; }
+    .mc-info-value { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; font-weight: 800; color: var(--c-ink); margin-top: 1px; letter-spacing: 1px; }
+    .mc-info-value-old { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; font-weight: 600; color: var(--c-muted-2); text-decoration: line-through; margin-top: 2px; letter-spacing: 1px; }
+    .mc-body { font-size: 12px; color: var(--c-muted); font-weight: 500; line-height: 1.45; margin-top: 16px; }
+    .mc-actions { margin-top: auto; padding-top: 16px; }
+    .mc-btn-continue {
+      width: 100%; padding: 14px;
+      background: var(--c-blue); color: #fff;
+      border: none; border-radius: 14px;
+      font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37,99,235,.30);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .mc-btn-continue svg { width: 16px; height: 16px; }
+  `;
+  const styleEl = document.createElement('style');
+  styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+
+  const overlay = document.createElement('div');
+  overlay.className = 'mc-overlay';
+  overlay.id = 'mcOverlay';
+  document.body.appendChild(overlay);
+
+  const sheet = document.createElement('div');
+  sheet.className = 'mc-sheet';
+  sheet.id = 'mcSheet';
+  sheet.setAttribute('role', 'dialog');
+  sheet.setAttribute('aria-modal', 'true');
+  sheet.innerHTML = `
+    <div class="mc-head">
+      <div class="mc-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div>
+        <div class="mc-eyebrow" id="mcEyebrow"></div>
+        <div class="mc-title" id="mcTitle"></div>
+      </div>
+    </div>
+    <div class="mc-info">
+      <div class="mc-info-row">
+        <div class="mc-info-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div class="mc-info-text">
+          <div class="mc-info-label" id="mcLocLabel">Emplacement</div>
+          <div class="mc-info-value" id="mcLocValue">—</div>
+        </div>
+      </div>
+      <div class="mc-info-row">
+        <div class="mc-info-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="3"/></svg></div>
+        <div class="mc-info-text">
+          <div class="mc-info-label" id="mcCamLabel">Caméra</div>
+          <div class="mc-info-value" id="mcCamValue">—</div>
+          <div class="mc-info-value-old" id="mcCamOldValue" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mc-body" id="mcBody"></div>
+    <div class="mc-actions">
+      <button class="mc-btn-continue" id="mcContinueBtn" type="button">
+        <span id="mcContinueLabel">Continuer pour revérifier</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+  `;
+  document.body.appendChild(sheet);
+}
+
+function showMaintCompletionModal(opts) {
+  ensureMaintCompletionModalDOM();
+
+  /* Flow-specific copy maps */
+  const flowCopy = {
+    battery: {
+      eyebrowKey: 'mc_eyebrow_battery',
+      titleKey:   'mc_title_battery',
+      bodyKey:    'mc_body_battery',
+    },
+    network: {
+      eyebrowKey: 'mc_eyebrow_network',
+      titleKey:   'mc_title_network',
+      bodyKey:    'mc_body_network',
+    },
+    image_clean: {
+      eyebrowKey: 'mc_eyebrow_image',
+      titleKey:   'mc_title_image_clean',
+      bodyKey:    'mc_body_image_clean',
+    },
+    image_swap: {
+      eyebrowKey: 'mc_eyebrow_swap',
+      titleKey:   'mc_title_image_swap',
+      bodyKey:    'mc_body_image_swap',
+    },
+  };
+  const copy = flowCopy[opts.flow] || flowCopy.battery;
+
+  document.getElementById('mcEyebrow').textContent  = t(copy.eyebrowKey);
+  document.getElementById('mcTitle').textContent    = t(copy.titleKey);
+  document.getElementById('mcBody').textContent     = t(copy.bodyKey);
+  document.getElementById('mcLocLabel').textContent = t('mc_location_label');
+  document.getElementById('mcCamLabel').textContent = t('mc_camera_label');
+  document.getElementById('mcLocValue').textContent = opts.location || '—';
+  document.getElementById('mcCamValue').textContent = opts.cameraId || '—';
+  document.getElementById('mcContinueLabel').textContent = t('mc_continue_btn');
+
+  /* Old camera ID (swap flow only) */
+  const oldEl = document.getElementById('mcCamOldValue');
+  if (opts.flow === 'image_swap' && opts.oldCameraId) {
+    oldEl.textContent = opts.oldCameraId;
+    oldEl.style.display = 'block';
+  } else {
+    oldEl.style.display = 'none';
+  }
+
+  /* Wire continue — replace the listener each time so callers don't leak handlers */
+  const btn = document.getElementById('mcContinueBtn');
+  const newBtn = btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn, btn);
+  newBtn.addEventListener('click', function () {
+    if (typeof opts.onContinue === 'function') opts.onContinue();
+  });
+
+  /* Open */
+  document.getElementById('mcOverlay').classList.add('open');
+  document.getElementById('mcSheet').classList.add('open');
+}
+
 /* ──────────────────── Maintenance helpers ────────────────────
    Each installed section can have an `issues` array. Each issue:
      { id, type, sev }
-       type: 'battery' | 'network' | 'coverage' | 'hardware'
+       type: 'battery' | 'network' | 'coverage'
        sev:  'crit' | 'warn'
-   Priority order (highest first): battery → network → coverage → hardware.
+   Priority order (highest first): battery → network → coverage.
    When a camera has multiple issues, route troubleshooting starts at the
    highest-priority unresolved issue and walks down. */
-const MAINT_PRIORITY = ['battery', 'network', 'coverage', 'hardware'];
+const MAINT_PRIORITY = ['battery', 'network', 'coverage'];
 
 /* Comparator that orders an issues array by priority. */
 function sortIssuesByPriority(issues) {
@@ -1301,10 +1595,9 @@ function topIssueFor(section) {
 /* Route a troubleshooting flow based on issue type. */
 function maintenanceRouteFor(issueType) {
   switch (issueType) {
-    case 'battery':  return 'install_v_battery.html';
-    case 'network':  return 'maint_network_basics.html';
+    case 'battery':  return 'maint_battery_remove.html';
+    case 'network':  return 'maint_network_remove.html';
     case 'coverage': return 'maint_coverage.html';
-    case 'hardware': return 'install_manual_section.html'; // reinstall flow
     default:         return 'maintenance.html';
   }
 }
@@ -1421,14 +1714,15 @@ function seedDemoIssues(force) {
   });
   if (targetSections.length === 0) return;
 
-  // Deterministic issue pattern so the demo looks the same each load
+  // Deterministic issue pattern so the demo looks the same each load.
+  // Mix of singletons and stacks so the priority-routing behavior is visible.
   const patterns = [
     [ { type: 'battery',  sev: 'crit' } ],
     [ { type: 'network',  sev: 'crit' }, { type: 'coverage', sev: 'warn' } ],
     [ { type: 'battery',  sev: 'warn' } ],
     [ { type: 'coverage', sev: 'crit' } ],
+    [ { type: 'battery',  sev: 'crit' }, { type: 'network',  sev: 'warn' } ],
     [ { type: 'network',  sev: 'warn' } ],
-    [ { type: 'hardware', sev: 'crit' } ],
     [ { type: 'coverage', sev: 'warn' } ],
   ];
 
