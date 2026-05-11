@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Captana — Scanner</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    /* ── Scanner card ── */
+    .scanner-card {
+      margin: 18px 20px 0;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+      position: relative;
+      background: #000;
+      animation: fadeUp .4s .08s ease both; opacity: 0;
+      height: 220px;
+    }
+
+    /* Image fallback fills the scanner */
+    .scanner-card .img-fallback-wrap { position: absolute; inset: 0; }
+    .scanner-card img.img-fallback-img { width: 100%; height: 100%; object-fit: cover; }
+    .scanner-card .img-fallback-card { border-radius: 0; }
+
+    /* Two stacked image slots — only one visible at a time */
+    .scanner-img-slot {
+      position: absolute;
+      inset: 0;
+      transition: opacity .25s ease;
+    }
+    .scanner-img-slot.hidden { opacity: 0; pointer-events: none; }
+
+    /* Corner brackets — four corners, blue */
+    .scanner-corners {
+      position: absolute; inset: 0;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .scanner-corners::before,
+    .scanner-corners::after,
+    .scanner-card::before,
+    .scanner-card::after {
+      content: '';
+      position: absolute;
+      width: 28px; height: 28px;
+      z-index: 5;
+    }
+    .scanner-card::before {
+      top: 12px; left: 12px;
+      border-top: 3px solid var(--c-blue);
+      border-left: 3px solid var(--c-blue);
+      border-radius: 4px 0 0 0;
+    }
+    .scanner-card::after {
+      bottom: 12px; right: 12px;
+      border-bottom: 3px solid var(--c-blue);
+      border-right: 3px solid var(--c-blue);
+      border-radius: 0 0 4px 0;
+    }
+    .scanner-corners::before {
+      top: 12px; right: 12px;
+      border-top: 3px solid var(--c-blue);
+      border-right: 3px solid var(--c-blue);
+      border-radius: 0 4px 0 0;
+    }
+    .scanner-corners::after {
+      bottom: 12px; left: 12px;
+      border-bottom: 3px solid var(--c-blue);
+      border-left: 3px solid var(--c-blue);
+      border-radius: 0 0 0 4px;
+    }
+
+    /* Laser line */
+    .laser-line {
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, var(--c-red) 20%, var(--c-red) 80%, transparent 100%);
+      position: absolute;
+      top: 0;
+      z-index: 10;
+      animation: scan 2s infinite linear;
+      box-shadow: 0 0 8px rgba(239,68,68,0.8);
+      display: none;
+    }
+    @keyframes scan { 0% { top: 10%; } 100% { top: 90%; } }
+
+    /* Complete overlay — entire area is the button */
+    .complete-ui {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%; height: 100%;
+      background: #fff;
+      border: 3px solid var(--c-green);
+      border-radius: 18px;
+      position: absolute;
+      top: 0; left: 0;
+      z-index: 20;
+      gap: 10px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .complete-ui:active { background: var(--c-green-soft); }
+
+    .complete-check {
+      width: 64px; height: 64px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      border: 3px solid var(--c-green);
+    }
+    .complete-check svg { width: 32px; height: 32px; color: var(--c-green); }
+
+    .complete-label {
+      font-size: 15px; font-weight: 700;
+      color: var(--c-green);
+      letter-spacing: .5px;
+    }
+    .complete-tap-hint {
+      font-size: 12px; color: var(--c-muted-2);
+      font-weight: 500;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      30%      { transform: scale(1.2); }
+      60%      { transform: scale(0.92); }
+      80%      { transform: scale(1.06); }
+    }
+    .bounce-trigger { animation: bounce .55s ease; }
+
+    /* ── Sub-row: Rescan / Manual Entry ── */
+    .scanner-sub {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px 0;
+    }
+    .btn-text-link {
+      background: none; border: none;
+      color: var(--c-muted);
+      font-family: inherit;
+      font-size: 13px; font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      padding: 4px 0;
+    }
+    .btn-text-link.hidden { visibility: hidden; }
+
+    /* ── Status card ── */
+    .status-card {
+      margin: 16px 20px 0;
+      background: #fff;
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+      animation: fadeUp .4s .15s ease both; opacity: 0;
+      transition: border-color .3s, background .3s;
+      border: 1.5px solid var(--c-line);
+    }
+    .status-card.found {
+      border-color: var(--c-green-line);
+      background: var(--c-green-soft);
+    }
+    .status-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: #F3F4F6;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background .3s;
+    }
+    .status-card.found .status-icon { background: rgba(22,163,74,.18); }
+    .status-icon svg { width: 22px; height: 22px; color: var(--c-muted-2); transition: color .3s; }
+    .status-card.found .status-icon svg { color: var(--c-green); }
+
+    .status-text { flex: 1; min-width: 0; }
+    .status-label {
+      font-size: 10px; font-weight: 700;
+      color: var(--c-muted-2);
+      text-transform: uppercase; letter-spacing: .5px;
+      transition: color .3s;
+    }
+    .status-card.found .status-label { color: var(--c-green); }
+    .status-value {
+      font-size: 15px; font-weight: 700;
+      color: var(--c-muted-2);
+      margin-top: 2px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 1px;
+      transition: color .3s;
+    }
+    .status-card.found .status-value { color: var(--c-ink); }
+
+    .status-badge {
+      font-size: 11px; font-weight: 700;
+      color: var(--c-muted-2);
+      background: #F3F4F6;
+      padding: 4px 10px;
+      border-radius: 999px;
+      transition: all .3s;
+    }
+    .status-card.found .status-badge {
+      color: var(--c-green);
+      background: #DCFCE7;
+    }
+
+    /* ── Hint card ── */
+    .hint-card {
+      margin: 14px 20px 0;
+      background: #fff;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      animation: fadeUp .4s .22s ease both; opacity: 0;
+    }
+    .hint-img-slot {
+      width: 100%;
+      min-height: 130px;
+      display: block;
+      position: relative;
+    }
+    .hint-img-slot .img-fallback-wrap { position: relative; min-height: 130px; }
+    .hint-img-slot .img-fallback-card { border-radius: 0; min-height: 130px; }
+    .hint-caption {
+      padding: 10px 16px 12px;
+      font-size: 12px;
+      color: var(--c-muted);
+      font-weight: 500;
+      text-align: center;
+    }
+
+    /* ── Manual entry modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(17, 24, 39, 0.55);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: flex-end; justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.open { display: flex; animation: fadeIn .2s ease both; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal-sheet {
+      width: 100%; max-width: 390px;
+      background: #fff;
+      border-radius: 22px 22px 0 0;
+      padding: 22px 22px 28px;
+      box-shadow: 0 -8px 28px rgba(0,0,0,0.16);
+      animation: slideUp .28s cubic-bezier(.2,.8,.2,1) both;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    .modal-handle {
+      width: 38px; height: 4px;
+      background: var(--c-line);
+      border-radius: 2px;
+      margin: 0 auto 18px;
+    }
+    .modal-title {
+      font-size: 22px; font-weight: 800;
+      color: var(--c-ink);
+    }
+    .modal-sub {
+      font-size: 13px; color: var(--c-muted);
+      margin-top: 6px;
+      line-height: 1.45;
+    }
+    .manual-field {
+      margin-top: 18px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .manual-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--c-blue);
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .manual-input {
+      width: 100%;
+      padding: 16px 16px;
+      background: #F9FAFB;
+      border: 2px solid var(--c-line);
+      border-radius: 14px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 20px; font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--c-ink); outline: none;
+      transition: border-color .15s, box-shadow .15s, background .15s;
+    }
+    .manual-input::placeholder { color: var(--c-muted-2); letter-spacing: .5px; font-weight: 500; }
+    .manual-input:focus {
+      border-color: var(--c-blue);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+    }
+    .manual-hint {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--c-muted);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+    .manual-hint svg { width: 13px; height: 13px; color: var(--c-muted-2); flex-shrink: 0; }
+
+    .modal-actions {
+      margin-top: 20px;
+      display: flex; gap: 10px;
+    }
+    .modal-actions .btn-secondary { flex: 0 0 auto; width: auto; padding: 14px 20px; }
+    .modal-actions .btn-primary   { flex: 1;        width: auto; padding: 14px; }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="top-bar">
+    <a href="install_vusion_intro.html" class="btn-circle" aria-label="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <a href="flow_picker.html" class="btn-home" aria-label="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <div class="avatar" id="avatarEl">AB</div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow" data-i18n="inv_scan_install_eyebrow">Étape 1 sur 4</div>
+    <div class="hero-title" data-i18n="inv_scan_install_title">Scannez l'étiquette d'installation</div>
+    <div class="hero-sub"   data-i18n="inv_scan_install_sub">Pointez votre caméra vers le code-barres de l'étiquette du rayon où vous allez monter la caméra.</div>
+  </div>
+
+  <!-- Scanner window -->
+  <div class="scanner-card" id="scannerBox">
+    <div class="scanner-img-slot" id="blurrySlot"  data-src="tag-blurry.png"  data-alt="Tag blurry"></div>
+    <div class="scanner-img-slot hidden" id="focusedSlot" data-src="tag-focused.png" data-alt="Tag focused"></div>
+    <div id="laser" class="laser-line"></div>
+    <div class="scanner-corners"></div>
+
+    <div id="completeScreen" class="complete-ui">
+      <div class="complete-check" id="completeCheck">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="complete-label"    data-i18n="inv_scan_complete_label">Scan réussi</div>
+      <div class="complete-tap-hint" data-i18n="inv_scan_tap_continue">Touchez pour continuer</div>
+    </div>
+  </div>
+
+  <!-- Sub-row: Rescan / Manual Entry -->
+  <div class="scanner-sub">
+    <button id="rescanBtn" class="btn-text-link hidden" data-i18n="inv_scan_rescan">Rescanner</button>
+    <button id="manualBtn" class="btn-text-link"        data-i18n="inv_scan_manual">Saisie manuelle</button>
+  </div>
+
+  <div style="display: flex; justify-content: center; padding: 4px 20px 0;">
+    <a href="flow_picker.html" class="btn-text-link" style="color: var(--c-muted-2); font-size: 12px; text-decoration: underline; text-underline-offset: 2px; padding: 6px 0;" data-i18n="inv_scan_done">J'ai terminé l'installation</a>
+  </div>
+
+  <!-- Status card -->
+  <div class="status-card" id="statusCard">
+    <div class="status-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="6" width="20" height="12" rx="2"/>
+        <line x1="6" y1="9" x2="6" y2="15"/>
+        <line x1="9" y1="9" x2="9" y2="15"/>
+        <line x1="12" y1="9" x2="12" y2="15"/>
+        <line x1="15" y1="9" x2="15" y2="12"/>
+        <line x1="18" y1="9" x2="18" y2="15"/>
+      </svg>
+    </div>
+    <div class="status-text">
+      <div class="status-label" data-i18n="inv_scan_status_label">Étiquette d'installation</div>
+      <div class="status-value" id="statusValue" data-i18n="inv_scan_status_pending">En attente du scan…</div>
+    </div>
+    <div class="status-badge" id="statusBadge" data-i18n="inv_scan_status_pending_badge">En attente</div>
+  </div>
+
+  <!-- Hint card -->
+  <div class="hint-card">
+    <div class="hint-img-slot" data-src="scan-location-hint.png" data-alt="Where to scan"></div>
+    <div class="hint-caption" data-i18n="inv_scan_hint_caption">Scannez le code-barres au bord inférieur de l'étiquette</div>
+  </div>
+
+  <!-- Continue button — hidden until scan succeeds; explicit alternative to the tap-the-viewport gesture -->
+  <div class="footer-stack" id="continueWrap" style="display: none;">
+    <button class="btn-primary" id="continueBtn">
+      <span data-i18n="common_continue">Continuer</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;vertical-align:middle;margin-left:6px;"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+
+</div>
+
+<!-- Manual entry modal -->
+<div class="modal-overlay" id="manualModal" role="dialog" aria-modal="true">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" data-i18n="inv_manual_title">Saisie manuelle</div>
+    <div class="modal-sub"   data-i18n="inv_manual_sub">Saisissez les informations de l'étiquette si vous ne pouvez pas scanner.</div>
+
+    <div class="manual-field">
+      <div class="manual-label" data-i18n="inv_manual_label">Identifiant de l'étiquette</div>
+      <input class="manual-input" id="manualTagId" type="text"
+             data-i18n-ph="inv_manual_ph" placeholder="ex. 4Z1-9S8TW"
+             autocomplete="off" autocapitalize="characters" spellcheck="false">
+      <div class="manual-hint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span data-i18n="inv_manual_hint">Vous le trouverez sous le code-barres</span>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" id="manualCancel" data-i18n="common_cancel">Annuler</button>
+      <button class="btn-primary"   id="manualSubmit" data-i18n="inv_manual_submit">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  translatePage();
+  document.getElementById('avatarEl').textContent = sessionStorage.getItem('userInitials') || 'AB';
+  mountImageSlots();
+
+  /* ── Scan sequence ──
+     Phase 1 (1.4s): blurry image visible, no laser  → "trying to focus"
+     Phase 2 (1.8s): swap to focused image, laser on → "found it, decoding"
+     Phase 3      : complete overlay covers scanner, status card goes green, sound + haptic
+  */
+  const blurrySlot  = document.getElementById('blurrySlot');
+  const focusedSlot = document.getElementById('focusedSlot');
+  const laser       = document.getElementById('laser');
+  const complete    = document.getElementById('completeScreen');
+  const rescanBtn   = document.getElementById('rescanBtn');
+  const statusCard  = document.getElementById('statusCard');
+  const statusValue = document.getElementById('statusValue');
+  const statusBadge = document.getElementById('statusBadge');
+  const checkEl     = document.getElementById('completeCheck');
+
+  let phase1Timer = null, phase2Timer = null;
+
+  function startSequence() {
+    blurrySlot.classList.remove('hidden');
+    focusedSlot.classList.add('hidden');
+    laser.style.display = 'none';
+    complete.style.display = 'none';
+    rescanBtn.classList.add('hidden');
+    statusCard.classList.remove('found');
+    statusValue.textContent = t('inv_scan_status_pending');
+    statusBadge.textContent = t('inv_scan_status_pending_badge');
+
+    clearTimeout(phase1Timer);
+    clearTimeout(phase2Timer);
+
+    phase1Timer = setTimeout(() => {
+      blurrySlot.classList.add('hidden');
+      focusedSlot.classList.remove('hidden');
+      laser.style.display = 'block';
+      phase2Timer = setTimeout(completeScan, 1800);
+    }, 1400);
+  }
+
+  function completeScan() {
+    playScanBeep();
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+
+    laser.style.display = 'none';
+    complete.style.display = 'flex';
+
+    const zoneLetter = 'A';
+    const aisle      = 4 + Math.floor(Math.random() * 3);
+    const section    = 5 + Math.floor(Math.random() * 4);
+    const decoded    = `${zoneLetter} · ${aisle} · ${section}`;
+    // The barcode encodes a tag ID; we store both ID and resolved location.
+    const tagId      = `${zoneLetter}${aisle}${section}-${Math.random().toString(36).slice(2,7).toUpperCase()}`;
+
+    sessionStorage.setItem('vusionInstallTagId',   tagId);
+    sessionStorage.setItem('vusionInstallZone',    zoneLetter);
+    sessionStorage.setItem('vusionInstallAisle',   String(aisle));
+    sessionStorage.setItem('vusionInstallSection', String(section));
+
+    statusCard.classList.add('found');
+    statusValue.textContent = decoded;
+    statusBadge.textContent = t('inv_scan_status_scanned');
+
+    setTimeout(() => {
+      checkEl.classList.add('bounce-trigger');
+      setTimeout(() => checkEl.classList.remove('bounce-trigger'), 550);
+    }, 200);
+
+    rescanBtn.classList.remove('hidden');
+
+    /* Surface the explicit Continue button for users who don't realize the viewport is tappable */
+    document.getElementById('continueWrap').style.display = '';
+  }
+
+  function goNext() {
+    window.location.href = 'install_v_battery.html';
+  }
+
+  complete.addEventListener('click', goNext);
+  document.getElementById('continueBtn').addEventListener('click', goNext);
+  rescanBtn.addEventListener('click', startSequence);
+
+  /* ── Manual entry modal ── */
+  const manualModal = document.getElementById('manualModal');
+  const manualTagId = document.getElementById('manualTagId');
+
+  function openManual() {
+    // Pre-fill with the previously-used tag ID if any
+    manualTagId.value = sessionStorage.getItem('vusionInstallTagId') || '';
+    manualModal.classList.add('open');
+    setTimeout(() => manualTagId.focus(), 250);
+  }
+  function closeManual() {
+    manualModal.classList.remove('open');
+  }
+
+  document.getElementById('manualBtn').addEventListener('click', openManual);
+  document.getElementById('manualCancel').addEventListener('click', closeManual);
+  manualModal.addEventListener('click', (e) => {
+    if (e.target === manualModal) closeManual();
+  });
+  manualTagId.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('manualSubmit').click();
+  });
+
+  document.getElementById('manualSubmit').addEventListener('click', () => {
+    const tagId = manualTagId.value.trim().toUpperCase();
+    if (!tagId) { manualTagId.focus(); return; }
+
+    // Stop any in-progress scan visuals
+    clearTimeout(phase1Timer);
+    clearTimeout(phase2Timer);
+
+    // Simulate the backend resolving this tag ID → location
+    // (in production this would be an API lookup)
+    const zoneLetter = 'A';
+    const aisle      = 4 + Math.floor(Math.random() * 3);
+    const section    = 5 + Math.floor(Math.random() * 4);
+
+    sessionStorage.setItem('vusionInstallTagId',   tagId);
+    sessionStorage.setItem('vusionInstallZone',    zoneLetter);
+    sessionStorage.setItem('vusionInstallAisle',   String(aisle));
+    sessionStorage.setItem('vusionInstallSection', String(section));
+
+    closeManual();
+
+    laser.style.display = 'none';
+    blurrySlot.classList.add('hidden');
+    focusedSlot.classList.add('hidden');
+    complete.style.display = 'flex';
+    statusCard.classList.add('found');
+    statusValue.textContent = `${zoneLetter} · ${aisle} · ${section}`;
+    statusBadge.textContent = t('inv_scan_status_scanned');
+    rescanBtn.classList.remove('hidden');
+  });
+
+  startSequence();
+</script>
+</body>
+</html>

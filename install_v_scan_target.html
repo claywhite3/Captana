@@ -156,6 +156,28 @@
     <div class="hero-sub" data-i18n="inv_tscan_sub">Scannez l'étiquette du rayon en face — celui que la caméra observera.</div>
   </div>
 
+  <!-- Scanner viewport sits at the top of the body so it visually aligns with
+       where the camera is on the phone, matching the install scan page. -->
+  <div class="scanner-card" id="scannerBox">
+    <div class="scanner-img-slot" id="blurrySlot"  data-src="tag-blurry.png"  data-alt="Tag blurry"></div>
+    <div class="scanner-img-slot hidden" id="focusedSlot" data-src="tag-focused.png" data-alt="Tag focused"></div>
+    <div id="laser" class="laser-line"></div>
+    <div class="scanner-corners"></div>
+    <div id="completeScreen" class="complete-ui">
+      <div class="complete-check" id="completeCheck">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="complete-label" data-i18n="inv_tscan_complete_label">Scan réussi</div>
+      <div class="complete-tap-hint" data-i18n="inv_tscan_tap_continue">Touchez pour continuer</div>
+    </div>
+  </div>
+
+  <div class="scanner-sub">
+    <button class="btn-text-link escape-warn"  id="noTargetBtn" data-i18n="inv_tscan_no_target">Pas de rayon en face</button>
+    <button class="btn-text-link escape-quiet" id="manualBtn"   data-i18n="inv_tscan_manual">Saisie manuelle</button>
+  </div>
+
+  <!-- Status pills sit below the scanner so the user reads them like a receipt of progress -->
   <div class="status-stack">
     <div class="status-row is-confirmed">
       <div class="status-icon-sm">
@@ -177,25 +199,6 @@
       </div>
       <div class="status-row-badge" id="targetBadge" data-i18n="inv_tscan_target_badge">En attente</div>
     </div>
-  </div>
-
-  <div class="scanner-card" id="scannerBox">
-    <div class="scanner-img-slot" id="blurrySlot"  data-src="tag-blurry.png"  data-alt="Tag blurry"></div>
-    <div class="scanner-img-slot hidden" id="focusedSlot" data-src="tag-focused.png" data-alt="Tag focused"></div>
-    <div id="laser" class="laser-line"></div>
-    <div class="scanner-corners"></div>
-    <div id="completeScreen" class="complete-ui">
-      <div class="complete-check" id="completeCheck">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      </div>
-      <div class="complete-label" data-i18n="inv_tscan_complete_label">Scan réussi</div>
-      <div class="complete-tap-hint" data-i18n="inv_tscan_tap_continue">Touchez pour continuer</div>
-    </div>
-  </div>
-
-  <div class="scanner-sub">
-    <button class="btn-text-link escape-warn"  id="noTargetBtn" data-i18n="inv_tscan_no_target">Pas de rayon en face</button>
-    <button class="btn-text-link escape-quiet" id="manualBtn"   data-i18n="inv_tscan_manual">Saisie manuelle</button>
   </div>
 
   <div class="hint-card">
@@ -290,6 +293,14 @@
       <text x="264" y="298" font-family="DM Sans" font-size="11" font-weight="800" fill="#F59E0B" text-anchor="middle" data-i18n="inv_tscan_illu_scan_2">cette étiquette</text>
     </svg>
     <div class="hint-caption" data-i18n="inv_tscan_hint_caption">L'étiquette se trouve sur le rayon en face de la caméra</div>
+  </div>
+
+  <!-- Continue button — hidden until target scan succeeds; explicit alternative to the tap-the-viewport gesture -->
+  <div class="footer-stack" id="continueWrap" style="display: none;">
+    <button class="btn-primary" id="continueBtn">
+      <span data-i18n="common_continue">Continuer</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;vertical-align:middle;margin-left:6px;"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
   </div>
 
 </div>
@@ -391,11 +402,15 @@
       checkEl.classList.add('bounce-trigger');
       setTimeout(function () { checkEl.classList.remove('bounce-trigger'); }, 550);
     }, 200);
+
+    /* Surface the explicit Continue button now that the target has been captured. */
+    document.getElementById('continueWrap').style.display = '';
   }
 
   function goNext() { window.location.href = 'install_v_capture.html'; }
 
   complete.addEventListener('click', goNext);
+  document.getElementById('continueBtn').addEventListener('click', goNext);
 
   /* No target shelf — narrate, route back to install scan */
   document.getElementById('noTargetBtn').addEventListener('click', function () {
