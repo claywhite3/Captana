@@ -256,6 +256,37 @@
     }
     .sd-btn-recheck svg { width: 14px; height: 14px; }
     .sd-btn-recheck.checking { opacity: .6; cursor: progress; }
+
+    /* Capture-image button. Enabled = solid blue (this is the primary recovery action
+       for image issues). Disabled = grey with a caption underneath explaining why
+       (battery / network / not installed). */
+    .sd-btn-capture-wrap {
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .sd-btn-capture {
+      width: 100%; padding: 12px;
+      background: var(--c-blue); color: #fff;
+      border: none; border-radius: 12px;
+      font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(37,99,235,.20);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: transform .12s;
+    }
+    .sd-btn-capture:active { transform: scale(.985); }
+    .sd-btn-capture svg { width: 14px; height: 14px; }
+    .sd-btn-capture.is-disabled {
+      background: #E5E7EB; color: #9CA3AF;
+      box-shadow: none; cursor: not-allowed;
+    }
+    .sd-btn-capture.is-disabled:active { transform: none; }
+    .sd-btn-capture-caption {
+      font-size: 11px; font-weight: 600;
+      color: var(--c-muted);
+      text-align: center;
+      padding: 0 4px;
+    }
+
     .sd-btn-close {
       width: 100%; padding: 12px;
       background: #F3F4F6; color: #374151;
@@ -414,6 +445,13 @@
   </div>
 
   <div class="sd-actions">
+    <div class="sd-btn-capture-wrap" id="sdCaptureWrap" style="display:none;">
+      <button class="sd-btn-capture" id="sdCaptureBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span id="sdCaptureLabel" data-i18n="val_sd_capture">Capturer l'image</span>
+      </button>
+      <div class="sd-btn-capture-caption" id="sdCaptureCaption" style="display:none;"></div>
+    </div>
     <button class="sd-btn-recheck" id="sdRecheckBtn" type="button" style="display:none;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
       <span data-i18n="val_sd_recheck" id="sdRecheckLabel">Revérifier</span>
@@ -779,6 +817,33 @@
     recheckBtn.classList.remove('checking');
     document.getElementById('sdRecheckLabel').textContent = t('val_sd_recheck');
 
+    /* Capture-image button: shown for any installed section. Disabled when there's a
+       critical issue that would prevent a capture from completing (no battery, no
+       network). Coverage issues do NOT disable — they're the reason to recapture. */
+    const captureWrap = document.getElementById('sdCaptureWrap');
+    const captureBtn  = document.getElementById('sdCaptureBtn');
+    const captureCap  = document.getElementById('sdCaptureCaption');
+    if (status === 'grey') {
+      captureWrap.style.display = 'none';
+    } else {
+      captureWrap.style.display = '';
+      const issues = s.issues || [];
+      const battCrit = issues.some(function (i) { return i.type === 'battery' && i.sev === 'crit'; });
+      const netCrit  = issues.some(function (i) { return i.type === 'network' && i.sev === 'crit'; });
+      let reason = null;
+      if (battCrit && netCrit) reason = t('val_sd_capture_blocked_both');
+      else if (battCrit)       reason = t('val_sd_capture_blocked_battery');
+      else if (netCrit)        reason = t('val_sd_capture_blocked_network');
+      if (reason) {
+        captureBtn.classList.add('is-disabled');
+        captureCap.textContent = reason;
+        captureCap.style.display = '';
+      } else {
+        captureBtn.classList.remove('is-disabled');
+        captureCap.style.display = 'none';
+      }
+    }
+
     document.getElementById('sdOverlay').classList.add('open');
     document.getElementById('sdSheet').classList.add('open');
     translatePage();
@@ -828,6 +893,46 @@
     window.location.href = next;
   }
 
+  /* Quick-capture button: skips the install_v_capture button-press and routes
+     straight to install_v_confirm in validation mode. The confirm page's
+     existing maintenance/validation branch handles the rest: shows the image,
+     waits for user to confirm "looks good", then fires the image_clean
+     completion modal (no fullCleared flag = recapture-only, not a swap).
+
+     If a coverage critical exists on this section, we attach its issueId to
+     the context so completing the capture resolves it on the return trip. */
+  document.getElementById('sdCaptureBtn').addEventListener('click', function () {
+    if (this.classList.contains('is-disabled')) return;
+    if (!currentSectionCtx) return;
+
+    const m = getMap();
+    const z = (m.zones || []).find(function (x) { return x.id === currentSectionCtx.zoneId; });
+    const a = z && (z.aisles || []).find(function (x) { return x.id === currentSectionCtx.aisleId; });
+    const s = a && (a.sections || []).find(function (x) { return x.id === currentSectionCtx.sectionId; });
+    if (!s) return;
+
+    /* Find a coverage critical to mark resolved on return, if one exists. */
+    const covIssue = (s.issues || []).find(function (i) { return i.type === 'coverage'; });
+
+    sessionStorage.setItem('validationContext', JSON.stringify({
+      issueId:   covIssue ? covIssue.id : 'val_quickcap_' + currentSectionCtx.sectionId,
+      issueType: 'coverage',
+      zoneId:    currentSectionCtx.zoneId,
+      aisleId:   currentSectionCtx.aisleId,
+      sectionId: currentSectionCtx.sectionId,
+      quickCapture: true,
+    }));
+    /* For the confirm page to show the right back-button behavior, mark the
+       installMode/replacement state so it doesn't try to route as a fresh install. */
+    sessionStorage.setItem('vusionInstallZone',    z.name);
+    sessionStorage.setItem('vusionInstallAisle',   String(a.number));
+    sessionStorage.setItem('vusionInstallSection', String(s.number));
+    sessionStorage.setItem('vusionTargetZone',     z.name);
+    sessionStorage.setItem('vusionTargetAisle',    String(a.number));
+    sessionStorage.setItem('vusionTargetSection',  String(s.number));
+    window.location.href = 'install_v_confirm.html';
+  });
+
   /* Recheck simulates a re-evaluation of the section's issues — same logic the
      maintenance page uses. ~50% chance any given issue clears; criticals may
      improve to warning. */
@@ -845,7 +950,7 @@
       if (s && s.issues) {
         const remaining = [];
         s.issues.forEach(function (iss) {
-          const newSev = simulateRecheck(iss.sev);
+          const newSev = simulateRecheck(iss.sev, iss.type);
           if (newSev !== null) remaining.push({ id: iss.id, type: iss.type, sev: newSev });
         });
         s.issues = remaining;

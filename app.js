@@ -574,6 +574,10 @@ const I18N = {
     val_sd_recheck:           "Revérifier",
     val_sd_rechecking:        "Vérification…",
     val_sd_close:             "Fermer",
+    val_sd_capture:           "Capturer l'image",
+    val_sd_capture_blocked_battery: "Résolvez la batterie pour activer la capture",
+    val_sd_capture_blocked_network: "Résolvez le réseau pour activer la capture",
+    val_sd_capture_blocked_both:    "Résolvez la batterie et le réseau pour activer la capture",
 
     /* Common */
     common_back:          "Retour",
@@ -1147,6 +1151,10 @@ const I18N = {
     val_sd_recheck:           "Recheck",
     val_sd_rechecking:        "Checking…",
     val_sd_close:             "Close",
+    val_sd_capture:           "Capture Image",
+    val_sd_capture_blocked_battery: "Resolve battery to enable capture",
+    val_sd_capture_blocked_network: "Resolve network to enable capture",
+    val_sd_capture_blocked_both:    "Resolve battery and network to enable capture",
 
     common_back:          "Back",
     common_next:          "Next",
@@ -1740,9 +1748,12 @@ function resolveIssue(zoneId, aisleId, sectionId, issueId) {
 }
 
 /* For the recheck button — simulate whether an issue is resolved/improved/unchanged. */
-function simulateRecheck(currentSev) {
+function simulateRecheck(currentSev, issueType) {
   const r = Math.random();
   if (r < 0.50) return null; // resolved
+  /* Coverage is critical-only — image quality is binary "trust it or don't",
+     so a coverage critical can resolve or stay, but never "improve" to a warn. */
+  if (issueType === 'coverage') return currentSev;
   if (currentSev === 'crit' && r < 0.70) return 'warn'; // improved
   return currentSev; // unchanged
 }
@@ -1840,14 +1851,15 @@ function seedDemoIssues(force) {
 
   // Deterministic issue pattern so the demo looks the same each load.
   // Mix of singletons and stacks so the priority-routing behavior is visible.
+  // Coverage is critical-only (image quality is binary — trust it or don't).
   const patterns = [
     [ { type: 'battery',  sev: 'crit' } ],
-    [ { type: 'network',  sev: 'crit' }, { type: 'coverage', sev: 'warn' } ],
+    [ { type: 'network',  sev: 'crit' }, { type: 'coverage', sev: 'crit' } ],
     [ { type: 'battery',  sev: 'warn' } ],
     [ { type: 'coverage', sev: 'crit' } ],
     [ { type: 'battery',  sev: 'crit' }, { type: 'network',  sev: 'warn' } ],
     [ { type: 'network',  sev: 'warn' } ],
-    [ { type: 'coverage', sev: 'warn' } ],
+    [ { type: 'battery',  sev: 'warn' } ],
   ];
 
   targetSections.slice(0, patterns.length).forEach((s, i) => {
@@ -1981,9 +1993,9 @@ function vCamId(zoneIdx, aisleIdx, sectionIdx) {
    in-progress resolves stick).
 
    path: 'vusion' | 'manual'
-     vusion — no uninstalled sections; 3 zones with mixed health
-     manual — paper-tag path; 4 zones including one all-uninstalled-grey
-              and one mixed-issue zone with a red aisle */
+     vusion — no uninstalled sections; 3 zones (A green, B orange, C mixed with red)
+     manual — paper-tag path; 5 zones — one per rollup color plus a stacking demo:
+              A green / B orange / C+D grey / E red (mixed red+orange aisles) */
 function seedValidationData(path) {
   /* Vusion store layout — every section installed; issue mix demonstrates rollup colors */
   if (path === 'vusion') {
@@ -2000,14 +2012,14 @@ function seedValidationData(path) {
             { id: 'val_s_a22', number: 2, lookAtAisle: 'val_a_a1', installed: true, cameraId: vCamId(0,1,1), issues: [] },
           ]},
         ]},
-        /* Zone B — orange (one aisle with two issues) */
+        /* Zone B — orange (warnings only) */
         { id: 'val_z_b', name: 'B', aisles: [
           { id: 'val_a_b1', number: 1, sections: [
             { id: 'val_s_b11', number: 1, lookAtAisle: 'val_a_b2', installed: true, cameraId: vCamId(1,0,0),
               issues: [{ id: vIssueId('b','1','1','batt'), type: 'battery', sev: 'warn' }] },
             { id: 'val_s_b12', number: 2, lookAtAisle: 'val_a_b2', installed: true, cameraId: vCamId(1,0,1), issues: [] },
             { id: 'val_s_b13', number: 3, lookAtAisle: 'val_a_b2', installed: true, cameraId: vCamId(1,0,2),
-              issues: [{ id: vIssueId('b','1','3','cov'), type: 'coverage', sev: 'warn' }] },
+              issues: [{ id: vIssueId('b','1','3','net'), type: 'network', sev: 'warn' }] },
           ]},
           { id: 'val_a_b2', number: 2, sections: [
             { id: 'val_s_b21', number: 1, lookAtAisle: 'val_a_b1', installed: true, cameraId: vCamId(1,1,0), issues: [] },
@@ -2034,14 +2046,12 @@ function seedValidationData(path) {
   }
 
   /* Paper-tag layout — same shape but with some uninstalled (grey) sections.
-     Per Clay's spec: at least one zone complete, one zone with mixed issues
-     (a couple orange aisles + one red aisle, each problem aisle with 2-3
-     sections having issues), and a couple grey zones.
-
-     Zone A — all green (complete + healthy) — the "good zone" anchor
-     Zone B — orange overall (mix of orange aisles + one red aisle)
-     Zone C — grey (nothing installed yet)
-     Zone D — grey (nothing installed yet) */
+     One zone per rollup color, plus a stacking-demo zone:
+       Zone A — all green (complete + healthy)
+       Zone B — orange (3 aisles, warnings only, mixed issue types)
+       Zone C — grey (nothing installed yet)
+       Zone D — grey (nothing installed yet)
+       Zone E — red (1 red aisle + 1 orange aisle — demos rollup precedence) */
   const m = {
     zones: [
       { id: 'val_z_a', name: 'A', aisles: [
@@ -2055,32 +2065,33 @@ function seedValidationData(path) {
           { id: 'val_s_a22', number: 2, lookAtAisle: 'val_a_a1', installed: true, cameraId: vCamId(0,1,1), issues: [] },
         ]},
       ]},
+      /* Zone B — all-orange: 3 aisles, warnings only, mixed issue types per aisle.
+         Aisle 1 features battery warnings; Aisle 2 features network warnings; Aisle 3
+         mixes both including one stacked section, so the demo covers single-issue and
+         multi-issue orange sections. */
       { id: 'val_z_b', name: 'B', aisles: [
-        /* Orange aisle 1: 2 of 3 sections have issues */
         { id: 'val_a_b1', number: 1, sections: [
           { id: 'val_s_b11', number: 1, lookAtAisle: 'val_a_b2', installed: true, cameraId: vCamId(1,0,0),
             issues: [{ id: vIssueId('b','1','1','batt'), type: 'battery', sev: 'warn' }] },
           { id: 'val_s_b12', number: 2, lookAtAisle: 'val_a_b2', installed: true, cameraId: vCamId(1,0,1), issues: [] },
           { id: 'val_s_b13', number: 3, lookAtAisle: 'val_a_b2', installed: true, cameraId: vCamId(1,0,2),
-            issues: [{ id: vIssueId('b','1','3','cov'), type: 'coverage', sev: 'warn' }] },
+            issues: [{ id: vIssueId('b','1','3','batt'), type: 'battery', sev: 'warn' }] },
         ]},
-        /* Orange aisle 2: 2 of 3 sections have issues (mixed types incl. one stacked section) */
         { id: 'val_a_b2', number: 2, sections: [
           { id: 'val_s_b21', number: 1, lookAtAisle: 'val_a_b1', installed: true, cameraId: vCamId(1,1,0),
             issues: [{ id: vIssueId('b','2','1','net'), type: 'network', sev: 'warn' }] },
-          { id: 'val_s_b22', number: 2, lookAtAisle: 'val_a_b1', installed: true, cameraId: vCamId(1,1,1),
-            issues: [
-              { id: vIssueId('b','2','2','batt'), type: 'battery', sev: 'warn' },
-              { id: vIssueId('b','2','2','cov'),  type: 'coverage', sev: 'warn' },
-            ] },
-          { id: 'val_s_b23', number: 3, lookAtAisle: 'val_a_b1', installed: true, cameraId: vCamId(1,1,2), issues: [] },
+          { id: 'val_s_b22', number: 2, lookAtAisle: 'val_a_b1', installed: true, cameraId: vCamId(1,1,1), issues: [] },
+          { id: 'val_s_b23', number: 3, lookAtAisle: 'val_a_b1', installed: true, cameraId: vCamId(1,1,2),
+            issues: [{ id: vIssueId('b','2','3','net'), type: 'network', sev: 'warn' }] },
         ]},
-        /* Red aisle: both sections have critical issues */
         { id: 'val_a_b3', number: 3, sections: [
           { id: 'val_s_b31', number: 1, lookAtAisle: 'val_a_b2', installed: true, cameraId: vCamId(1,2,0),
-            issues: [{ id: vIssueId('b','3','1','net'), type: 'network', sev: 'crit' }] },
+            issues: [{ id: vIssueId('b','3','1','batt'), type: 'battery', sev: 'warn' }] },
           { id: 'val_s_b32', number: 2, lookAtAisle: 'val_a_b2', installed: true, cameraId: vCamId(1,2,1),
-            issues: [{ id: vIssueId('b','3','2','cov'), type: 'coverage', sev: 'crit' }] },
+            issues: [
+              { id: vIssueId('b','3','2','batt'), type: 'battery', sev: 'warn' },
+              { id: vIssueId('b','3','2','net'),  type: 'network', sev: 'warn' },
+            ] },
         ]},
       ]},
       /* Zone C — grey (uninstalled) */
@@ -2100,6 +2111,22 @@ function seedValidationData(path) {
           { id: 'val_s_d11', number: 1, lookAtAisle: null, installed: false, issues: [] },
           { id: 'val_s_d12', number: 2, lookAtAisle: null, installed: false, issues: [] },
           { id: 'val_s_d13', number: 3, lookAtAisle: null, installed: false, issues: [] },
+        ]},
+      ]},
+      /* Zone E — red, with stacking demo: one red aisle (criticals) + one orange aisle
+         (warnings only). Demonstrates that a single red child elevates the whole zone
+         to red, while neighboring orange aisles stay distinct in the drill-down view. */
+      { id: 'val_z_e', name: 'E', aisles: [
+        { id: 'val_a_e1', number: 1, sections: [
+          { id: 'val_s_e11', number: 1, lookAtAisle: 'val_a_e2', installed: true, cameraId: vCamId(4,0,0),
+            issues: [{ id: vIssueId('e','1','1','net'), type: 'network', sev: 'crit' }] },
+          { id: 'val_s_e12', number: 2, lookAtAisle: 'val_a_e2', installed: true, cameraId: vCamId(4,0,1),
+            issues: [{ id: vIssueId('e','1','2','cov'), type: 'coverage', sev: 'crit' }] },
+        ]},
+        { id: 'val_a_e2', number: 2, sections: [
+          { id: 'val_s_e21', number: 1, lookAtAisle: 'val_a_e1', installed: true, cameraId: vCamId(4,1,0),
+            issues: [{ id: vIssueId('e','2','1','batt'), type: 'battery', sev: 'warn' }] },
+          { id: 'val_s_e22', number: 2, lookAtAisle: 'val_a_e1', installed: true, cameraId: vCamId(4,1,1), issues: [] },
         ]},
       ]},
     ]

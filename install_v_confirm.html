@@ -419,7 +419,28 @@
 
   var installMode = sessionStorage.getItem('installMode') || 'vusion';
 
+  /* Validation quick-capture: user pressed "Capture Image" in the section modal
+     and was routed here directly (skipping the install_v_capture button-press).
+     Back/Retake should bounce to validation, not into the install flow. */
+  (function applyValidationQuickCapture() {
+    var ctx = (typeof getActiveTroubleshootContext === 'function') ? getActiveTroubleshootContext() : null;
+    if (!ctx || ctx.__source !== 'validation' || !ctx.quickCapture) return;
+    var bb = document.querySelector('a.btn-circle[href="install_v_capture.html"]');
+    if (bb) bb.setAttribute('href', 'validation.html?zone=' + encodeURIComponent(ctx.zoneId) + '&aisle=' + encodeURIComponent(ctx.aisleId));
+    /* Eyebrow → "Validation" instead of install-flow step counter */
+    var eyeb = document.querySelector('[data-i18n="inv_conf_eyebrow"]');
+    if (eyeb) { eyeb.setAttribute('data-i18n', 'val_eyebrow'); eyeb.textContent = t('val_eyebrow'); }
+  })();
+
   document.getElementById('retakeBtn').addEventListener('click', function () {
+    /* In validation quick-capture mode, retake just re-shows the same image —
+       there's no separate capture page in this flow. For demo purposes, reload
+       the page so the user sees the "captured" image again. */
+    var ctx = (typeof getActiveTroubleshootContext === 'function') ? getActiveTroubleshootContext() : null;
+    if (ctx && ctx.__source === 'validation' && ctx.quickCapture) {
+      window.location.reload();
+      return;
+    }
     window.location.href = 'install_v_capture.html';
   });
   document.getElementById('helpBtn').addEventListener('click', function () {
