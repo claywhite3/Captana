@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vusion - Select Aisle</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'DM Sans', sans-serif; background: #F2F3F7; min-height: 100vh; display: flex; flex-direction: column; align-items: center; color: #111827; }
+        .phone-shell { width: 100%; max-width: 390px; min-height: 100vh; background: #F2F3F7; display: flex; flex-direction: column; }
+
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px 8px; }
+        .back-btn { width: 38px; height: 38px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 4px rgba(0,0,0,0.08); text-decoration: none; border: none; cursor: pointer; }
+        .back-btn svg { width: 18px; height: 18px; color: #111827; }
+        .avatar { width: 40px; height: 40px; background: #2563EB; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 700; }
+
+        .hero { padding: 16px 20px 0; animation: fadeUp .4s ease both; }
+        .hero-title { font-size: 24px; font-weight: 700; color: #111827; line-height: 1.2; }
+        .hero-sub { font-size: 14px; color: #6B7280; margin-top: 4px; line-height: 1.5; }
+
+        .image-card { margin: 12px 20px 0; background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); animation: fadeUp .4s .1s ease both; }
+        .aisle-img { width: 100%; height: 270px; object-fit: cover; object-position: center top; display: block; }
+        .image-caption { padding: 8px 16px 10px; font-size: 12px; color: #9CA3AF; font-weight: 500; text-align: center; }
+        .image-placeholder { width: 100%; height: 120px; background: linear-gradient(135deg,#e0e7ef,#c7d2e0); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+        .image-placeholder svg { width: 36px; height: 36px; color: #94A3B8; }
+        .image-placeholder span { font-size: 12px; color: #94A3B8; font-weight: 500; }
+
+        .sort-bar-wrap { padding: 12px 20px 0; animation: fadeUp .4s .12s ease both; }
+        .sort-bar { display: flex; gap: 4px; background: #E5E7EB; border-radius: 12px; padding: 3px; }
+        .sort-btn { flex: 1; padding: 7px 4px; border: none; border-radius: 9px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; color: #6B7280; background: transparent; cursor: pointer; transition: background .18s, color .18s, box-shadow .18s; white-space: nowrap; }
+        .sort-btn.active { background: #fff; color: #111827; box-shadow: 0 1px 6px rgba(0,0,0,0.1); }
+
+        .selector-section { padding: 12px 20px 0; animation: fadeUp .4s .15s ease both; position: relative; z-index: 5; }
+        .selector-section:has(.combobox-dropdown.open),
+        .selector-section.has-open-dropdown { z-index: 1000; }
+        .selector-row { display: flex; gap: 12px; }
+        .selector-group { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .selector-label { font-size: 11px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: .5px; padding-left: 4px; }
+
+        .combobox { position: relative; z-index: 50; }
+        .combobox.combobox-open,
+        .combobox:has(.combobox-dropdown.open) { z-index: 1000; }
+        .combobox-input-wrap { background: #fff; border: 1.5px solid #E5E7EB; border-radius: 14px; display: flex; align-items: center; padding: 0 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: border-color .15s, box-shadow .15s; cursor: pointer; user-select: none; -webkit-user-select: none; }
+        .combobox-input-wrap.open { border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        .combobox-input-wrap.error { border-color: #EF4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.1); }
+        .combobox-input-wrap:focus { outline: none; border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        .combobox-display { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 600; color: #111827; padding: 13px 0; text-align: center; min-height: 22px; pointer-events: none; }
+        .combobox-placeholder { color: #9CA3AF; font-weight: 400; }
+        .combobox-chevron { width: 18px; height: 18px; color: #9CA3AF; transition: transform .2s; flex-shrink: 0; pointer-events: none; }
+        .combobox-chevron.rotated { transform: rotate(180deg); }
+        .combobox-dropdown { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: #fff; border: 1.5px solid #E5E7EB; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); z-index: 100; max-height: 220px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; display: none; }
+        .combobox-dropdown.open { display: block; }
+        .combobox-dropdown::-webkit-scrollbar { width: 4px; }
+        .combobox-dropdown::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 4px; }
+        .combobox-option { padding: 12px 16px; font-size: 15px; font-weight: 500; color: #111827; cursor: pointer; transition: background .1s; display: flex; align-items: center; justify-content: space-between; }
+        .combobox-option:first-child { border-radius: 13px 13px 0 0; }
+        .combobox-option:last-child  { border-radius: 0 0 13px 13px; }
+        .combobox-option:active, .combobox-option.highlighted { background: #EFF6FF; color: #2563EB; }
+        .combobox-option.selected { background: #2563EB; color: #fff; }
+        .combobox-no-results { padding: 14px 16px; font-size: 14px; color: #9CA3AF; text-align: center; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .dot-installed { background: #059669; } .dot-flagged { background: #D97706; } .dot-partial { background: #F59E0B; } .dot-uninstalled { background: #CBD5E1; }
+
+        .status-slot { position: relative; margin-top: 12px; min-height: 40px; }
+        .status-badge { position: absolute; inset: 0; background: #EFF6FF; border: 1.5px solid #BFDBFE; border-radius: 12px; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; opacity: 0; pointer-events: none; transition: opacity .2s; }
+        .status-badge.visible { opacity: 1; pointer-events: all; }
+        .badge-label { font-size: 11px; font-weight: 700; color: #2563EB; text-transform: uppercase; letter-spacing: .5px; }
+        .badge-value { font-size: 16px; font-weight: 800; color: #2563EB; }
+        .status-error { position: absolute; inset: 0; background: #FEF2F2; border: 1.5px solid #FECACA; border-radius: 12px; padding: 9px 14px; font-size: 13px; color: #DC2626; font-weight: 600; display: flex; align-items: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
+        .status-error.visible { opacity: 1; pointer-events: all; }
+
+        .nav-area { display: flex; gap: 10px; padding: 12px 20px 20px; animation: fadeUp .4s .25s ease both; position: relative; z-index: 1; }
+        .btn-back-nav { padding: 15px 20px; background: #fff; color: #6B7280; border: 1.5px solid #E5E7EB; border-radius: 16px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; text-decoration: none; transition: transform .15s; flex-shrink: 0; }
+        .btn-back-nav:active { transform: scale(.975); }
+        .btn-back-nav svg { width: 16px; height: 16px; }
+        .btn-next { flex: 1; padding: 15px; background: #2563EB; color: #fff; border: none; border-radius: 16px; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform .15s, box-shadow .15s; box-shadow: 0 4px 14px rgba(37,99,235,0.3); }
+        .btn-next:active { transform: scale(.975); }
+        .btn-next svg { width: 18px; height: 18px; }
+
+        @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    </style>
+</head>
+<body>
+<div class="phone-shell">
+
+    <div class="top-bar" style="position:relative;">
+        <a href="flow_pick.html" class="back-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </a>
+        <a href="flow_pick.html" style="position:absolute;left:50%;transform:translateX(-50%);width:38px;height:38px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.08);text-decoration:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </a>
+        <div class="avatar">CW</div>
+    </div>
+
+    <div class="hero">
+        <div class="hero-title">Select Aisle</div>
+        <div class="hero-sub">Enter the alphanumeric code from the location marker at the edge of the top shelf.</div>
+    </div>
+
+    <div class="image-card">
+        <img src="aisle.png" alt="Aisle Diagram" class="aisle-img"
+             onerror="this.parentElement.innerHTML='<div class=\'image-placeholder\'><svg viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.5\'><path d=\'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\'/></svg><span>Aisle diagram</span></div>'">
+    </div>
+
+    <div class="sort-bar-wrap">
+        <div class="sort-bar">
+            <button class="sort-btn active" id="btn-uninstalled" onclick="setFilter('uninstalled')">Uninstalled</button>
+            <button class="sort-btn"        id="btn-flagged"     onclick="setFilter('flagged')">Flagged</button>
+            <button class="sort-btn"        id="btn-installed"   onclick="setFilter('installed')">Installed</button>
+            <button class="sort-btn"        id="btn-all"         onclick="setFilter('all')">All</button>
+        </div>
+    </div>
+
+    <div class="selector-section">
+        <div class="selector-row">
+            <div class="selector-group">
+                <div class="selector-label">Letter</div>
+                <div class="combobox">
+                    <div class="combobox-input-wrap" id="letterInputWrap" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
+                        <div class="combobox-display" id="letterDisplay"><span class="combobox-placeholder">A – Z</span></div>
+                        <svg class="combobox-chevron" id="letterChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                    </div>
+                    <div class="combobox-dropdown" id="letterDropdown" role="listbox"></div>
+                </div>
+            </div>
+            <div class="selector-group">
+                <div class="selector-label">Number</div>
+                <div class="combobox">
+                    <div class="combobox-input-wrap" id="numberInputWrap" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false">
+                        <div class="combobox-display" id="numberDisplay"><span class="combobox-placeholder">1 – 30</span></div>
+                        <svg class="combobox-chevron" id="numberChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                    </div>
+                    <div class="combobox-dropdown" id="numberDropdown" role="listbox"></div>
+                </div>
+            </div>
+        </div>
+        <div class="status-slot" id="statusSlot">
+            <div class="status-badge" id="selectedBadge">
+                <div class="badge-label">Selected Aisle</div>
+                <div class="badge-value" id="badgeValue">—</div>
+            </div>
+            <div class="status-error" id="errorMsg"></div>
+        </div>
+    </div>
+
+    <div class="nav-area">
+        <a href="flow_pick.html" class="btn-back-nav">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            Back
+        </a>
+        <button class="btn-next" id="nextBtn" onclick="validateAndGo()">
+            Next
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+    </div>
+
+</div>
+<script>
+    const ALL_LETTERS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+    const ALL_NUMBERS = Array.from({length: 30}, (_, i) => String(i + 1));
+
+    let selectedLetter = '', selectedNumber = '', currentFilter = 'uninstalled';
+
+    // Aisle-level status rules:
+    // uninstalled = has at least one uninstalled section
+    // flagged     = has at least one flagged section
+    // installed   = every section is installed (complete)
+    // An aisle can qualify for multiple tabs simultaneously
+    const SECTION_SEEDS_P3 = {
+        'A8':  { installed:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], flagged:{} },
+        'A9':  { installed:[1,2,3,4,5,6,7,8,9,10,11,12,13,14],       flagged:{} },
+        'A10': { installed:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], flagged:{} },
+        'A11': { installed:[1,2,3,5,6,7,8,10,11,12,13,14,15,16],     flagged:{4:true, 9:true} },
+        'A12': { installed:[], flagged:{} },
+        'A13': { installed:[], flagged:{} },
+        'A14': { installed:[1,2,3,4,5,7,8,9], flagged:{6:true} },
+        'A15': { installed:[], flagged:{} },
+        'A16': { installed:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], flagged:{} },
+        'A17': { installed:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], flagged:{} },
+        'A18': { installed:[1,2,3], flagged:{} },
+        'A19': { installed:[], flagged:{} },
+        'H12': { installed:[], flagged:{} },
+        'H13': { installed:[], flagged:{} },
+    };
+    // Per-aisle section lists — 8ft sections show as N-L and N-R
+    const AISLE_SECTIONS = {
+        'A8':  ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16'],
+        'A9':  ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16'],
+        'A10': ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16'],
+        'A11': ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16'],
+        'A12': ['1','2','3-L','3-R','4','5','6','7','8','9','10','11','12','13','14','15','16'],
+        'A13': ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16'],
+        'A14': ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16'],
+        'A15': ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16'],
+        'A16': ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16'],
+        'A17': ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16'],
+        'A18': ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16'],
+        'A19': ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16'],
+        'H12': ['1','2','3-L','3-R','4','5-L','5-R','6','7','8'],
+        'H13': ['1','2','3-L','3-R','4','5-L','5-R','6','7','8'],
+    };
+    const TOTAL_SEC = 16;
+
+    function aisleQualifies(l, n) {
+        const key  = l + n;
+        const seed = SECTION_SEEDS_P3[key];
+        if (!seed) {
+            // Unknown aisle — treat as uninstalled
+            return currentFilter === 'all' || currentFilter === 'uninstalled';
+        }
+        const totalInstalled = seed.installed.length;
+        const totalFlagged   = Object.keys(seed.flagged).length;
+        const hasUninstalled = (totalInstalled + totalFlagged) < TOTAL_SEC;
+        const hasFlagged     = totalFlagged > 0;
+        const fullyInstalled = totalInstalled === TOTAL_SEC;
+
+        if (currentFilter === 'all')         return true;
+        if (currentFilter === 'uninstalled') return hasUninstalled;
+        if (currentFilter === 'flagged')     return hasFlagged;
+        if (currentFilter === 'installed')   return fullyInstalled;
+        return false;
+    }
+
+    function filteredLetters() {
+        if (currentFilter === 'all') return ALL_LETTERS;
+        return ALL_LETTERS.filter(l => ALL_NUMBERS.some(n => aisleQualifies(l, n)));
+    }
+
+    function getSections(letter, number) {
+        const key = letter + number;
+        // Check sessionStorage first
+        try {
+            const stored = sessionStorage.getItem('addedSections_' + key);
+            if (stored) return JSON.parse(stored);
+        } catch(e) {}
+        // Fall back to seed data
+        return AISLE_SECTIONS[key] || ALL_NUMBERS;
+    }
+
+    function filteredNumbers(letter) {
+        if (!letter) return currentFilter === 'all' ? ALL_NUMBERS : [];
+        // For each aisle number, check if the aisle qualifies
+        // Collect all unique aisle numbers visible under this letter
+        const aisleNums = currentFilter === 'all'
+            ? ALL_NUMBERS
+            : ALL_NUMBERS.filter(n => aisleQualifies(letter, n));
+        return aisleNums;
+    }
+
+    function getSectionsForSelected() {
+        if (!selectedLetter || !selectedNumber) return [];
+        return getSections(selectedLetter, selectedNumber);
+    }
+
+    function dotClass(letter, number) {
+        const key  = letter + number;
+        const seed = SECTION_SEEDS_P3[key];
+        if (!seed) return 'dot-uninstalled';
+        const fullyInstalled = seed.installed.length === TOTAL_SEC;
+        const hasFlagged     = Object.keys(seed.flagged).length > 0;
+        const hasUninstalled = (seed.installed.length + Object.keys(seed.flagged).length) < TOTAL_SEC;
+        if (fullyInstalled)  return 'dot-installed';
+        if (hasFlagged)      return 'dot-flagged';
+        if (!hasUninstalled) return 'dot-installed';
+        return 'dot-partial';
+    }
+
+    function renderLetterDropdown() {
+        const dd = document.getElementById('letterDropdown');
+        const matches = filteredLetters();
+        dd.innerHTML = matches.length ? '' : '<div class="combobox-no-results">No matches</div>';
+        matches.forEach(l => {
+            const d = document.createElement('div');
+            d.className = 'combobox-option' + (l === selectedLetter ? ' selected' : '');
+            d.setAttribute('role', 'option');
+            d.innerHTML = `<span>${l}</span>`;
+            d.addEventListener('click', e => { e.stopPropagation(); pickLetter(l); });
+            dd.appendChild(d);
+        });
+    }
+
+    function renderNumberDropdown() {
+        const dd = document.getElementById('numberDropdown');
+        const matches = filteredNumbers(selectedLetter);
+        dd.innerHTML = matches.length ? '' : '<div class="combobox-no-results">No matches</div>';
+        matches.forEach(n => {
+            const d = document.createElement('div');
+            d.className = 'combobox-option' + (n === selectedNumber ? ' selected' : '');
+            d.setAttribute('role', 'option');
+            d.innerHTML = `<span>${n}</span><span class="status-dot ${dotClass(selectedLetter, n)}"></span>`;
+            d.addEventListener('click', e => { e.stopPropagation(); pickNumber(n); });
+            dd.appendChild(d);
+        });
+    }
+
+    function setLetterDisplay(value) {
+        const el = document.getElementById('letterDisplay');
+        el.innerHTML = value ? value : '<span class="combobox-placeholder">A – Z</span>';
+    }
+
+    function setNumberDisplay(value) {
+        const el = document.getElementById('numberDisplay');
+        el.innerHTML = value ? value : '<span class="combobox-placeholder">1 – 30</span>';
+    }
+
+    function pickLetter(l) {
+        selectedLetter = l;
+        selectedNumber = '';
+        setLetterDisplay(l);
+        setNumberDisplay('');
+        document.getElementById('letterInputWrap').classList.remove('error');
+        closeDropdown('letter');
+        renderNumberDropdown();
+        updateBadge();
+    }
+
+    function pickNumber(n) {
+        selectedNumber = n;
+        setNumberDisplay(n);
+        document.getElementById('numberInputWrap').classList.remove('error');
+        closeDropdown('number');
+        updateBadge();
+    }
+
+    function openDropdown(which) {
+        // Close the other one first so only one is open at a time
+        const other = which === 'letter' ? 'number' : 'letter';
+        closeDropdown(other);
+        const dd = document.getElementById(which + 'Dropdown');
+        const wrap = document.getElementById(which + 'InputWrap');
+        const chev = document.getElementById(which + 'Chevron');
+        if (which === 'letter') renderLetterDropdown(); else renderNumberDropdown();
+        dd.classList.add('open');
+        wrap.classList.add('open');
+        wrap.setAttribute('aria-expanded', 'true');
+        chev.classList.add('rotated');
+        wrap.closest('.combobox').classList.add('combobox-open');
+        wrap.closest('.selector-section').classList.add('has-open-dropdown');
+    }
+
+    function closeDropdown(which) {
+        const dd = document.getElementById(which + 'Dropdown');
+        const wrap = document.getElementById(which + 'InputWrap');
+        const chev = document.getElementById(which + 'Chevron');
+        dd.classList.remove('open');
+        wrap.classList.remove('open');
+        wrap.setAttribute('aria-expanded', 'false');
+        chev.classList.remove('rotated');
+        wrap.closest('.combobox').classList.remove('combobox-open');
+        // Only remove section class if no other combobox is still open
+        const section = wrap.closest('.selector-section');
+        if (!section.querySelector('.combobox-dropdown.open')) {
+            section.classList.remove('has-open-dropdown');
+        }
+    }
+
+    function toggleDropdown(which) {
+        const dd = document.getElementById(which + 'Dropdown');
+        if (dd.classList.contains('open')) {
+            closeDropdown(which);
+        } else {
+            openDropdown(which);
+        }
+    }
+
+    function wireTrigger(which) {
+        const wrap = document.getElementById(which + 'InputWrap');
+        wrap.addEventListener('click', e => {
+            e.stopPropagation();
+            toggleDropdown(which);
+        });
+        wrap.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleDropdown(which);
+            } else if (e.key === 'Escape') {
+                closeDropdown(which);
+            }
+        });
+    }
+
+    wireTrigger('letter');
+    wireTrigger('number');
+
+    // Click outside closes any open dropdown
+    document.addEventListener('click', () => {
+        closeDropdown('letter');
+        closeDropdown('number');
+    });
+
+    function setFilter(f) {
+        currentFilter = f;
+        ['uninstalled','flagged','installed','all'].forEach(k =>
+            document.getElementById('btn-' + k).classList.toggle('active', k === f));
+        selectedLetter = '';
+        selectedNumber = '';
+        setLetterDisplay('');
+        setNumberDisplay('');
+        document.getElementById('letterInputWrap').classList.remove('error');
+        document.getElementById('numberInputWrap').classList.remove('error');
+        updateBadge();
+    }
+
+    function updateBadge() {
+        const show = selectedLetter && selectedNumber;
+        document.getElementById('selectedBadge').classList.toggle('visible', !!show);
+        document.getElementById('badgeValue').textContent = show ? selectedLetter + selectedNumber : '—';
+        // Selection means any prior error is cleared
+        document.getElementById('errorMsg').classList.remove('visible');
+        document.getElementById('errorMsg').textContent = '';
+    }
+
+    function validateAndGo() {
+        const lw = document.getElementById('letterInputWrap');
+        const nw = document.getElementById('numberInputWrap');
+        let valid = true;
+        if (!selectedLetter) { lw.classList.add('error'); valid = false; } else lw.classList.remove('error');
+        if (!selectedNumber) { nw.classList.add('error'); valid = false; } else nw.classList.remove('error');
+        if (!valid) {
+            const err = document.getElementById('errorMsg');
+            err.textContent = 'Please select a valid letter and number.';
+            err.classList.add('visible');
+            document.getElementById('selectedBadge').classList.remove('visible');
+            return;
+        }
+        const aisleId = selectedLetter + selectedNumber;
+        sessionStorage.setItem('selectedAisle', aisleId);
+        // Seed first section for this aisle
+        const secs = getSections(selectedLetter, selectedNumber);
+        if (secs.length > 0) sessionStorage.setItem('selectedSection', secs[0]);
+        // Seed full section list so install_section/install_success can use it
+        sessionStorage.setItem('aisleSections_' + aisleId, JSON.stringify(secs));
+        window.location.href = 'install_section.html';
+    }
+
+    renderLetterDropdown();
+    renderNumberDropdown();
+</script>
+</body>
+</html>
